@@ -1,0 +1,30 @@
+@import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+.logo {
+	font-size: 40px;
+	font-weight: 700;
+}
+
+.empty-btn {
+	border: 0;
+	background: none;
+	padding: 0;
+}
+
+.button-color1 {
+	background-color: var(--color2);
+	color: var(--color1);
+	border: none;
+	border-radius: 10px;
+	padding: 10px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: 0.3s all;
+	text-decoration: none;
+}
+
+.button-color1:hover {
+	background-color: var(--color1);
+	color: var(--color2);
+}

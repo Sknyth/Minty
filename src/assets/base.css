@@ -1,0 +1,51 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	font-weight: normal;
+}
+
+html {
+	position: relative;
+	min-height: 100%;
+}
+
+:root {
+	--color1: #2d8a72;
+	--color2: #ffe4b5; /*8A2BE2 , */
+	--color3: #868695;
+}
+
+/* base styles */
+body {
+	min-height: 100vh;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-family: 'Jost', sans-serif;
+	padding-bottom: 165px;
+}
+button {
+	cursor: pointer;
+}
+
+/* CSS Variables */
+.color1 {
+	color: var(--color1);
+}
+.color2 {
+	color: var(--color2);
+}
+.color3 {
+	color: var(--color3);
+}
+.bg-color1 {
+	background-color: var(--color1);
+}
+.bg-color2 {
+	background-color: var(--color2);
+}
+.bg-color3 {
+	background-color: var(--color3);
+}
