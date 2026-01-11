@@ -5,10 +5,12 @@ const store = createStore({
 	state() {
 		return {
 			items: [],
+			cartItems: [],
 		}
 	},
 	getters: {
 		allItems: state => state.items,
+		cartItems: state => state.cartItems
 	},
 	actions: {
 		async fetchItems({ commit }) {
@@ -19,8 +21,19 @@ const store = createStore({
 		},
 	},
 	mutations: {
-		setItems: (state, items) => (state.items = items),
+		setItems(state, items) {
+			state.items = items
+		},
+		ADD_TO_CART(state, item) {
+     		state.cartItems.push({...item, id: Date.now()})
+    	},
+		REMOVE_FROM_CART(state, id){
+			state.cartItems = state.cartItems.filter(item => item.id !== id)
+		},
+		
+
 	},
+	
 })
 
 export default store

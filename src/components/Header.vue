@@ -19,7 +19,7 @@
 
 				<a href="#"><img src="/login.svg" alt="" /></a>
 
-				<RouterLink to="/EmptyCart"><img src="/cart.svg" alt="" /></RouterLink>
+				<RouterLink to="/Cart"><img src="/cart.svg" alt="" /></RouterLink>
 			</div>
 		</div>
 	</header>
