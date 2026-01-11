@@ -1,4 +1,6 @@
-<script lang="ts"></script>
+<script setup lang="ts">
+import ModalAuth from './ModalAuth.vue';
+</script>
 
 <template>
 	<header class="header bg-color1">
@@ -17,7 +19,7 @@
 					><img src="/favorite(heart).svg" alt=""
 				/></RouterLink>
 
-				<a href="#"><img src="/login.svg" alt="" /></a>
+				<ModalAuth />
 
 				<RouterLink to="/Cart"><img src="/cart.svg" alt="" /></RouterLink>
 			</div>

@@ -115,10 +115,11 @@ export default {
 }
 
 .total-box {
-	height: 380px;
+	height: 360px;
 	width: 300px;
 	border-radius: 10px;
 	padding: 24px;
+	margin-left: auto;
 }
 .total-box p {
 	margin: 4px;

@@ -53,12 +53,12 @@
             </div>
 
         </div>
+        <hr/>
 
 </template>
 
 <style scoped>
 .item {
-    margin-top: 40px;
     margin-right: 40px;
     width: 900px;
     height: 160px;
