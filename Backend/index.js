@@ -12,9 +12,9 @@ const JWT_SECRET = 'super_secret_key';
 
 // ===== Регистрация =====
 app.post('/api/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password || !name) {
     return res.status(400).json({ message: 'Заполните все поля' });
   }
 
@@ -27,6 +27,7 @@ app.post('/api/register', async (req, res) => {
 
   const user = {
     id: Date.now(),
+    name,
     email,
     password: hashedPassword,
   };
@@ -34,7 +35,7 @@ app.post('/api/register', async (req, res) => {
   users.push(user);
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, name: user.name },
     JWT_SECRET,
     { expiresIn: '1h' }
   );
@@ -44,7 +45,7 @@ app.post('/api/register', async (req, res) => {
 
 // ===== Логин =====
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
 
   const user = users.find(u => u.email === email);
   if (!user) {
@@ -57,7 +58,7 @@ app.post('/api/login', async (req, res) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, name: user.name },
     JWT_SECRET,
     { expiresIn: '1h' }
   );

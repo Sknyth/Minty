@@ -22,10 +22,11 @@ const store = createStore({
 			)
 			commit('setItems', response.data)
 		},
-		async login({ commit }, { email, password }) {
+		async login({ commit }, { email, password, name  }) {
 		const res = await axios.post('http://localhost:3000/api/login', {
 			email,
 			password,
+			name
 		});
 
 		const token = res.data.token;
@@ -34,10 +35,11 @@ const store = createStore({
 		commit('SET_TOKEN', token);
 		},
 
-		async register({ commit }, { email, password }) {
+		async register({ commit }, { email, password, name }) {
 		const res = await axios.post('http://localhost:3000/api/register', {
 			email,
 			password,
+			name
 		});
 
 		const token = res.data.token;

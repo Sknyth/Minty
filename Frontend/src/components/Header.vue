@@ -1,5 +1,17 @@
-<script setup lang="ts">
+<script lang="ts">
 // import ModalAuth from './ModalAuth.vue';
+export default {
+computed: {
+    user() {
+      return this.$store.state.user;
+    },
+  },
+  async mounted() {
+    if (!this.$store.state.user) {
+      await this.$store.dispatch('fetchProfile');
+    }
+  }
+};
 </script>
 
 <template>
@@ -21,7 +33,8 @@
 				
 				<!-- <ModalAuth logoModal="/login.svg" /> -->
 
-				<RouterLink to="/register"><img src="/login.svg" alt="" /></RouterLink>
+				<RouterLink v-if="!user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
+				<RouterLink v-else to="/profile"><img src="/login.svg" alt="" /></RouterLink>
 
 				<RouterLink to="/cart"><img src="/cart.svg" alt="" /></RouterLink>
 			</div>

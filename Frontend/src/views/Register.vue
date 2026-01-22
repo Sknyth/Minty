@@ -1,5 +1,4 @@
 <script>
-  import axios from 'axios';
   import Header from '../components/Header.vue';
   import Footer from '../components/Footer.vue';
   export default{
@@ -7,7 +6,8 @@
     data() {
       return {
         email: '',
-        password: ''
+        password: '',
+        name: '',
       };
     },
     methods: {
@@ -16,6 +16,7 @@
         await this.$store.dispatch('register', {
           email: this.email,
           password: this.password,
+          name: this.name,
         });
 
         this.$router.push('/profile');
@@ -31,12 +32,18 @@
 
 <template>
     <Header />
-    <div class=" d-flex justify-content-center">
-      <form action="post" class="bg-color1" @submit.prevent="register">
-          <!-- <div class="mb-3">
+      <div class="bg-color1 d-flex flex-column justify-content-center auth-box" >
+        <div class="d-flex flex-column align-items-center border-0">
+          <div class="d-flex flex-column align-items-center ">
+            <h1 class="modal-title fs-2 color2">Sign Up</h1>
+            <p class="text-light fw-light">Create a new account</p>
+          </div>
+        </div>
+        <form action="post" class="" @submit.prevent="register">
+          <div class="mb-3">
             <label for="exampleInputName2" class="form-label text-white">Name</label>
             <input v-model="name" type="text" class="form-control" id="exampleInputName2" aria-describedby="emailHelp" placeholder="Alex" />
-          </div> -->
+          </div>
           <div class="mb-3">
             <label for="exampleInputEmail2" class="form-label text-white">Email address</label>
             <input v-model="email" type="email" class="form-control" id="exampleInputEmail2" aria-describedby="emailHelp" placeholder="example@gmail.com" />
@@ -47,20 +54,23 @@
           </div>
           <button type="submit" class="btn bg-color2 color1 w-100">Sign Up</button>
         </form>
-    </div>
-    
+        <div class="d-flex justify-content-center mt-4">
+          <p class="text-light fw-light">Already have an account?</p>
+          <router-link to="/login" class="empty-btn color2">Sign In!</router-link>
+        </div>
+      </div>
     <Footer />
 </template>
 
 <style scoped>
-  form {
-    width: 400px;
-    margin: 150px auto;
-    padding: 20px;
-    border-radius: 8px;
-  }
-  .form-control {
-    border: none;
-  }
+.auth-box {
+  width: 400px;
+  margin: 150px auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+.form-control {
+  border: none;
+}
 
 </style>
