@@ -12,7 +12,7 @@ const JWT_SECRET = 'super_secret_key';
 
 // ===== Регистрация =====
 app.post('/api/register', async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, surname, phone } = req.body;
 
   if (!email || !password || !name) {
     return res.status(400).json({ message: 'Заполните все поля' });
@@ -30,12 +30,14 @@ app.post('/api/register', async (req, res) => {
     name,
     email,
     password: hashedPassword,
+    surname,
+    phone
   };
 
   users.push(user);
 
   const token = jwt.sign(
-    { id: user.id, email: user.email, name: user.name },
+    { id: user.id, email: user.email, name: user.name, surname: user.surname, phone: user.phone },
     JWT_SECRET,
     { expiresIn: '1h' }
   );
@@ -85,11 +87,49 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// ===== Защищённый роут =====
+// ===== Защищённый роут - получить профиль =====
 app.get('/api/profile', authMiddleware, (req, res) => {
+  const user = users.find(u => u.id === req.user.id);
+  if (!user) {
+    return res.status(404).json({ message: 'Пользователь не найден' });
+  }
+  
   res.json({
     message: 'Вы авторизованы',
-    user: req.user,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      surname: user.surname,
+      phone: user.phone
+    },
+  });
+});
+
+// ===== Защищённый роут - обновить профиль =====
+app.put('/api/profile', authMiddleware, (req, res) => {
+  const { name, surname, email, phone } = req.body;
+  
+  const user = users.find(u => u.id === req.user.id);
+  if (!user) {
+    return res.status(404).json({ message: 'Пользователь не найден' });
+  }
+  
+  // Обновляем данные
+  if (name) user.name = name;
+  if (surname) user.surname = surname;
+  if (email) user.email = email;
+  if (phone) user.phone = phone;
+  
+  res.json({
+    message: 'Профиль обновлен',
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      surname: user.surname,
+      phone: user.phone
+    },
   });
 });
 

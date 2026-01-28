@@ -6,11 +6,14 @@ computed: {
       return this.$store.state.user;
     },
   },
+  
   async mounted() {
-    if (!this.$store.state.user) {
+    // Только получаем профиль если авторизованы
+    if (this.$store.state.isAuth && !this.$store.state.user) {
       await this.$store.dispatch('fetchProfile');
     }
   }
+
 };
 </script>
 

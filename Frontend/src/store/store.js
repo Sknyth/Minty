@@ -26,7 +26,7 @@ const store = createStore({
 		const res = await axios.post('http://localhost:3000/api/login', {
 			email,
 			password,
-			name
+			name,
 		});
 
 		const token = res.data.token;
@@ -46,17 +46,53 @@ const store = createStore({
 
 		localStorage.setItem('token', token);
 		commit('SET_TOKEN', token);
-		},
+	},
+
+		
 
 		async fetchProfile({ commit, state }) {
-		const res = await axios.get('http://localhost:3000/api/profile', {
-			headers: {
-			Authorization: `Bearer ${state.token}`,
-			},
-		});
+		if (!state.token) {
+			return;
+		}
 
-		commit('SET_USER', res.data.user);
+		try {
+			const res = await axios.get('http://localhost:3000/api/profile', {
+				headers: {
+					Authorization: `Bearer ${state.token}`,
+				},
+			});
+
+			commit('SET_USER', res.data.user);
+		} catch (error) {
+			console.error('Fetch profile failed:', error);
+			if (error.response?.status === 401) {
+				commit('LOGOUT');
+			}
+		}
+	},
+
+	async updateProfile({ commit, state }, { name, surname, email, phone }) {
+		try {
+			const res = await axios.put('http://localhost:3000/api/profile', {
+				name,
+				surname,
+				email,
+				phone,
+			}, {
+				headers: {
+					Authorization: `Bearer ${state.token}`,
+				},
+			});
+
+			commit('SET_USER', res.data.user);
+			return res.data;
+		} catch (error) {
+			console.error('Profile update failed:', error);
+			throw error;
+		}
 		},
+
+
 
 		logout({ commit }) {
 		localStorage.removeItem('token');
@@ -86,7 +122,6 @@ const store = createStore({
 		state.isAuth = false;
 		},
 		
-
 	},
 	
 })
