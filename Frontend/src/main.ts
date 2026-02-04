@@ -12,5 +12,8 @@ const app = createApp(App)
 
 app.use(router)
 app.use(store)
+store.dispatch('getUser').then(() => {
+  app.mount('#app')
+})
 
-app.mount('#app')
+

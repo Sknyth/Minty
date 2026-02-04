@@ -1,18 +1,13 @@
 <template>
   <Header />
   <div class="bg-color1 d-flex flex-column justify-content-center auth-box" >
-    <!-- <h2>Вход</h2>
-    <input v-model="email" placeholder="Email" />
-    <input v-model="password" type="password" placeholder="Пароль" />
-    <button @click="login">Войти</button>
-    <p>{{ message }}</p> -->
     <div class="d-flex flex-column align-items-center">  
         <div class="d-flex flex-column align-items-center ">
           <h1 class="fs-2 color2">Sign In</h1>
           <p class="text-light fw-light">Sign in to your account</p>
       </div>
     </div>
-    <form @submit.prevent="login" class="bg-color1">
+    <form @submit.prevent="signIn" class="bg-color1">
       <div class="mb-3">
         <label for="exampleInputEmail1" class="form-label text-white">Email address</label>
         <input v-model="email" type="email" class="form-control" aria-describedby="emailHelp" placeholder="example@gmail.com" />
@@ -25,8 +20,11 @@
         <input type="checkbox" class="form-check-input" />
         <label class="form-check-label text-white">Remember me</label>
       </div>
-      <button @click="login" type="submit" class="btn bg-color2 color1 w-100">Sign In</button>
+      <button type="submit" class="btn bg-color2 color1 w-100">Sign In</button>
     </form>
+    <div class="error">
+      <p class="text-danger">{{ message }}</p>
+    </div>
     <div class="d-flex justify-content-center mt-4">
         <p class="text-light fw-light">Don't have an account yet?</p>
         <router-link to="/register" class="empty-btn color2">Sign up!</router-link>
@@ -44,16 +42,16 @@ export default {
     return { email: '', password: '', message: '' };
   },
   methods: {
-    async login() {
+    async signIn() {
       try {
-        await this.$store.dispatch('login', {
+        await this.$store.dispatch('signIn', {
           email: this.email,
           password: this.password,
         });
 
         this.$router.push('/profile');
       } catch (e) {
-        this.message = 'Ошибка входа';
+        this.message = e.message || 'Ошибка входа';
       }
     },
   },
@@ -69,6 +67,13 @@ export default {
 }
 .form-control {
   border: none;
+}
+.error {
+  margin-top: 10px;
+}
+.error p {
+  padding: 0;
+  margin: 0;
 }
 
 </style>

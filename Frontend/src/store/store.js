@@ -1,19 +1,23 @@
 import axios from 'axios'
 import { createStore } from 'vuex'
+import { supabase } from '../supabase.js'
 
 const store = createStore({
 	state() {
 		return {
 			items: [],
 			cartItems: [],
-			token: localStorage.getItem('token') || null,
 			user: null,
-			isAuth: !!localStorage.getItem('token'),
+			isAuth: false,
+			profile: null,
 		}
 	},
 	getters: {
 		allItems: state => state.items,
-		cartItems: state => state.cartItems
+		cartItems: state => state.cartItems,
+		isAuth: (state) => !!state.user,
+    	user: (state) => state.user,
+		profile: (state) => state.profile,
 	},
 	actions: {
 		async fetchItems({ commit }) {
@@ -22,81 +26,45 @@ const store = createStore({
 			)
 			commit('setItems', response.data)
 		},
-		async login({ commit }, { email, password, name  }) {
-		const res = await axios.post('http://localhost:3000/api/login', {
-			email,
-			password,
-			name,
-		});
 
-		const token = res.data.token;
-
-		localStorage.setItem('token', token);
-		commit('SET_TOKEN', token);
-		},
-
-		async register({ commit }, { email, password, name }) {
-		const res = await axios.post('http://localhost:3000/api/register', {
-			email,
-			password,
-			name
-		});
-
-		const token = res.data.token;
-
-		localStorage.setItem('token', token);
-		commit('SET_TOKEN', token);
-	},
-
-		
-
-		async fetchProfile({ commit, state }) {
-		if (!state.token) {
-			return;
-		}
-
-		try {
-			const res = await axios.get('http://localhost:3000/api/profile', {
-				headers: {
-					Authorization: `Bearer ${state.token}`,
-				},
-			});
-
-			commit('SET_USER', res.data.user);
-		} catch (error) {
-			console.error('Fetch profile failed:', error);
-			if (error.response?.status === 401) {
-				commit('LOGOUT');
-			}
-		}
-	},
-
-	async updateProfile({ commit, state }, { name, surname, email, phone }) {
-		try {
-			const res = await axios.put('http://localhost:3000/api/profile', {
-				name,
-				surname,
+		async signUp({ commit }, { email, password, name}) {
+			const { data, error } = await supabase.auth.signUp({
 				email,
-				phone,
-			}, {
-				headers: {
-					Authorization: `Bearer ${state.token}`,
+				password,
+				options: {
+					data: {
+						name,
+					},
 				},
-			});
+			})
 
-			commit('SET_USER', res.data.user);
-			return res.data;
-		} catch (error) {
-			console.error('Profile update failed:', error);
-			throw error;
-		}
+
+			
+			if (error) throw error
+
+			commit('SET_USER', data.user)
+    	},
+
+		async signIn({ commit }, { email, password }) {
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email,
+				password,
+			})
+			if (error) throw error
+			commit('SET_USER', data.user)
 		},
 
+		async getUser({ commit }) {
+			const { data, error } = await supabase.auth.getUser()
+			if (error) throw error
+			commit('SET_USER', data.user)
+		},
 
-
-		logout({ commit }) {
-		localStorage.removeItem('token');
-		commit('LOGOUT');
+		async signOut({ commit }) {
+			const { error } = await supabase.auth.signOut()
+			if (error) throw error
+			commit('SET_USER', null)
+			commit('SET_PROFILE', null)
 		},
 	},
 	mutations: {
@@ -109,21 +77,16 @@ const store = createStore({
 		REMOVE_FROM_CART(state, id){
 			state.cartItems = state.cartItems.filter(item => item.id !== id)
 		},
-		SET_TOKEN(state, token) {
-		state.token = token;
-		state.isAuth = true;
-		},
 		SET_USER(state, user) {
-		state.user = user;
-		},
-		LOGOUT(state) {
-		state.token = null;
-		state.user = null;
-		state.isAuth = false;
-		},
+      		state.user = user
+			state.isAuth = !!user
+			if (!user) state.profile = null
+	    	},
+		SET_PROFILE(state, profile) {
+			state.profile = profile
 		
 	},
-	
+	},
 })
 
 export default store

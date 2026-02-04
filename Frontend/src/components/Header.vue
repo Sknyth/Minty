@@ -8,8 +8,7 @@ computed: {
   },
   
   async mounted() {
-    // Только получаем профиль если авторизованы
-    if (this.$store.state.isAuth && !this.$store.state.user) {
+    if (this.$store.getters.isAuth && !this.$store.state.user) {
       await this.$store.dispatch('fetchProfile');
     }
   }

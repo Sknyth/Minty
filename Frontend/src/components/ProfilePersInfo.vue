@@ -1,59 +1,73 @@
 <script>
+import { supabase } from '../supabase.js';
+import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
       ToggleChange: false,
+      profile: { name: '', surname: ''}
     };
   },
   computed: {
-    user() {
-      return this.$store.state.user;
-    },
-  },
-  async mounted() {
-    if (!this.$store.state.user) {
-      await this.$store.dispatch('fetchProfile');
-    }
-  },
+    ...mapGetters(['user']),
+  }, 
+  // async mounted() {
+  //   if (!this.$store.state.user) {
+  //     await this.$store.dispatch('fetchProfile');
+  //   }
+  // },
   methods: {
-    logout() {
-      this.$store.dispatch('logout');
-      this.$router.push('/login');
-    },
-    async change() {
+    async updateProfile() {
       try {
-        await this.$store.dispatch('updateProfile', {
-          name: this.user.name,
-          surname: this.user.surname,
-          email: this.user.email,
-          phone: this.user.phone,
-        });
-        await this.$store.dispatch('fetchProfile');
-        this.ToggleChange = false;
+        const { error } = await supabase
+          .from('profiles')
+          .update({ name: this.profile.name })
+          .eq('id', this.user.id);
+
+        if (error) throw error;
+        alert('Profile updated!');
       } catch (e) {
-        console.error(e);
-        alert('Error updating profile' + e);
+        alert(e.message);
       }
     },
-    
-  },
+    async fetchProfile() {
+      if (!this.user) return;
+      
+      try {
+        this.loading = true;
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', this.user.id)
+          .single();
+
+        if (error) throw error;
+        this.profile = data;
+      } catch (e) {
+        console.error('Error fetching profile:', e.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+  }
 };
 
 </script>
 
 <template>
-    <div class="personal-information">
+  <div>
+    <div v-if="profile && user" class="personal-information">
       <h2>Personal Information</h2>
-      <form @submit.prevent="change" class="d-flex gap-4 form-change-info justify-content-between row">
+      <form @submit.prevent="updateProfile" class="d-flex gap-4 form-change-info justify-content-between row">
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Name</label>
-          <input v-if="ToggleChange" v-model="user.name" type="text">
-          <p v-else>{{ user.name }}</p>
+          <input v-if="ToggleChange" v-model="profile.name" type="text">
+          <p v-else>{{ profile.name }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Surname</label>
-          <input v-if="ToggleChange" v-model="user.surname" type="text">
-          <p v-else>{{ user.surname }}</p>
+          <input v-if="ToggleChange" v-model="profile.surname" type="text">
+          <p v-else>{{ profile.surname }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Email</label>
@@ -68,8 +82,11 @@ export default {
         <button v-if="this.ToggleChange" type="submit" class="button-color1 btn-change">Save Changes</button>
         <button v-else type="button" class="button-color1 btn-change" @click="ToggleChange = !ToggleChange">Change</button>
       </form>
-      
     </div>
+    <div v-else class="personal-information">
+      <p>Loading personal information...</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>

@@ -1,4 +1,6 @@
 <script>
+import { mapGetters } from 'vuex';
+import { supabase } from '../supabase.js';
 import Header from '../components/Header.vue';
 import Footer from '../components/Footer.vue';
 import ProfilePersInfo from '../components/ProfilePersInfo.vue';
@@ -10,36 +12,55 @@ export default {
   components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
   data() {
     return {
+      loading: true,
       selectedOption: 'Profile',
+      profile: { name: '' }
     };
   },
   computed: {
-    user() {
-      return this.$store.state.user;
-    },
-  },
+    ...mapGetters(['user']),
+  },  
   async mounted() {
-    if (!this.$store.state.user) {
-      await this.$store.dispatch('fetchProfile');
+    if (this.user) {
+      await this.fetchProfile();
     }
   },
   methods: {
-    logout() {
-      this.$store.dispatch('logout');
-      this.$router.push('/login');
-    },
-    async change() {
+    async fetchProfile() {
+      if (!this.user) return;
+      
       try {
-        await this.$store.dispatch('updateProfile', {
-          name: this.user.name,
-          surname: this.user.surname,
-          email: this.user.email,
-          phone: this.user.phone,
-        });
-        alert('Profile updated successfully');
+        this.loading = true;
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', this.user.id)
+          .single();
+
+        if (error) throw error;
+        this.profile = data;
       } catch (e) {
-        alert('Error updating profile');
+        console.error('Error fetching profile:', e.message);
+      } finally {
+        this.loading = false;
       }
+    },
+    async updateProfile() {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ name: this.profile.name })
+          .eq('id', this.user.id);
+
+        if (error) throw error;
+        alert('Profile updated!');
+      } catch (e) {
+        alert(e.message);
+      }
+    },
+    logout() {
+      this.$store.dispatch('signOut');
+      this.$router.push('/login');
     },
     changeOption(event) {
       const buttons = event.currentTarget.parentNode.querySelectorAll('button');
@@ -55,11 +76,12 @@ export default {
 <template>
   <Header />
     <div class="container">
-      <div v-if="user">
+      <div v-if="profile">
 
         <div class="profile-card">
-          <h2>{{ user.name }}</h2>
+          <h2>{{ profile.name }}</h2>
           <p>{{ user.email }}</p>
+          <p>Created: {{ profile.created_at }}</p>
         </div>
 
         <div class="choice-option">
@@ -81,7 +103,13 @@ export default {
 
         <button class="btn btn-danger" id="btn-logout" @click="logout">Logout</button>
       </div>
-    </div>
+      <div v-else-if="loading">
+        <p class="text-center fs-4 mt-5">Loading profile...</p>
+      </div>
+      <div v-else>
+        <p class="text-center fs-4 mt-5">Please log in to view your profile.</p>
+      </div>
+    </div> 
   <Footer /> 
 </template>
 
