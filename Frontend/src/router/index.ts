@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import store from '@/store/store'
+import { supabase } from '../supabase.js'
 
 import Cart from '@/views/Cart.vue'
 import EmptyFavorite from '@/views/EmptyFavorite.vue'
@@ -24,11 +24,14 @@ const router = createRouter({
 	routes,
 })
 
-router.beforeEach((to, from, next) => {
-  const isAuth = store.getters.isAuth;
+router.beforeEach(async (to, from, next) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const isAuth = !!session;
 
   if (to.meta.requiresAuth && !isAuth) {
     next('/login');
+  } else if (to.path === '/login' && isAuth) {
+    next('/profile');
   } else {
     next();
   }
