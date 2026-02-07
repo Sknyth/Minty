@@ -1,5 +1,4 @@
 <script lang="ts">
-// import ModalAuth from './ModalAuth.vue';
 export default {
 computed: {
     user() {
@@ -29,11 +28,9 @@ computed: {
 			</div>
 
 			<div class="social-links d-flex">
-				<RouterLink to="/emptyFavorite"
-					><img src="/favorite(heart).svg" alt=""
-				/></RouterLink>
-				
-				<!-- <ModalAuth logoModal="/login.svg" /> -->
+				<RouterLink to="/emptyFavorite">
+					<img src="/favorite(heart).svg" alt=""/>
+				</RouterLink>
 
 				<RouterLink v-if="!user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
 				<RouterLink v-else to="/profile"><img src="/login.svg" alt="" /></RouterLink>

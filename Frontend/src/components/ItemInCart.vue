@@ -1,5 +1,10 @@
 <script>
+import { useToast } from "vue-toastification"
     export default {
+    setup() {
+      const toast = useToast();
+      return { toast }
+    },
     props: {
         title: String,
         price: Number,
@@ -7,6 +12,7 @@
         size: Number,
         id: Number,
     },
+    
     data(){
         return {
             k: 1,
@@ -15,6 +21,7 @@
     methods: {
         removeItem() {
             this.$emit('remove-item', this.id);
+            this.toast.success("Product removed!");
         },
         increaseCountItem() {
             this.k++;

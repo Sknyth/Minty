@@ -1,8 +1,14 @@
 <script>
-  import Header from '../components/Header.vue';
-  import Footer from '../components/Footer.vue';
+import Header from '../components/Header.vue';
+import Footer from '../components/Footer.vue';
+import { useToast } from "vue-toastification"
+
   export default{
     components: { Header, Footer },
+    setup() {
+      const toast = useToast();
+      return { toast }
+    },
     data() {
       return {
         email: '',
@@ -21,8 +27,17 @@
         });
 
         this.$router.push('/profile');
+        this.toast.success("Sign up successful!");
       } catch (e) {
-        this.message = e.message || 'Ошибка регистрации';
+        if(e.message === 'Signup requires a valid password'){
+          this.toast.error('Error: ' + 'Password is required');
+          return
+        }
+        if(e.message === 'Anonymous sign-ins are disabled'){
+          this.toast.error('Error: ' + 'All fields are required');
+          return
+        }
+        this.toast.error('Error: ' + e.message);
       }
     },
   },
@@ -55,9 +70,6 @@
           </div>
           <button type="submit" class="btn bg-color2 color1 w-100">Sign Up</button>
         </form>
-        <div class="error">
-          <p v-if="message" class="text-danger fw-bold">{{ message }}</p>
-        </div>
         <div class="d-flex justify-content-center mt-4">
           <p class="text-light fw-light">Already have an account?</p>
           <router-link to="/login" class="empty-btn color2">Sign In!</router-link>
@@ -76,12 +88,4 @@
 .form-control {
   border: none;
 }
-.error {
-  margin-top: 10px;
-}
-.error p {
-  padding: 0;
-  margin: 0;
-}
-
 </style>

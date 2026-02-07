@@ -1,66 +1,42 @@
 <script>
-import { mapGetters } from 'vuex';
-import { supabase } from '../supabase.js';
-import Header from '../components/Header.vue';
-import Footer from '../components/Footer.vue';
-import ProfilePersInfo from '../components/ProfilePersInfo.vue';
-import ProfileOrders from '../components/ProfileOrders.vue';
-import ProfileAddresses from '../components/ProfileAddresses.vue';
-import ProfilePayments from '../components/ProfilePayments.vue';
-import ProfileSettings from '../components/ProfileSettings.vue';
+import { mapGetters } from 'vuex'
+import { useToast } from "vue-toastification"
+import Footer from '../components/Footer.vue'
+import Header from '../components/Header.vue'
+import ProfileAddresses from '../components/ProfileAddresses.vue'
+import ProfileOrders from '../components/ProfileOrders.vue'
+import ProfilePayments from '../components/ProfilePayments.vue'
+import ProfilePersInfo from '../components/ProfilePersInfo.vue'
+import ProfileSettings from '../components/ProfileSettings.vue'
 export default {
   components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
+  setup() {
+    const toast = useToast();
+    return { toast }
+  },
   data() {
     return {
       loading: true,
       selectedOption: 'Profile',
-      profile: { name: '' }
     };
   },
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'profile']),
   },  
   async mounted() {
-    if (this.user) {
-      await this.fetchProfile();
-    }
+    this.$store.dispatch('fetchProfile')
   },
   methods: {
-    async fetchProfile() {
-      if (!this.user) return;
-      
-      try {
-        this.loading = true;
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', this.user.id)
-          .single();
-
-        if (error) throw error;
-        this.profile = data;
-      } catch (e) {
-        console.error('Error fetching profile:', e.message);
-      } finally {
-        this.loading = false;
-      }
-    },
-    async updateProfile() {
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ name: this.profile.name })
-          .eq('id', this.user.id);
-
-        if (error) throw error;
-        alert('Profile updated!');
-      } catch (e) {
-        alert(e.message);
-      }
-    },
     logout() {
-      this.$store.dispatch('signOut');
-      this.$router.push('/login');
+      try{
+        this.$store.dispatch('signOut');
+        this.$router.push('/login');
+        this.toast.success("Successful exit!");
+      } catch(e){
+        this.toast.error("Error: " + e.message);
+      }
+      
+
     },
     changeOption(event) {
       const buttons = event.currentTarget.parentNode.querySelectorAll('button');
@@ -102,6 +78,7 @@ export default {
         
 
         <button class="btn btn-danger" id="btn-logout" @click="logout">Logout</button>
+
       </div>
       <div v-else-if="loading">
         <p class="text-center fs-4 mt-5">Loading profile...</p>

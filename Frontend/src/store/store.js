@@ -17,7 +17,7 @@ const store = createStore({
 		allItems: state => state.items,
 		cartItems: state => state.cartItems,
 		isAuth: (state) => !!state.user,
-    	user: (state) => state.user,
+		user: (state) => state.user,
 		profile: (state) => state.profile,
 		allPayments: state => state.payment_methods
 	},
@@ -29,7 +29,7 @@ const store = createStore({
 			commit('setItems', response.data)
 		},
 
-		async signUp({ commit }, { email, password, name}) {
+		async signUp({ commit }, { email, password, name }) {
 			const { data, error } = await supabase.auth.signUp({
 				email,
 				password,
@@ -43,7 +43,7 @@ const store = createStore({
 			if (error) throw error
 
 			commit('SET_USER', data.user)
-    	},
+		},
 
 		async signIn({ commit }, { email, password }) {
 			const { data, error } = await supabase.auth.signInWithPassword({
@@ -56,7 +56,7 @@ const store = createStore({
 
 		async getUser({ commit }) {
 			const { data: { session } } = await supabase.auth.getSession()
-			
+
 			if (!session) {
 				commit('SET_USER', null)
 				commit('SET_PROFILE', null)
@@ -77,6 +77,39 @@ const store = createStore({
 			}
 		},
 
+		async fetchProfile({ commit, state }) {
+			if (!state.user) return
+
+
+			const { data: profile, error } = await supabase
+				.from('profiles')
+				.select('*')
+				.eq('id', state.user.id)
+				.single()
+
+			if (error) throw error
+			commit('SET_PROFILE', profile)
+		},
+
+		async updateProfile({ commit, state }, { name, surname }) {
+			if (!state.user || !state.user.id) {
+				throw new Error("User is not authorized")
+			}
+
+			const { data: updatedProfile, error } = await supabase
+				.from('profiles')
+				.update({
+					name,
+					surname,
+				})
+				.eq('id', state.user.id)
+				.select()
+				.single()
+
+			if (error) throw error
+			commit('SET_PROFILE', updatedProfile)
+		},
+
 		async fetchPaymentMethods({ commit, state }) {
 			if (!state.user) return
 			const { data: payment_methods, error } = await supabase
@@ -89,7 +122,7 @@ const store = createStore({
 
 		async addPaymentMethod({ dispatch, state }, { number, holder_name, expiration_date, cvv }) {
 			if (!state.user) throw new Error('User not authenticated')
-			
+
 			const { error } = await supabase
 				.from('payment_methods')
 				.insert([
@@ -101,7 +134,7 @@ const store = createStore({
 						cvv: cvv
 					}
 				])
-			
+
 			if (error) throw error
 			await dispatch('fetchPaymentMethods')
 		},
@@ -112,9 +145,9 @@ const store = createStore({
 				.delete()
 				.eq('id', id)
 			if (error) throw error
-			commit('REMOVE_PAYMENT_METHOD', id);
+			commit('REMOVE_PAYMENT_METHOD', id)
 		},
-		
+
 		async signOut({ commit }) {
 			const { error } = await supabase.auth.signOut()
 			if (error) throw error
@@ -122,23 +155,23 @@ const store = createStore({
 			commit('SET_PROFILE', null)
 			commit('SET_PAYMENT_METHODS', null)
 		},
-		
+
 	},
 	mutations: {
 		setItems(state, items) {
 			state.items = items
 		},
 		ADD_TO_CART(state, item) {
-     		state.cartItems.push({...item, id: Date.now()})
-    	},
-		REMOVE_FROM_CART(state, id){
+			state.cartItems.push({ ...item, id: Date.now() })
+		},
+		REMOVE_FROM_CART(state, id) {
 			state.cartItems = state.cartItems.filter(item => item.id !== id)
 		},
 		SET_USER(state, user) {
-      		state.user = user
+			state.user = user
 			state.isAuth = !!user
 			if (!user) state.profile = null
-	    	},
+		},
 		SET_PROFILE(state, profile) {
 			state.profile = profile
 		},

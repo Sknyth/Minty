@@ -1,12 +1,18 @@
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { useToast } from "vue-toastification"
+import { mapActions, mapGetters } from 'vuex'
 export default {
+    setup() {
+    const toast = useToast();
+    return { toast }
+  },
     data() {
         return {
             cardNumber: '',
             cardHolderName: '',
             cardExpirationDate: '',
             cardCvv: '',
+            toggleAddMethod: true,
         };
     },
     computed: {
@@ -32,20 +38,26 @@ export default {
                 this.cardExpirationDate = '';
                 this.cardCvv = '';
 
-                alert('Payment method added!');
+                this.toast.success("Payment method added!");
+
+                toggleAddMethod = !toggleAddMethod
             } catch (e) {
-                alert(e.message);
-                console.error('Error adding payment method:', e.message);
+                if(e.message === 'invalid input syntax for type bigint: ""'){
+                    this.toast.error('Error: ' + 'Fill in all fields');
+                    return
+                }
+                    
+                this.toast.error('Error: ' + e.message);
             }
         },
         async deletePaymentMethod(id) {
             try {
                 await this.$store.dispatch('deletePaymentMethod', id);
-                alert('Payment method deleted!');
+                this.toast.success("Method deleted successfully!");
+                this.ToggleChange = false;
             } catch (e) {
-                alert(e.message);
-                console.error('Error deleting payment method:', e.message);
-            }
+                this.toast.error("Error: " + e.message);
+            } 
         },
         getCardType(number) {
             const re = {
@@ -71,7 +83,7 @@ export default {
     <div>
         <h2>Payment methods</h2>
 
-        <div v-if="payment_methods.length > 0">
+        <div v-if="toggleAddMethod">
             <div class="row gap-3 justify-content-start">
                 <div v-for="method in payment_methods" :key="method.id" class="col payment-card">
                 <h4>{{ getCardType(method.number) }}</h4>
@@ -100,11 +112,12 @@ export default {
                 <label for="cardCvv">CVV</label>
                 <input v-model="cardCvv" type="text" placeholder="CVV">
             </div>
-            <button @click="addPaymentMethod(); toggleAddMethod = !toggleAddMethod" class="button-color1 mt-3" id="btn-save">Save</button>
+            <button @click="addPaymentMethod" class="button-color1 mt-3" id="btn-save">Save</button>
+            <button @click="toggleAddMethod = !toggleAddMethod" class="button-color1 mt-3" id="btn-save">Back</button>
         </div>
         
 
-        <button v-if="payment_methods.length > 0" class="button-color1 mt-3">+ Add payment methods</button>
+        <button @click="toggleAddMethod = !toggleAddMethod" v-if="toggleAddMethod" class="button-color1 mt-3">+ Add payment methods</button>
     </div>
 </template>
 

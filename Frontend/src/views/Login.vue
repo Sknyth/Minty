@@ -1,3 +1,43 @@
+<script>
+import { useToast } from "vue-toastification"
+import Footer from '../components/Footer.vue'
+import Header from '../components/Header.vue'
+export default {
+  components: { Header, Footer },
+  setup() {
+    const toast = useToast();
+    return { toast }
+  },
+  data() {
+    return { email: '', password: '', message: '' };
+  },
+  methods: {
+    async signIn() {
+      try {
+        await this.$store.dispatch('signIn', {
+          email: this.email,
+          password: this.password,
+        });
+
+        this.$router.push('/profile');
+        this.toast.success("Sign in successful!");
+      } catch (e) {
+        // this.message = e.message || 'Ошибка входа';
+        if(e.message === 'Invalid login credentials'){
+          this.toast.error('Error: ' + 'Email or password is incorrect');
+          return
+        }
+        if(e.message === 'missing email or phone'){
+          this.toast.error('Error: ' + 'All fields are required');
+          return
+        }
+        this.toast.error('Error: ' + e.message);
+      }
+    },
+  },
+};
+</script>
+
 <template>
   <Header />
   <div class="bg-color1 d-flex flex-column justify-content-center auth-box" >
@@ -22,9 +62,9 @@
       </div>
       <button type="submit" class="btn bg-color2 color1 w-100">Sign In</button>
     </form>
-    <div class="error">
+    <!-- <div class="error">
       <p class="text-danger">{{ message }}</p>
-    </div>
+    </div> -->
     <div class="d-flex justify-content-center mt-4">
         <p class="text-light fw-light">Don't have an account yet?</p>
         <router-link to="/register" class="empty-btn color2">Sign up!</router-link>
@@ -33,30 +73,6 @@
   <Footer />
 </template>
 
-<script>
-import Header from '../components/Header.vue';
-import Footer from '../components/Footer.vue';
-export default {
-  components: { Header, Footer },
-  data() {
-    return { email: '', password: '', message: '' };
-  },
-  methods: {
-    async signIn() {
-      try {
-        await this.$store.dispatch('signIn', {
-          email: this.email,
-          password: this.password,
-        });
-
-        this.$router.push('/profile');
-      } catch (e) {
-        this.message = e.message || 'Ошибка входа';
-      }
-    },
-  },
-};
-</script>
 
 <style scoped>
 .auth-box {

@@ -1,50 +1,38 @@
 <script>
-import { supabase } from '../supabase.js';
-import { mapGetters } from 'vuex';
+import { useToast } from "vue-toastification"
+import { mapGetters } from 'vuex'
 export default {
+  setup() {
+    const toast = useToast();
+    return { toast }
+  },
   data() {
     return {
       ToggleChange: false,
-      profile: { name: '', surname: ''}
     };
   },
   computed: {
-    ...mapGetters(['user']),
-  }, 
-  // async mounted() {
-  //   if (!this.$store.state.user) {
-  //     await this.$store.dispatch('fetchProfile');
-  //   }
-  // },
+    ...mapGetters(['user', 'profile']),
+  },  
+  async mounted() {
+    this.$store.dispatch('fetchProfile')
+  },
   methods: {
     async updateProfile() {
       try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ name: this.profile.name })
-          .eq('id', this.user.id);
-
-        if (error) throw error;
-        alert('Profile updated!');
+        await this.$store.dispatch('updateProfile',{
+          name: this.profile.name,
+					surname: this.profile.surname,
+        })
+        this.toast.success("Data saved successfully!");
+        this.ToggleChange = false;
       } catch (e) {
-        alert(e.message);
+        this.toast.error("Error: " + e.message);
       }
     },
-    async fetchProfile() {
-      if (!this.user) return;
-      
+    async fetchProfile(){
       try {
-        this.loading = true;
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', this.user.id)
-          .single();
-
-        if (error) throw error;
-        this.profile = data;
-      } catch (e) {
-        console.error('Error fetching profile:', e.message);
+        await this.$store.dispatch('fetchProfile')
       } finally {
         this.loading = false;
       }
@@ -79,7 +67,7 @@ export default {
           <input v-if="ToggleChange" v-model="user.phone" type="tel">
           <p v-else>{{ user.phone }}</p>
         </div>
-        <button v-if="this.ToggleChange" type="submit" class="button-color1 btn-change">Save Changes</button>
+        <button v-if="ToggleChange" type="submit" class="button-color1 btn-change">Save Changes</button>
         <button v-else type="button" class="button-color1 btn-change" @click="ToggleChange = !ToggleChange">Change</button>
       </form>
     </div>

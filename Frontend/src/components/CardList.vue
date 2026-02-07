@@ -19,11 +19,15 @@
 </template>
 
 <script>
+import { useToast } from "vue-toastification"
 import Card from './Card.vue'
 
 export default {
   components: { Card },
-
+  setup() {
+      const toast = useToast();
+      return { toast }
+  },
   computed: {
     items() {
       return this.$store.state.items
@@ -45,6 +49,8 @@ export default {
         imageURL,
         size
       })
+      this.toast.success("Product added!");
+
     }
   }
 }

@@ -1,14 +1,14 @@
 <script lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
-import ItemsInCart from '../components/ItemsInCart.vue';
+import ItemsInCart from '../components/ItemsInCart.vue'
 
 
 export default {
 	components: { Header, Footer, ItemsInCart },
 	computed: {
         cartItems() {
-        return this.$store.getters.cartItems
+        	return this.$store.getters.cartItems
         }
     },
 }
