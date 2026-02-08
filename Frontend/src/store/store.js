@@ -11,6 +11,7 @@ const store = createStore({
 			isAuth: false,
 			profile: null,
 			payment_methods: [],
+			addresses: []
 		}
 	},
 	getters: {
@@ -19,7 +20,8 @@ const store = createStore({
 		isAuth: (state) => !!state.user,
 		user: (state) => state.user,
 		profile: (state) => state.profile,
-		allPayments: state => state.payment_methods
+		allPayments: (state) => state.payment_methods,
+		addresses: (state) => state.addresses
 	},
 	actions: {
 		async fetchItems({ commit }) {
@@ -110,6 +112,74 @@ const store = createStore({
 			commit('SET_PROFILE', updatedProfile)
 		},
 
+		async fetchAddresses({ commit, state }) {
+			if (!state.user) return
+			const { data: addresses, error } = await supabase
+				.from('addresses')
+				.select('*')
+				.eq('user_id', state.user.id)
+			if (error) throw error
+			commit('SET_ADDRESSES', addresses)
+		},
+
+		async addAddress({ dispatch, state }, { country, city, street, house_number, apt, postcode, phone }) {
+			if (!state.user) throw new Error('User not authenticated')
+
+			const { error } = await supabase
+				.from('addresses')
+				.insert([
+					{
+						user_id: state.user.id,
+						country: country,
+						city: city,
+						street: street,
+						house_number: house_number,
+						apt: apt,
+						postcode: postcode,
+						phone: phone
+					}
+				])
+
+			if (error) throw error
+			await dispatch('fetchAddresses')
+		},
+
+		async updateAddress({ dispatch, state }, { id, country, city, street, house_number, apt, postcode, phone }) {
+			if (!state.user || !state.user.id) {
+				throw new Error("User is not authorized")
+			}
+
+			if (!id) {
+				throw new Error("Address ID is missing")
+			}
+
+
+			const { data: updatedAddress, error } = await supabase
+				.from('addresses')
+				.update({
+					country: country,
+					city: city,
+					street: street,
+					house_number: house_number,
+					apt: apt,
+					postcode: postcode,
+					phone: phone
+				})
+				.eq('id', id)
+
+			if (error) throw error
+			await dispatch('fetchAddresses')
+		},
+
+		async deleteAddress({ commit, state }, id) {
+			const { error } = await supabase
+				.from('addresses')
+				.delete()
+				.eq('id', id)
+			if (error) throw error
+			commit('REMOVE_ADDRESSES', id)
+		},
+
 		async fetchPaymentMethods({ commit, state }) {
 			if (!state.user) return
 			const { data: payment_methods, error } = await supabase
@@ -180,6 +250,12 @@ const store = createStore({
 		},
 		REMOVE_PAYMENT_METHOD(state, id) {
 			state.payment_methods = state.payment_methods.filter(method => method.id !== id)
+		},
+		SET_ADDRESSES(state, addresses) {
+			state.addresses = addresses
+		},
+		REMOVE_ADDRESSES(state, id) {
+			state.addresses = state.addresses.filter(address => address.id !== id)
 		}
 	},
 })
