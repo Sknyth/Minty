@@ -17,13 +17,26 @@ const store = createStore({
 	getters: {
 		allItems: state => state.items,
 		cartItems: state => state.cartItems,
-		isAuth: (state) => !!state.user,
-		user: (state) => state.user,
-		profile: (state) => state.profile,
-		allPayments: (state) => state.payment_methods,
-		addresses: (state) => state.addresses
+		isAuth: state => !!state.user,
+		user: state => state.user,
+		profile: state => state.profile,
+		allPayments: state => state.payment_methods,
+		addresses: state => state.addresses
 	},
 	actions: {
+		async initializeAuth({ dispatch, commit }) {
+			const { data: { session } } = await supabase.auth.getSession()
+			if (session) {
+				commit('SET_USER', session.user)
+				await Promise.all([
+					dispatch('fetchProfile'),
+					dispatch('fetchCart'),
+					dispatch('fetchAddresses'),
+					dispatch('fetchPaymentMethods')
+				])
+			}
+		},
+
 		async fetchItems({ commit }) {
 			const response = await axios.get(
 				'https://a2dd1e9285d8464a.mokky.dev/items'
@@ -47,13 +60,21 @@ const store = createStore({
 			commit('SET_USER', data.user)
 		},
 
-		async signIn({ commit }, { email, password }) {
+		async signIn({ commit, dispatch }, { email, password }) {
 			const { data, error } = await supabase.auth.signInWithPassword({
 				email,
 				password,
 			})
 			if (error) throw error
+
 			commit('SET_USER', data.user)
+
+			await Promise.all([
+				dispatch('fetchProfile'),
+				dispatch('fetchCart'),
+				dispatch('fetchAddresses'),
+				dispatch('fetchPaymentMethods')
+			])
 		},
 
 		async getUser({ commit }) {
@@ -223,7 +244,48 @@ const store = createStore({
 			if (error) throw error
 			commit('SET_USER', null)
 			commit('SET_PROFILE', null)
-			commit('SET_PAYMENT_METHODS', null)
+			commit('SET_PAYMENT_METHODS', [])
+			commit('SET_ADDRESSES', [])
+			commit('SET_CART', [])
+		},
+
+		async fetchCart({ commit, state }) {
+			if (!state.user) return
+			const { data: cart, error } = await supabase
+				.from('cart')
+				.select('*')
+				.eq('user_id', state.user.id)
+			if (error) throw error
+			commit('SET_CART', cart)
+		},
+
+		async addToCart({ dispatch, state }, { imageURL, title, price, description, size }) {
+			if (!state.user) throw new Error('User not authenticated')
+
+			const { error } = await supabase
+				.from('cart')
+				.insert([
+					{
+						user_id: state.user.id,
+						imageURL: imageURL,
+						title: title,
+						price: price,
+						description: description,
+						size: size
+					}
+				])
+
+			if (error) throw error
+			await dispatch('fetchCart')
+		},
+
+		async removeFromCart({ commit, state }, id) {
+			const { error } = await supabase
+				.from('cart')
+				.delete()
+				.eq('id', id)
+			if (error) throw error
+			commit('REMOVE_FROM_CART', id)
 		},
 
 	},
@@ -231,8 +293,8 @@ const store = createStore({
 		setItems(state, items) {
 			state.items = items
 		},
-		ADD_TO_CART(state, item) {
-			state.cartItems.push({ ...item, id: Date.now() })
+		SET_CART(state, item) {
+			state.cartItems = item
 		},
 		REMOVE_FROM_CART(state, id) {
 			state.cartItems = state.cartItems.filter(item => item.id !== id)

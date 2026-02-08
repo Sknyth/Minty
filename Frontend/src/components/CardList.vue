@@ -9,7 +9,7 @@
 						:imageURL="item.imageURL"
 						:title="item.title"
 						:price="item.price"
-						@add-to-cart="addToCart"
+						@add-to-cart="addToCart(item)"
 						class="custom-card d-inline-block"
 					/>
 				</div>
@@ -20,6 +20,7 @@
 
 <script>
 import { useToast } from "vue-toastification"
+import { mapActions, mapGetters } from 'vuex'
 import Card from './Card.vue'
 
 export default {
@@ -32,27 +33,31 @@ export default {
     items() {
       return this.$store.state.items
     },
-    cartItems() {
-      return this.$store.state.cartItems
-    }
+    ...mapGetters({
+      cartItems: 'cartItems'
+    })
   },
-
+  methods: {
+      ...mapActions(['addToCart']),
+      async addToCart(item) {
+        try{
+          await this.$store.dispatch('addToCart', {
+            title: item.title,
+            price: item.price,
+            imageURL: item.imageURL,
+          })
+          this.toast.success("Product added!")
+        } catch(e){
+          alert(e)
+          console.error(e)
+        }
+      }
+    },
   mounted() {
     this.$store.dispatch('fetchItems')
   },
 
-  methods: {
-    addToCart(title, price, imageURL, size) {
-      this.$store.commit('ADD_TO_CART', {
-        title,
-        price,
-        imageURL,
-        size
-      })
-      this.toast.success("Product added!");
-
-    }
-  }
+  
 }
 </script>
 

@@ -21,7 +21,7 @@ export default {
     })
     },
     methods: {
-        ...mapActions(['fetchPaymentMethods', 'addPaymentMethod']),
+        ...mapActions(['fetchPaymentMethods', 'addPaymentMethod', 'deletePaymentMethod']),
         maskCard(number) {
             return `**** **** **** ${number.slice(-4)}`;
         },

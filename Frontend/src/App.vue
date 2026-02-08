@@ -1,4 +1,9 @@
-<script setup lang="ts">
+<script lang="ts">
+export default {
+  async created() {
+    await this.$store.dispatch('initializeAuth');
+  }
+}
 </script>
 
 <template>
