@@ -2,6 +2,9 @@
 import { useToast } from "vue-toastification"
 import { mapGetters } from 'vuex'
 export default {
+  props: {
+    componentName: String,
+  },
   setup() {
     const toast = useToast();
     return { toast }
@@ -45,7 +48,7 @@ export default {
 <template>
   <div>
     <div v-if="profile && user" class="personal-information">
-      <h2>Personal Information</h2>
+      <h2>{{ componentName }}</h2>
       <form @submit.prevent="updateProfile" class="d-flex gap-4 form-change-info justify-content-between row">
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Name</label>

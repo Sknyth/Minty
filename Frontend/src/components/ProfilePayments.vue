@@ -2,6 +2,9 @@
 import { useToast } from "vue-toastification"
 import { mapActions, mapGetters } from 'vuex'
 export default {
+    props: {
+        componentName: String
+    },
     setup() {
         const toast = useToast();
         return { toast }
@@ -82,7 +85,7 @@ export default {
 
 <template>
     <div>
-        <h2>Payment methods</h2>
+        <h2>{{ componentName }}</h2>
         <div class="no-methods" v-if="payment_methods.length === 0 && toggleAddMethod" >
             <p>You don't have payment methods</p>
         </div>
@@ -103,19 +106,19 @@ export default {
         <div v-else class="d-flex row justify-content-between gap-3 add-payment-card">
             <div class="d-flex flex-column gap-2 col">
                 <label for="cardNumber">Card number</label>
-                <input v-model="cardNumber" type="text" placeholder="Card number">
+                <input v-model="cardNumber" type="text" placeholder="1234 5678 9012 3456">
             </div>
             <div class="d-flex flex-column gap-2 col">
                 <label for="cardHolderName">Holder name</label>
-                <input v-model="cardHolderName" type="text" placeholder="Card holder name">
+                <input v-model="cardHolderName" type="text" placeholder="Alexander Pushkin">
             </div>
             <div class="d-flex flex-column gap-2 col">
                 <label for="cardExpirationDate">Expiration date</label>
-                <input v-model="cardExpirationDate" type="text" placeholder="Expiration date">
+                <input v-model="cardExpirationDate" type="text" placeholder="MM/YY">
             </div>
             <div class="d-flex flex-column gap-2 col">
                 <label for="cardCvv">CVV</label>
-                <input v-model="cardCvv" type="text" placeholder="CVV">
+                <input v-model="cardCvv" type="text" placeholder="***">
             </div>
             <button @click="addPaymentMethod" class="button-color1 mt-3" id="btn-save">Save</button>
             <button @click="toggleAddMethod = !toggleAddMethod" class="button-color1 mt-3" id="btn-save">Back</button>

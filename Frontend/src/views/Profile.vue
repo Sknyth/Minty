@@ -1,6 +1,6 @@
 <script>
-import { mapGetters } from 'vuex'
 import { useToast } from "vue-toastification"
+import { mapGetters } from 'vuex'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ProfileAddresses from '../components/ProfileAddresses.vue'
@@ -69,10 +69,11 @@ export default {
         </div>
 
         <div class="option-container">
-          <ProfilePersInfo v-if="selectedOption === 'Profile'" />
+          <ProfilePersInfo
+           v-if="selectedOption === 'Profile'" :componentName="'Personal Information'" />
           <ProfileOrders v-if="selectedOption === 'Orders'" />
-          <ProfileAddresses v-if="selectedOption === 'Addresses'" />
-          <ProfilePayments v-if="selectedOption === 'Payments'" />
+          <ProfileAddresses :componentName="'Delivery addresses'" v-if="selectedOption === 'Addresses'" />
+          <ProfilePayments :componentName="'Payment methods'" v-if="selectedOption === 'Payments'" />
           <ProfileSettings v-if="selectedOption === 'Settings'" />
         </div>
         

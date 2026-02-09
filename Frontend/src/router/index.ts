@@ -8,6 +8,7 @@ import Item from '@/views/Item.vue'
 import Register from '@/views/Register.vue'
 import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
+import OrderPlacement from '@/views/OrderPlacement.vue'
 
 
 const routes = [
@@ -17,7 +18,8 @@ const routes = [
 	{ path: '/item', component: Item, name: 'Item' },
 	{ path: '/register', component: Register, name: 'Register' },
 	{ path: '/login', component: Login, name: 'Login' },
-	{ path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true } }
+	{ path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true } },
+	{ path: '/OrderPlacement', component: OrderPlacement, name: 'OrderPlacement' },
 ]
 const router = createRouter({
 	history: createWebHistory(),

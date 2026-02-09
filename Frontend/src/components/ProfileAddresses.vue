@@ -2,6 +2,9 @@
 import { useToast } from "vue-toastification"
 import { mapActions, mapGetters } from 'vuex'
 export default {
+    props: {
+        componentName: String
+    },
     setup() {
         const toast = useToast();
         return { toast }
@@ -115,7 +118,7 @@ export default {
 </script>
 
 <template>
-    <h2>Delivery addresses</h2>
+    <h2>{{ componentName }}</h2>
 
     <div v-if="addresses.length === 0 && toggleAddAddress">
         <p class="text-center">You don't have addresses</p>
