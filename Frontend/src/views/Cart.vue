@@ -19,8 +19,9 @@ export default {
 		<Header />
 		<div v-if="cartItems.length === 0">
 			<div class="container d-flex align-items-center justify-content-between">
+				<div></div>
 				<img
-					class="image-container position-absolute"
+					class="image-container"
 					src="/BigCart.png"
 					alt=""
 				/>
@@ -73,7 +74,7 @@ export default {
 					<span class=" fw-bold">${{ cartItems.reduce((total, item) => total + item.price, 0) }}</span>
 				</h3>
 
-				<RouterLink to="/orderPlacement" class="bg-color2 color1 btn-order">Place an order</RouterLink>
+				<RouterLink to="/orderPlacement" class="bg-color2 color1 btn-order d-flex justify-content-center align-items-center">Place an order</RouterLink>
 
 
 				<div class="d-flex align-items-center justify-content-between text-white">
@@ -98,8 +99,8 @@ export default {
     width: 156px;
 }
 .image-container {
-	top: 45%;
-	transform: translateY(-50%);
+	margin-right: auto;
+	margin-top: auto;
 }
 
 .text-container {
@@ -117,6 +118,7 @@ export default {
 
 .total-box {
 	height: auto;
+	max-height: 350px;
 	width: 300px;
 	border-radius: 10px;
 	padding: 24px;

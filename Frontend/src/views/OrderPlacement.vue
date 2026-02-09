@@ -4,17 +4,33 @@ import Header from '@/components/Header.vue'
 import ProfileAddresses from '@/components/ProfileAddresses.vue'
 import ProfilePayments from '@/components/ProfilePayments.vue'
 import ProfilePersInfo from '@/components/ProfilePersInfo.vue'
+import { useToast } from "vue-toastification"
 import { mapActions, mapGetters } from 'vuex'
 export default {
 	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },
+	setup() {
+    const toast = useToast();
+    return { toast }
+  },
 	computed: {
-		...mapGetters(['currentAddressId','currentPaymentId'])
+		...mapGetters(['currentAddressId','currentPaymentId', 'cartItems', 'cartTotal'])
 	},
 	methods: {
-		async placeOrder() {
-			console.log("Creating order with payment:", this.currentPaymentId)
-			console.log("Creating order with address:", this.currentAddressId)
-		}
+		...mapActions(['createOrder']),
+		async handleConfirmOrder() { 
+			try {
+				const order = await this.createOrder();
+				
+				this.toast.success(`Order #${order.id.slice(0, 8)} created!`)
+				this.$router.push('/');
+				
+			} catch (e) {
+				console.error("Caught error:", e)
+				
+					this.toast.error(e.message)
+				}
+			}
+		
 	},
 }
 </script>
@@ -39,22 +55,18 @@ export default {
 				<h3 class="fw-bold">Order summary</h3>
 				<div class="summary-row d-flex justify-content-between">
 					<p>Items</p>
-					<p>$214.00</p>
+					<p>${{ cartItems.reduce((total, item) => total + item.price, 0) }}</p>
 				</div>
 				<div class="summary-row d-flex justify-content-between">
 					<p>Delivery</p>
-					<p>$12.00</p>
-				</div>
-				<div class="summary-row d-flex justify-content-between">
-					<p>Discount</p>
-					<p>-$20.00</p>
+					<p>$12</p>
 				</div>
 				<hr class="color2" />
 				<div class="summary-total d-flex justify-content-between align-items-center">
 					<h4 class="fw-bold">Total</h4>
-					<h4 class="fw-bold">$206.00</h4>
+					<span class=" fw-bold">${{ cartItems.reduce((total, item) => total + item.price, 0 + 12) }}</span>
 				</div>
-				<button @click="placeOrder" :disabled="!currentPaymentId || !currentAddressId" class="bg-color2 color1 summary-btn">Confirm order</button>
+				<button @click="handleConfirmOrder" :disabled="!currentPaymentId || !currentAddressId" class="bg-color2 color1 summary-btn">Confirm order</button>
 			</div>
 		</div>
 

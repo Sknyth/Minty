@@ -12,6 +12,7 @@ const store = createStore({
 			profile: null,
 			payment_methods: [],
 			addresses: [],
+			cartTotal: null
 		}
 	},
 	getters: {
@@ -24,6 +25,7 @@ const store = createStore({
 		addresses: state => state.addresses,
 		currentAddressId: state => state.selectedAddressId,
   	currentPaymentId: state => state.selectedPaymentId,
+		cartTotal: state => state.cartTotal
 	},
 	actions: {
 		async initializeAuth({ dispatch, commit }) {
@@ -323,6 +325,40 @@ const store = createStore({
 					if (addressId) commit('SET_SELECTED_ADDRESS', addressId);
 					if (paymentId) commit('SET_SELECTED_PAYMENT', paymentId);
 			}
+	},
+
+	async createOrder({ state, commit }) {
+
+		if (!state.user) throw new Error("Log in to place an order");
+    if (!state.selectedAddressId || !state.selectedPaymentId) {
+        throw new Error("Select address and payment method");
+    }
+
+    const { data, error } = await supabase
+        .from('orders')
+        .insert({
+					user_id: state.user.id,
+					customer_name: state.profile.name,
+					customer_surname: state.profile.surname,
+					address_id: state.selectedAddressId,
+					payment_id: state.selectedPaymentId,
+					items: state.cartItems, 
+					total_price: Number(state.cartTotal),
+					status: 'pending'
+				})
+        .select()
+				.single()
+
+    if (error) throw error
+
+		const { error: cartError } = await supabase
+        .from('cart')
+        .delete()
+        .eq('user_id', state.user.id)
+
+		commit('CLEAR_CART')
+
+    return data
 	}
 		
 	},
@@ -362,6 +398,10 @@ const store = createStore({
 		SET_SELECTED_ADDRESS(state, id) {
 			state.selectedAddressId = id
 		},
+		CLEAR_CART(state){
+			state.cartItems = [],
+			state.cartTotal = 0
+		}
 	},
 })
 
