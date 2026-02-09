@@ -11,7 +11,7 @@ const store = createStore({
 			isAuth: false,
 			profile: null,
 			payment_methods: [],
-			addresses: []
+			addresses: [],
 		}
 	},
 	getters: {
@@ -21,7 +21,9 @@ const store = createStore({
 		user: state => state.user,
 		profile: state => state.profile,
 		allPayments: state => state.payment_methods,
-		addresses: state => state.addresses
+		addresses: state => state.addresses,
+		currentAddressId: state => state.selectedAddressId,
+  	currentPaymentId: state => state.selectedPaymentId,
 	},
 	actions: {
 		async initializeAuth({ dispatch, commit }) {
@@ -111,7 +113,15 @@ const store = createStore({
 				.single()
 
 			if (error) throw error
-			commit('SET_PROFILE', profile)
+      commit('SET_PROFILE', profile);
+        
+      if (profile.selected_address_id) {
+        commit('SET_SELECTED_ADDRESS', profile.selected_address_id);
+      }
+      if (profile.selected_payment_id) {
+        commit('SET_SELECTED_PAYMENT', profile.selected_payment_id);
+      }
+    
 		},
 
 		async updateProfile({ commit, state }, { name, surname }) {
@@ -288,6 +298,33 @@ const store = createStore({
 			commit('REMOVE_FROM_CART', id)
 		},
 
+		async updateSelectedMetadata({ state, commit }, { addressId, paymentId }) {
+			if (!state.user) return;
+
+			const updateData = {};
+			if (addressId) updateData.selected_address_id = addressId;
+			if (paymentId) updateData.selected_payment_id = paymentId;
+
+			const { data, error } = await supabase
+					.from('profiles')
+					.update(updateData)
+					.eq('id', state.user.id)
+					.select()
+					.single()
+
+			if (error) {
+					console.error("Supabase Error:", error.message);
+					throw error;
+			}
+
+			if (data) {
+					commit('SET_PROFILE', data);
+					
+					if (addressId) commit('SET_SELECTED_ADDRESS', addressId);
+					if (paymentId) commit('SET_SELECTED_PAYMENT', paymentId);
+			}
+	}
+		
 	},
 	mutations: {
 		setItems(state, items) {
@@ -318,7 +355,13 @@ const store = createStore({
 		},
 		REMOVE_ADDRESSES(state, id) {
 			state.addresses = state.addresses.filter(address => address.id !== id)
-		}
+		},
+		SET_SELECTED_PAYMENT(state, id) {
+			state.selectedPaymentId = id
+		},
+		SET_SELECTED_ADDRESS(state, id) {
+			state.selectedAddressId = id
+		},
 	},
 })
 

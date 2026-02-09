@@ -4,9 +4,18 @@ import Header from '@/components/Header.vue'
 import ProfileAddresses from '@/components/ProfileAddresses.vue'
 import ProfilePayments from '@/components/ProfilePayments.vue'
 import ProfilePersInfo from '@/components/ProfilePersInfo.vue'
+import { mapActions, mapGetters } from 'vuex'
 export default {
 	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },
-
+	computed: {
+		...mapGetters(['currentAddressId','currentPaymentId'])
+	},
+	methods: {
+		async placeOrder() {
+			console.log("Creating order with payment:", this.currentPaymentId)
+			console.log("Creating order with address:", this.currentAddressId)
+		}
+	},
 }
 </script>
 
@@ -45,7 +54,7 @@ export default {
 					<h4 class="fw-bold">Total</h4>
 					<h4 class="fw-bold">$206.00</h4>
 				</div>
-				<button class="bg-color2 color1 summary-btn">Confirm order</button>
+				<button @click="placeOrder" :disabled="!currentPaymentId || !currentAddressId" class="bg-color2 color1 summary-btn">Confirm order</button>
 			</div>
 		</div>
 
@@ -65,7 +74,9 @@ export default {
 						</div>
 					</div>
 					<div class="section-body">
-						<ProfilePersInfo :componentName="'Contact details'" />
+						<ProfilePersInfo 
+						:componentName="'Contact details'" 
+						/>
 					</div>
 				</section>
 
@@ -83,7 +94,7 @@ export default {
 						</div>
 					</div>
 					<div class="section-body">
-						<ProfileAddresses :componentName="'Delivery address'" />
+						<ProfileAddresses :componentName="'Delivery address'"  />
 					</div>
 				</section>
 
@@ -101,7 +112,8 @@ export default {
 						</div>
 					</div>
 					<div class="section-body">
-						<ProfilePayments :componentName="'Payment method'" />
+						<ProfilePayments 
+						:componentName="'Payment method'" />
 					</div>
 				</section>
 			</div>

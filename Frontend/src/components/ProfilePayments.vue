@@ -16,15 +16,17 @@ export default {
             cardExpirationDate: '',
             cardCvv: '',
             toggleAddMethod: true,
+            editId: null,
         };
     },
     computed: {
     ...mapGetters({
-      payment_methods: 'allPayments'
+      payment_methods: 'allPayments',
+      currentPaymentId: 'currentPaymentId'
     })
     },
     methods: {
-        ...mapActions(['fetchPaymentMethods', 'addPaymentMethod', 'deletePaymentMethod']),
+        ...mapActions(['fetchPaymentMethods', 'addPaymentMethod', 'deletePaymentMethod', 'updateSelectedMetadata']),
         maskCard(number) {
             return `**** **** **** ${number.slice(-4)}`;
         },
@@ -36,10 +38,10 @@ export default {
                     expiration_date: this.cardExpirationDate,
                     cvv: this.cardCvv,
                 });
-                this.cardNumber = '';
-                this.cardHolderName = '';
-                this.cardExpirationDate = '';
-                this.cardCvv = '';
+                this.cardNumber = ''
+                this.cardHolderName = ''
+                this.cardExpirationDate = ''
+                this.cardCvv = ''
 
                 this.toggleAddMethod = !this.toggleAddMethod
 
@@ -58,6 +60,12 @@ export default {
                 await this.$store.dispatch('deletePaymentMethod', id);
                 this.toast.success("Method deleted successfully!")
                 
+                if (this.selectedPaymentId === id) {
+                    this.selectedPaymentId = null;
+                }
+                if (this.currentPaymentId === id) {
+                    await this.updateSelectedMetadata({ paymentId: null })
+                }
                 this.ToggleChange = false
             } catch (e) {
                 this.toast.error("Error: " + e.message);
@@ -69,18 +77,26 @@ export default {
             Mastercard: /^5[1-5]|^2(?:22[1-9]|2[3-9]\d|[3-6]\d\d|7[01]\d|720)/,
             Mir: /^220[0-4]/,
             Maestro: /^(5018|5020|5038|6304|6759|6761|6763)/
-            };
+            }
 
             for (const [card, pattern] of Object.entries(re)) {
-            if (pattern.test(number)) return card;
+            if (pattern.test(number)) return card
             }
-            return 'Unknown';
+            return 'Unknown'
         },
+        async selectPayment(id){
+           try {
+                await this.updateSelectedMetadata({ paymentId: id })
+                this.toast.success("Payment selected")
+            } catch (e) {
+                this.toast.error("Error: " + e.message)
+            }
+            
     },
     mounted() {
-        this.fetchPaymentMethods();
-    }
+    this.fetchPaymentMethods()
 }
+}}
 </script>
 
 <template>
@@ -91,10 +107,16 @@ export default {
         </div>
         <div v-else-if="toggleAddMethod ?? payment_methods.length != 0">
             <div class="row gap-3 justify-content-start">
-                <div v-for="method in payment_methods" :key="method.id" class="col payment-card">
+                <div
+                 v-for="method in payment_methods" 
+                 :key="method.id" 
+                 :class="{ 'active-card': method.id === currentPaymentId }"
+                 class="col payment-card"
+                 @click="selectPayment(method.id)"
+                 >
                 <h4>{{ getCardType(method.number) }}</h4>
                 <p>{{ maskCard(method.number) }}</p>
-                <button @click="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
+                <button <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
                 </div>
             </div>
             
@@ -140,6 +162,13 @@ export default {
     padding: 15px;
     width: 400px;
     flex: 0 0 auto;
+    cursor: pointer;
+
+}
+.active-card {
+    border: 2px solid #007bff;
+    background-color: #f0f7ff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 }
 .add-payment-card input {
     width: 340px;
