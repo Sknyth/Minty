@@ -24,7 +24,7 @@ const store = createStore({
 		allPayments: state => state.payment_methods,
 		addresses: state => state.addresses,
 		currentAddressId: state => state.selectedAddressId,
-  	currentPaymentId: state => state.selectedPaymentId,
+		currentPaymentId: state => state.selectedPaymentId,
 		cartTotal: state => state.cartTotal
 	},
 	actions: {
@@ -115,15 +115,15 @@ const store = createStore({
 				.single()
 
 			if (error) throw error
-      commit('SET_PROFILE', profile);
-        
-      if (profile.selected_address_id) {
-        commit('SET_SELECTED_ADDRESS', profile.selected_address_id);
-      }
-      if (profile.selected_payment_id) {
-        commit('SET_SELECTED_PAYMENT', profile.selected_payment_id);
-      }
-    
+			commit('SET_PROFILE', profile)
+
+			if (profile.selected_address_id) {
+				commit('SET_SELECTED_ADDRESS', profile.selected_address_id)
+			}
+			if (profile.selected_payment_id) {
+				commit('SET_SELECTED_PAYMENT', profile.selected_payment_id)
+			}
+
 		},
 
 		async updateProfile({ commit, state }, { name, surname }) {
@@ -301,66 +301,71 @@ const store = createStore({
 		},
 
 		async updateSelectedMetadata({ state, commit }, { addressId, paymentId }) {
-			if (!state.user) return;
+			if (!state.user) return
 
-			const updateData = {};
-			if (addressId) updateData.selected_address_id = addressId;
-			if (paymentId) updateData.selected_payment_id = paymentId;
+			const updateData = {}
+			if (addressId) updateData.selected_address_id = addressId
+			if (paymentId) updateData.selected_payment_id = paymentId
 
 			const { data, error } = await supabase
-					.from('profiles')
-					.update(updateData)
-					.eq('id', state.user.id)
-					.select()
-					.single()
+				.from('profiles')
+				.update(updateData)
+				.eq('id', state.user.id)
+				.select()
+				.single()
 
 			if (error) {
-					console.error("Supabase Error:", error.message);
-					throw error;
+				console.error("Supabase Error:", error.message)
+				throw error
 			}
 
 			if (data) {
-					commit('SET_PROFILE', data);
-					
-					if (addressId) commit('SET_SELECTED_ADDRESS', addressId);
-					if (paymentId) commit('SET_SELECTED_PAYMENT', paymentId);
+				commit('SET_PROFILE', data)
+
+				if (addressId) commit('SET_SELECTED_ADDRESS', addressId)
+				if (paymentId) commit('SET_SELECTED_PAYMENT', paymentId)
 			}
-	},
+		},
 
-	async createOrder({ state, commit }) {
+		async createOrder({ state, commit }, payload) {
 
-		if (!state.user) throw new Error("Log in to place an order");
-    if (!state.selectedAddressId || !state.selectedPaymentId) {
-        throw new Error("Select address and payment method");
-    }
+			if (!state.user) throw new Error("Log in to place an order")
+			if (!state.selectedAddressId || !state.selectedPaymentId) {
+				throw new Error("Select address and payment method")
+			}
 
-    const { data, error } = await supabase
-        .from('orders')
-        .insert({
+			const cartTotal = payload?.cartTotal || 0
+
+
+			const { data, error } = await supabase
+				.from('orders')
+				.insert({
 					user_id: state.user.id,
 					customer_name: state.profile.name,
 					customer_surname: state.profile.surname,
 					address_id: state.selectedAddressId,
 					payment_id: state.selectedPaymentId,
-					items: state.cartItems, 
-					total_price: Number(state.cartTotal),
+					items: state.cartItems,
+					total_price: cartTotal,
 					status: 'pending'
 				})
-        .select()
+				.select()
 				.single()
 
-    if (error) throw error
+			commit('SET_TOTAL', cartTotal)
 
-		const { error: cartError } = await supabase
-        .from('cart')
-        .delete()
-        .eq('user_id', state.user.id)
+			if (error) throw error
 
-		commit('CLEAR_CART')
+			const { error: cartError } = await supabase
+				.from('cart')
+				.delete()
+				.eq('user_id', state.user.id)
 
-    return data
-	}
-		
+			commit('CLEAR_CART')
+
+			return data
+		}
+
 	},
 	mutations: {
 		setItems(state, items) {
@@ -398,9 +403,12 @@ const store = createStore({
 		SET_SELECTED_ADDRESS(state, id) {
 			state.selectedAddressId = id
 		},
-		CLEAR_CART(state){
+		CLEAR_CART(state) {
 			state.cartItems = [],
-			state.cartTotal = 0
+				state.cartTotal = 0
+		},
+		SET_TOTAL(state, total) {
+			state.cartTotal = Number(total)
 		}
 	},
 })

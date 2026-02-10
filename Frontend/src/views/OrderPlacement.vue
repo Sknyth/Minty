@@ -19,9 +19,12 @@ export default {
 		...mapActions(['createOrder']),
 		async handleConfirmOrder() { 
 			try {
-				const order = await this.createOrder();
-				
+				const totalWithDelivery = this.cartItems.reduce((total, item) => total + item.price, 0) + 12
+				const order = await this.$store.dispatch('createOrder', { 
+					cartTotal: totalWithDelivery 
+				})
 				this.toast.success(`Order #${order.id.slice(0, 8)} created!`)
+				
 				this.$router.push('/');
 				
 			} catch (e) {
