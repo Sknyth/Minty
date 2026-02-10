@@ -57,7 +57,7 @@ export default {
         <div class="profile-card">
           <h2>{{ profile.name }}</h2>
           <p>{{ user.email }}</p>
-          <p>Created: {{ profile.created_at }}</p>
+          <p>Created: {{ profile.created_at.slice(0, 10) }}</p>
         </div>
 
         <div class="choice-option">

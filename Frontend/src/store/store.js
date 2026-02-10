@@ -12,7 +12,8 @@ const store = createStore({
 			profile: null,
 			payment_methods: [],
 			addresses: [],
-			cartTotal: null
+			cartTotal: null,
+			orders: []
 		}
 	},
 	getters: {
@@ -25,7 +26,8 @@ const store = createStore({
 		addresses: state => state.addresses,
 		currentAddressId: state => state.selectedAddressId,
 		currentPaymentId: state => state.selectedPaymentId,
-		cartTotal: state => state.cartTotal
+		cartTotal: state => state.cartTotal,
+		orders: state => state.orders
 	},
 	actions: {
 		async initializeAuth({ dispatch, commit }) {
@@ -364,6 +366,16 @@ const store = createStore({
 			commit('CLEAR_CART')
 
 			return data
+		},
+
+		async fetchOrders({commit, state}){
+			if (!state.user) return
+			const { data: orders, error } = await supabase
+				.from('orders')
+				.select('*')
+				.eq('user_id', state.user.id)
+			if (error) throw error
+			commit('SET_ORDERS', orders)
 		}
 
 	},
@@ -405,10 +417,13 @@ const store = createStore({
 		},
 		CLEAR_CART(state) {
 			state.cartItems = [],
-				state.cartTotal = 0
+			state.cartTotal = 0
 		},
 		SET_TOTAL(state, total) {
 			state.cartTotal = Number(total)
+		},
+		SET_ORDERS(state, orders){
+			state.orders = orders
 		}
 	},
 })
