@@ -45,7 +45,7 @@ export default {
 				</div>
 			</div>
 		</div>
-		<div v-else class="container align-items-center">
+		<div v-else-if="cartItems" class="container align-items-center">
 
         <div class="top-name d-flex justify-content-between">
             <h1 class="fw-bold">Cart</h1>
@@ -86,7 +86,10 @@ export default {
 		</div>
 		
 		</div>
-
+		<div v-else class="loading-state text-center p-5">
+			<div class="spinner-border"></div>
+			<p>Загрузка данных товара...</p>
+		</div>
 		<Footer />
 	</main>
 </template>

@@ -15,11 +15,11 @@ const routes = [
 	{ path: '/', component: HomeView, name: 'HomeView' },
 	{ path: '/cart', component: Cart, name: 'Cart' },
 	{ path: '/emptyFavorite', component: EmptyFavorite, name: 'EmptyFavorite' },
-	{ path: '/item', component: Item, name: 'Item' },
+	{ path: '/item:id', component: Item, name: 'Item' },
 	{ path: '/register', component: Register, name: 'Register' },
 	{ path: '/login', component: Login, name: 'Login' },
 	{ path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true } },
-	{ path: '/OrderPlacement', component: OrderPlacement, name: 'OrderPlacement' },
+	{ path: '/OrderPlacement', component: OrderPlacement, name: 'OrderPlacement', meta: { requiresAuth: true } },
 ]
 const router = createRouter({
 	history: createWebHistory(),
@@ -27,16 +27,17 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const { data: { session } } = await supabase.auth.getSession();
-  const isAuth = !!session;
+  const { data: { session } } = await supabase.auth.getSession()
+
+  const isAuth = !!session
 
   if (to.meta.requiresAuth && !isAuth) {
-    next('/login');
+    next('/login')
   } else if (to.path === '/login' && isAuth) {
-    next('/profile');
+    next('/profile')
   } else {
-    next();
+    next()
   }
-});
+})
 
-export default router;
+export default router

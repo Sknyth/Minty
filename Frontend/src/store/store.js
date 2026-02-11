@@ -19,6 +19,7 @@ const store = createStore({
 	getters: {
 		allItems: state => state.items,
 		cartItems: state => state.cartItems,
+		items: state => state.items,
 		isAuth: state => !!state.user,
 		user: state => state.user,
 		profile: state => state.profile,
@@ -368,7 +369,7 @@ const store = createStore({
 			return data
 		},
 
-		async fetchOrders({commit, state}){
+		async fetchOrders({ commit, state }) {
 			if (!state.user) return
 			const { data: orders, error } = await supabase
 				.from('orders')
@@ -417,12 +418,12 @@ const store = createStore({
 		},
 		CLEAR_CART(state) {
 			state.cartItems = [],
-			state.cartTotal = 0
+				state.cartTotal = 0
 		},
 		SET_TOTAL(state, total) {
 			state.cartTotal = Number(total)
 		},
-		SET_ORDERS(state, orders){
+		SET_ORDERS(state, orders) {
 			state.orders = orders
 		}
 	},

@@ -43,7 +43,8 @@ export default {
 
 <template>
     <div class="gap-3 d-flex flex-column">
-        <div class="item d-flex justify-content-between align-items-center" v-for="item in cart" :key="item.id">
+        <div class="item d-flex justify-content-between align-items-center" 
+        v-for="item in cart" :key="item.id">
 
             <img :src="item.imageURL" alt="">
 

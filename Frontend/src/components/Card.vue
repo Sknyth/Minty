@@ -4,6 +4,7 @@ export default {
 		imageURL: String,
 		title: String,
 		price: Number,
+		id: [Number, String]
 	},
 	methods: {
 		addToCart() {
@@ -16,7 +17,7 @@ export default {
 <template>
 	<div class="container">
 		<div class="card">
-			<router-link to="/Item">
+			<router-link :to="{ name: 'Item', params: { id: id } }">
 				<img :src="imageURL" class="card-img-top" alt="" />
 				<div class="card-body">
 					<h5 class="card-title">{{ title }}</h5>
@@ -30,7 +31,16 @@ export default {
 </template>
 
 <style scoped>
+.card{
+	width: 230px;
+	height: 440px;
+	margin-top: 10px;
+}
 button {
 	width: 100%;
+	margin-top: auto;
+}
+img {
+	height: 300px;
 }
 </style>

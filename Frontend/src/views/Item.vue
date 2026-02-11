@@ -1,85 +1,257 @@
-<script setup>
-import Header from '@/components/Header.vue';
-import Footer from '@/components/Footer.vue';
+<script>
+import Footer from '@/components/Footer.vue'
+import Header from '@/components/Header.vue'
+import { useToast } from "vue-toastification"
+import { mapGetters } from 'vuex'
+export default {
+  components: {
+    Header,
+    Footer
+  },
+  setup() {
+    const toast = useToast()
+    return { toast }
+  },
+  data() {
+    return {
+      selectedSize: null,
+    }
+  },
+  computed: {
+        ...mapGetters(['items']),
+
+        currentItem() {
+          const id = this.$route.params.id
+          return this.items.find(item => String(item.id) === String(id))
+        }
+  },
+  methods: {
+    async addToCart() {
+        if (!this.selectedSize) {
+          this.toast.warning("Please select a size");
+          return
+        }
+        try{
+          await this.$store.dispatch('addToCart', {
+            title: this.currentItem.title,
+            price: this.currentItem.price,
+            imageURL: this.currentItem.imageURL,
+            size: this.selectedSize
+          })
+          this.toast.success("Product added!")
+        } catch(e){
+          alert(e)
+          this.toast.error("Error: " + e.message)
+        }
+      },
+    selectSize(size) {
+      this.selectedSize = size
+    }
+  },
+  mounted() {
+    this.$store.dispatch('fetchItems')
+  }
+}
 </script>
 
 <template>
-    <Header />
-        <main class="container">
-            <div class="d-flex gap-4">
-                <div id="carouselExampleIndicators" class="carousel slide">
-                    <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-                    </div>
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                        <img src="/public/airForce1.webp" class="d-block w-100" alt="">
-                        </div>
-                        <div class="carousel-item">
-                        <img src="/public/airForceBlack-blue.webp" class="d-block w-100" alt="">
-                        </div>
-                        <div class="carousel-item">
-                        <img src="/public/airForceCream.webp" class="d-block w-100" alt="">
-                        </div>
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-
-                <div class="infoItem">
-                    <h5>Nike Air Force 1 Low</h5>
-
-                    <div>
-                        <p><span class="fw-bold">Color:</span> Like in the picture</p>
-                        <div class="d-flex carousel-colors">
-                            <img src="/public/airForce1.webp" alt="">
-                            <img src="/public/airForce1.webp" alt="">
-                            <img src="/public/airForce1.webp" alt="">
-                            <img src="/public/airForce1.webp" alt="">
-                            <img src="/public/airForce1.webp" alt="">
-                            <img src="/public/airForce1.webp" alt="">
-                        </div>
-                    </div>
-
-                    <div>
-                        <p class="fw-bold">Size chart:</p>
-                        <div class="justify-content-between">
-                            <p>36</p>
-                            <p>36</p>
-                        </div>
-                    </div>
-                </div>
+  <Header />
+  
+  <main v-if="currentItem" class="product-wrapper">
+    <div class="container h-100 p-0">
+      <div class="row g-0 h-100">
+        
+        <div class="col-lg-8 col-md-7 h-100 position-relative">
+          <div id="itemCarousel" class="carousel slide h-100" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="0" class="active"></button>
+              <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="1"></button>
+              <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="2"></button>
             </div>
-        </main>
-    <Footer />
+            
+            <div class="carousel-inner h-100">
+              <div class="carousel-item active h-100">
+                <img :src="currentItem.imageURL" class="main-img" alt="Nike Air Force 1">
+              </div>
+              <div class="carousel-item h-100">
+                <img :src="currentItem.imageURL" class="main-img" alt="Nike Air Force Black">
+              </div>
+              <div class="carousel-item h-100">
+                <img :src="currentItem.imageURL" class="main-img" alt="Nike Air Force Cream">
+              </div>
+            </div>
+
+            <button class="carousel-control-prev custom-nav" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
+              <div class="nav-circle">
+                <span class="chevron-left"></span>
+              </div>
+            </button>
+            <button class="carousel-control-next custom-nav" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
+              <div class="nav-circle">
+                <span class="chevron-right"></span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-5 d-flex align-items-center bg-white border-start">
+          <div class="info-content p-5 w-100">
+            <h1 class="logo color1 mb-2">{{ currentItem.title }}</h1>
+            <h2 class="fs-4 fw-light mb-4 color3">${{ currentItem.price }}</h2>
+
+            <hr class="my-4 opacity-10">
+
+            <div class="mb-4">
+              <p class="fw-bold mb-3">Color: <span class="fw-normal color3">Original White</span></p>
+              <div class="d-flex gap-2">
+                <div class="swatch active"><img :src="currentItem.imageURL" alt=""></div>
+                <!-- <div class="swatch"><img :src="currentItem.imageURL" alt=""></div>
+                <div class="swatch"><img :src="currentItem.imageURL" alt=""></div> -->
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <div class="d-flex justify-content-between mb-3">
+                <span class="fw-bold">Select Size (EU)</span>
+                <a href="#" class="color1 text-decoration-underline small">Size Guide</a>
+              </div>
+              <div class="size-grid">
+                <button 
+                  v-for="size in currentItem.size" 
+                  :key="size"
+                  @click="selectSize(size)"
+                  :class="['size-btn', { 'active': selectedSize === size }]"
+                >
+                  {{ size }}
+                </button>
+              </div>
+            </div>
+
+            <div class="d-grid gap-3">
+              <button @click="addToCart" class="button-color1 py-3 fs-5 shadow-sm rounded-pill">
+                Add to Cart
+              </button>
+              <button class="empty-btn color3 text-decoration-underline small">
+                Save to Wishlist
+              </button>
+            </div>
+
+            <p class="mt-5 color3 small lh-lg">
+              {{currentItem.description}}
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+  <div v-else class="loading-state text-center p-5">
+    <div class="spinner-border"></div>
+    <p>Loading product data...</p>
+  </div>
+  <Footer />
 </template>
 
 <style scoped>
-.carousel {
-    height: 100%;
-    width: 400px;
-    /* object-fit: cover; */
+.product-wrapper {
+  height: calc(100vh - 80px - 165px);
+  margin-top: 80px;
+  overflow: hidden;
 }
-.container{
-    margin-top: 60px;
+
+.main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background-color: #f2f2f2;
 }
-.infoItem {
-    width: 350px;
-    background-color: gray;
+
+.custom-nav {
+  width: 10%;
+  opacity: 1;
+  z-index: 5;
 }
-.carousel-colors img {
-    height: 60px;
-    width: 50px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+
+.nav-circle {
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-nav:hover .nav-circle {
+  background-color: var(--color1);
+  transform: scale(1.1);
+}
+
+.chevron-left, .chevron-right {
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid #222;
+  border-left: 2px solid #222;
+  display: block;
+  transition: border-color 0.3s;
+}
+
+.chevron-left {
+  transform: rotate(-45deg);
+  margin-left: 4px;
+}
+
+.chevron-right {
+  transform: rotate(135deg);
+  margin-right: 4px;
+}
+
+.custom-nav:hover .chevron-left,
+.custom-nav:hover .chevron-right {
+  border-color: white;
+}
+
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.size-btn {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 10px 0;
+  transition: all 0.2s ease;
+}
+
+.size-btn.active {
+  background-color: var(--color1);
+  color: var(--color2);
+  border-color: var(--color1);
+}
+
+.swatch {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: #f8f8f8;
+  transition: 0.3s;
+}
+
+.swatch.active {
+  border-color: var(--color1);
+}
+
+.swatch img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

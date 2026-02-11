@@ -2,17 +2,18 @@
 	<div class="container">
 		<div class="row">
 			<div class="col">
-				<div class="card-deck">
+
 					<Card
 						v-for="item in items"
 						:key="item.id"
 						:imageURL="item.imageURL"
 						:title="item.title"
 						:price="item.price"
+            :id="item.id"
 						@add-to-cart="addToCart(item)"
 						class="custom-card d-inline-block"
 					/>
-				</div>
+
 			</div>
 		</div>
 	</div>
@@ -30,12 +31,7 @@ export default {
       return { toast }
   },
   computed: {
-    items() {
-      return this.$store.state.items
-    },
-    ...mapGetters({
-      cartItems: 'cartItems'
-    })
+    ...mapGetters(['items'])
   },
   methods: {
       ...mapActions(['addToCart']),
@@ -49,7 +45,7 @@ export default {
           this.toast.success("Product added!")
         } catch(e){
           alert(e)
-          console.error(e)
+          this.toast.error("Error: " + e.message)
         }
       }
     },
@@ -64,8 +60,7 @@ export default {
 
 <style>
 .custom-card {
-	width: 250px;
-	height: 450px;
+  width: auto;
 	margin-top: 10px;
 }
 </style>

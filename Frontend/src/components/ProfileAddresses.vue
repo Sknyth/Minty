@@ -82,6 +82,7 @@ export default {
         },
 
         editAddress(address){
+
             this.editId = address.id 
             this.country = address.country
             this.city = address.city
@@ -135,7 +136,7 @@ export default {
                 <p>{{ address.street }}, {{ address.house_number }}</p>
                 <p>{{ address.city }}, {{ address.postcode }}</p>
                 
-                <button @click.stop="editAddress(address.id)" id="btn-edit">Edit</button>
+                <button @click.stop="editAddress(address)" id="btn-edit">Edit</button>
                 <button @click.stop="deleteAddress(address.id)" id="btn-delete">Delete</button>
             </div>
         </div>
