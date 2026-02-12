@@ -5,10 +5,10 @@ import Cart from '@/views/Cart.vue'
 import EmptyFavorite from '@/views/EmptyFavorite.vue'
 import HomeView from '@/views/HomeView.vue'
 import Item from '@/views/Item.vue'
-import Register from '@/views/Register.vue'
 import Login from '@/views/Login.vue'
-import Profile from '@/views/Profile.vue'
 import OrderPlacement from '@/views/OrderPlacement.vue'
+import Profile from '@/views/Profile.vue'
+import Register from '@/views/Register.vue'
 
 
 const routes = [
@@ -18,8 +18,8 @@ const routes = [
 	{ path: '/item:id', component: Item, name: 'Item' },
 	{ path: '/register', component: Register, name: 'Register' },
 	{ path: '/login', component: Login, name: 'Login' },
-	{ path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true } },
-	{ path: '/OrderPlacement', component: OrderPlacement, name: 'OrderPlacement', meta: { requiresAuth: true } },
+	{ path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true, fromCart: true } },
+	{ path: '/orderPlacement', component: OrderPlacement, name: 'OrderPlacement', meta: { requiresAuth: true } },
 ]
 const router = createRouter({
 	history: createWebHistory(),
@@ -27,17 +27,20 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const { data: { session } } = await supabase.auth.getSession()
+	const { data: { session } } = await supabase.auth.getSession()
+	const isAuth = !!session
 
-  const isAuth = !!session
+	if (to.meta.requiresAuth && !isAuth) {
+		return next('/login')
+	}
 
-  if (to.meta.requiresAuth && !isAuth) {
-    next('/login')
-  } else if (to.path === '/login' && isAuth) {
-    next('/profile')
-  } else {
-    next()
-  }
+	if (to.name === 'OrderPlacement') {
+		if (from.name !== 'Cart' && from.name !== 'Item') {
+			return next('/cart')
+		}
+	}
+
+	next()
 })
 
 export default router

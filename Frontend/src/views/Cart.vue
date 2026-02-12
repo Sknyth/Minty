@@ -1,16 +1,24 @@
-<script lang="ts">
+<script>
+import { mapGetters } from 'vuex'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'
 
-
 export default {
 	components: { Header, Footer, ItemsInCart },
 	computed: {
-        cartItems() {
-        	return this.$store.getters.cartItems
-        }
-    },
+      ...mapGetters(['cartItems']),
+  },
+	methods: {
+		goToCheckout() {
+    if (this.cartItems.length > 0) {
+      this.$store.commit('SET_ORDER_ACCESS', true)
+      this.$router.push('/orderPlacement')
+    } else {
+      this.toast.error("Cart is empty")
+    }
+  }
+	}
 }
 </script>
 
@@ -88,7 +96,7 @@ export default {
 		</div>
 		<div v-else class="loading-state text-center p-5">
 			<div class="spinner-border"></div>
-			<p>Загрузка данных товара...</p>
+			<p>Loading products data...</p>
 		</div>
 		<Footer />
 	</main>

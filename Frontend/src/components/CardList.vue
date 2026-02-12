@@ -2,7 +2,6 @@
 	<div class="container">
 		<div class="row">
 			<div class="col">
-
 					<Card
 						v-for="item in items"
 						:key="item.id"
@@ -41,6 +40,7 @@ export default {
             title: item.title,
             price: item.price,
             imageURL: item.imageURL,
+            size: item.size[0]
           })
           this.toast.success("Product added!")
         } catch(e){

@@ -13,7 +13,7 @@ const store = createStore({
 			payment_methods: [],
 			addresses: [],
 			cartTotal: null,
-			orders: []
+			orders: [],
 		}
 	},
 	getters: {
@@ -129,7 +129,7 @@ const store = createStore({
 
 		},
 
-		async updateProfile({ commit, state }, { name, surname }) {
+		async updateProfile({ commit, state }, { name, surname, phone }) {
 			if (!state.user || !state.user.id) {
 				throw new Error("User is not authorized")
 			}
@@ -139,6 +139,7 @@ const store = createStore({
 				.update({
 					name,
 					surname,
+					phone
 				})
 				.eq('id', state.user.id)
 				.select()
@@ -146,6 +147,21 @@ const store = createStore({
 
 			if (error) throw error
 			commit('SET_PROFILE', updatedProfile)
+		},
+
+		async updatePassword({ commit }, password) {
+			const { data, error } = await supabase.auth.updateUser({
+				password: password
+			})
+			if (error) throw error
+			commit('SET_USER', data.user)
+		},
+
+		async updateEmail({ commit }, { email }) {
+			const { data, error } = await supabase.auth.updateUser({
+				email: email
+			})
+			if (error) throw error
 		},
 
 		async fetchAddresses({ commit, state }) {
@@ -425,7 +441,7 @@ const store = createStore({
 		},
 		SET_ORDERS(state, orders) {
 			state.orders = orders
-		}
+		},
 	},
 })
 

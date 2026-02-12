@@ -4,7 +4,7 @@ export default {
     imageURL: String,
     title: String,
     price: Number,
-    id: [Number, String]
+    id: [Number, String],
   },
   methods: {
     addToCart() {

@@ -166,7 +166,7 @@ export default {
 
 }
 .active-card {
-    border: 2px solid #007bff;
+    border: 2px solid var(--color1);
     background-color: #f0f7ff;
     box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 }

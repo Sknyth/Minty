@@ -117,7 +117,7 @@ export default {
   width: 100%;
 }
 .btn-chosen {
-  border-bottom: 2px solid #1584FF !important;  
+  border-bottom: 2px solid var(--color1) !important;  
 }
 
 .option-container {

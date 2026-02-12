@@ -59,6 +59,6 @@ export default {
     text-transform: capitalize;
 }
 .money {
-    color: #1584FF;
+    color: var(--color1);
 }
 </style>
