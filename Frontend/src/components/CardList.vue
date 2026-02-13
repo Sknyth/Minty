@@ -42,9 +42,13 @@ export default {
             imageURL: item.imageURL,
             size: item.size[0]
           })
-          this.toast.success("Product added!")
+          this.toast.success('Product added!')
         } catch(e){
-          alert(e)
+          if(e.message === 'User not authenticated'){
+            this.toast.error("Error: " + 'You are not logged in')
+            return
+          }
+            
           this.toast.error("Error: " + e.message)
         }
       }

@@ -3,6 +3,7 @@ import { supabase } from '../supabase.js'
 
 import Cart from '@/views/Cart.vue'
 import EmptyFavorite from '@/views/EmptyFavorite.vue'
+import ForgotPassword from '@/views/ForgotPassword.vue'
 import HomeView from '@/views/HomeView.vue'
 import Item from '@/views/Item.vue'
 import Login from '@/views/Login.vue'
@@ -16,8 +17,9 @@ const routes = [
 	{ path: '/cart', component: Cart, name: 'Cart' },
 	{ path: '/emptyFavorite', component: EmptyFavorite, name: 'EmptyFavorite' },
 	{ path: '/item:id', component: Item, name: 'Item' },
-	{ path: '/register', component: Register, name: 'Register' },
-	{ path: '/login', component: Login, name: 'Login' },
+	{ path: '/register', component: Register, name: 'Register', meta: { notAuth: true } },
+	{ path: '/login', component: Login, name: 'Login', meta: { notAuth: true } },
+	{ path: '/forgotPassword', component: ForgotPassword, name: 'ForgotPassword', meta: { notAuth: true } },
 	{ path: '/profile', component: Profile, name: 'Profile', meta: { requiresAuth: true, fromCart: true } },
 	{ path: '/orderPlacement', component: OrderPlacement, name: 'OrderPlacement', meta: { requiresAuth: true } },
 ]
@@ -32,6 +34,10 @@ router.beforeEach(async (to, from, next) => {
 
 	if (to.meta.requiresAuth && !isAuth) {
 		return next('/login')
+	}
+
+	if (to.meta.notAuth && isAuth) {
+		return next('/profile')
 	}
 
 	if (to.name === 'OrderPlacement') {

@@ -52,19 +52,16 @@ export default {
         <div class="d-flex flex-column gap-2 col info-box">
             <label>Current Password</label>
             <input v-if="ToggleChange" v-model="passwords.old" type="password" placeholder="Enter current password">
-        <p v-else>••••••••••</p>
         </div>
 
         <div class="d-flex flex-column gap-2 col info-box">
             <label>New Password</label>
             <input v-if="ToggleChange" v-model="passwords.new" type="password" placeholder="Min 6 characters">
-        <p v-else>••••••••••</p>
         </div>
 
         <div class="d-flex flex-column gap-2 col info-box">
             <label>Confirm Password</label>
             <input v-if="ToggleChange" v-model="passwords.confirm" type="password" placeholder="Repeat new password">
-        <p v-else>••••••••••</p>
       </div>
 
       <div class="gap-3 d-flex">
