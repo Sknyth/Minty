@@ -23,7 +23,7 @@ export default {
 
         <div v-if="order.status === 'delivered'" class="status-delivered" >{{ order.status }}</div>
         <div v-else-if="order.status === 'pending'" class="status-pending" >{{ order.status }}</div>
-        <div v-else-if="order.status === 'canceled'" class="status-pending" >{{ order.status }}</div>
+        <div v-else-if="order.status === 'canceled'" class="status-canceled" >{{ order.status }}</div>
         
         <h5 class="money">{{ order.total_price }}$</h5>
         </div>

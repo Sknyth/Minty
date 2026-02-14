@@ -1,5 +1,5 @@
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'
@@ -8,8 +8,17 @@ export default {
 	components: { Header, Footer, ItemsInCart },
 	computed: {
       ...mapGetters(['cartItems']),
+
+			totalQuantity() {
+				return this.cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+			},
+			totalPrice() {
+				return this.cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0)
+			}
   },
+	
 	methods: {
+		...mapActions(['fetchCart']),
 		goToCheckout() {
     if (this.cartItems.length > 0) {
       this.$store.commit('SET_ORDER_ACCESS', true)
@@ -57,8 +66,8 @@ export default {
 
         <div class="top-name d-flex justify-content-between">
             <h1 class="fw-bold">Cart</h1>
-            <p v-if="this.cartItems.length === 1"> {{ this.cartItems.length }} product</p>
-            <p v-else>{{ this.cartItems.length }} products</p>
+            <p v-if="totalQuantity === 1"> {{ totalQuantity }} product</p>
+            <p v-else>{{ totalQuantity }} products</p>
         </div>
 		<div class="d-flex">
 			<ItemsInCart />
@@ -66,20 +75,20 @@ export default {
 			<div class="total-box bg-color1 justify-content-between">
 				<div class="text-white">
 					<div class="d-flex justify-content-between">
-						<p>1 item total amount:</p>
-						<p>$100.00</p>
-					</div>
+						<p>Delivery:</p>
+						<p>$12</p>
+  				</div>
 					
 					<div class="d-flex justify-content-between">
-						<p>Discounted amount:</p>
-						<p>$100.00</p>
+						<p>Discount:</p>
+						<p>$0</p>
 					</div>
 				</div>
 
 				<hr class="color2" />
 
 				<h3 class="fw-bold text-white">Total:<br>
-					<span class=" fw-bold">${{ cartItems.reduce((total, item) => total + item.price, 0) }}</span>
+					<span class=" fw-bold">${{ totalPrice + 12 }}</span>
 				</h3>
 
 				<RouterLink to="/orderPlacement" class="bg-color2 color1 btn-order d-flex justify-content-center align-items-center">Place an order</RouterLink>

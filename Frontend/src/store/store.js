@@ -290,7 +290,7 @@ const store = createStore({
 			commit('SET_CART', cart)
 		},
 
-		async addToCart({ dispatch, state }, { imageURL, title, price, description, size }) {
+		async addToCart({ dispatch, state }, { imageURL, title, price, description, size, quantity}) {
 			if (!state.user) throw new Error('User not authenticated')
 
 			const { error } = await supabase
@@ -302,7 +302,8 @@ const store = createStore({
 						title: title,
 						price: price,
 						description: description,
-						size: size
+						size: size,
+						quantity: quantity || 1
 					}
 				])
 
@@ -317,6 +318,15 @@ const store = createStore({
 				.eq('id', id)
 			if (error) throw error
 			commit('REMOVE_FROM_CART', id)
+		},
+
+		async updateQuantity({ commit }, { id, quantity }) {
+			const { error } = await supabase
+				.from('cart')
+				.update({ quantity: quantity })
+				.eq('id', id);
+			if (error) throw error;
+			commit('UPDATE_QTY', { id, quantity });
 		},
 
 		async updateSelectedMetadata({ state, commit }, { addressId, paymentId }) {
@@ -400,8 +410,14 @@ const store = createStore({
 		setItems(state, items) {
 			state.items = items
 		},
-		SET_CART(state, item) {
-			state.cartItems = item
+		SET_CART(state, items) {
+			state.cartItems = items
+		},
+		UPDATE_QTY(state, { id, quantity }) {
+			const item = state.cartItems.find(i => i.id === id)
+			if (item) {
+				item.quantity = quantity
+			}
 		},
 		REMOVE_FROM_CART(state, id) {
 			state.cartItems = state.cartItems.filter(item => item.id !== id)

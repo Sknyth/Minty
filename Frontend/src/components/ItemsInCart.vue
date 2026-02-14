@@ -1,6 +1,6 @@
 <script>
-import { mapActions, mapGetters } from 'vuex'
 import { useToast } from "vue-toastification"
+import { mapActions, mapGetters } from 'vuex'
 export default {
     setup() {
         const toast = useToast();
@@ -17,9 +17,51 @@ export default {
         })
     },
     methods: {
-        ...mapActions(['fetchCart', 'removeFromCart']),
+        ...mapActions(['fetchCart']),
+
+        async addToCart(item) {
+            try{
+                const existingItem = this.cart.find(i => i.title === item.title && i.size === item.size)
+                if (existingItem) {
+                await this.$store.dispatch('updateQuantity', { 
+                    id: existingItem.id, 
+                    quantity: existingItem.quantity + 1 
+                })
+            } else {
+                await this.$store.dispatch('addToCart', {
+                    title: item.title,
+                    price: item.price,
+                    imageURL: item.imageURL,
+                    size: item.size,
+                    quantity: 1
+                })
+            }
+            } catch(e){
+            if(e.message === 'User not authenticated'){
+                this.toast.error("Error: " + 'You are not logged in')
+                return
+            }
+            this.toast.error("Error: " + e.message)
+            }
+        },
+
+        async decreaseQty(item) {
+            if (item.quantity > 1) {
+                try {
+                    await this.$store.dispatch('updateQuantity', { 
+                        id: item.id, 
+                        quantity: item.quantity - 1 
+                    });
+                } catch(e) {
+                    this.toast.error(e.message);
+                }
+            } else {
+                await this.removeFromCart(item.id);
+            }
+        },
 
         async removeFromCart(id) {
+            if (!id) return
             try{
                 await this.$store.dispatch('removeFromCart', id)
                 this.toast.success("Product removed!");
@@ -29,9 +71,7 @@ export default {
             
         },
 
-        increaseCountItem() {
-            this.k++;
-        }
+    
     },
     mounted(){
         if (this.$store.state.user) {
@@ -58,12 +98,12 @@ export default {
             </div>
 
             <div class="count d-flex justify-content-between align-items-center bg-color2">
-                <img @click="k > 1 ? k-- : removeFromCart(item.id)" src="/public/-.svg" alt="">
-                <span class="fw-bold">{{ k }}</span>
-                <img @click="increaseCountItem" src="/public/+.svg" alt="">
+                <img @click="decreaseQty(item)" src="/public/-.svg" alt="">
+                <span class="fw-bold">{{ item.quantity }}</span>
+                <img @click="addToCart(item)" src="/public/+.svg" alt="">
             </div>
 
-            <span class="fw-bold">${{ item.price*k }}</span>
+            <span class="fw-bold">${{ item.price * item.quantity }}</span>
 
             <div class="trash">
                 <img @click="removeFromCart(item.id)" src="/public/trash.svg" alt="">

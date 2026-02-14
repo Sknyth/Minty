@@ -1,23 +1,3 @@
-<template>
-	<div class="container">
-		<div class="row">
-			<div class="col">
-					<Card
-						v-for="item in items"
-						:key="item.id"
-						:imageURL="item.imageURL"
-						:title="item.title"
-						:price="item.price"
-            :id="item.id"
-						@add-to-cart="addToCart(item)"
-						class="custom-card d-inline-block"
-					/>
-
-			</div>
-		</div>
-	</div>
-</template>
-
 <script>
 import { useToast } from "vue-toastification"
 import { mapActions, mapGetters } from 'vuex'
@@ -61,6 +41,25 @@ export default {
 }
 </script>
 
+<template>
+	<div class="container">
+		<div class="row">
+			<div class="col">
+					<Card
+						v-for="item in items"
+						:key="item.id"
+						:imageURL="item.imageURL"
+						:title="item.title"
+						:price="item.price"
+            :id="item.id"
+						@add-to-cart="addToCart(item)"
+						class="custom-card d-inline-block"
+					/>
+
+			</div>
+		</div>
+	</div>
+</template>
 
 <style>
 .custom-card {

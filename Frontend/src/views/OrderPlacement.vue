@@ -19,7 +19,7 @@ export default {
 		...mapActions(['createOrder']),
 		async handleConfirmOrder() { 
 			try {
-				const totalWithDelivery = this.cartItems.reduce((total, item) => total + item.price, 0) + 12
+				const totalWithDelivery = this.cartItems.reduce((total, item) => { return total + (item.price * (item.quantity || 1))}, 0)
 				const order = await this.$store.dispatch('createOrder', { 
 					cartTotal: totalWithDelivery 
 				})
@@ -58,8 +58,8 @@ export default {
 				<h3 class="fw-bold">Order summary</h3>
 				<div class="summary-row d-flex justify-content-between">
 					<p>Items</p>
-					<p>${{ cartItems.reduce((total, item) => total + item.price, 0) }}</p>
-				</div>
+						<p>${{ cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) }}</p>				
+					</div>
 				<div class="summary-row d-flex justify-content-between">
 					<p>Delivery</p>
 					<p>$12</p>
@@ -67,7 +67,7 @@ export default {
 				<hr class="color2" />
 				<div class="summary-total d-flex justify-content-between align-items-center">
 					<h4 class="fw-bold">Total</h4>
-					<span class=" fw-bold">${{ cartItems.reduce((total, item) => total + item.price, 0 + 12) }}</span>
+					<span class=" fw-bold">${{ cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
 				</div>
 				<button @click="handleConfirmOrder" :disabled="!currentPaymentId || !currentAddressId" class="bg-color2 color1 summary-btn">Confirm order</button>
 			</div>
