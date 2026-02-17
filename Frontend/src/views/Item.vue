@@ -2,7 +2,9 @@
 import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
-import { mapGetters } from 'vuex'
+import { useItemsStore } from '../stores/itemsStore'
+import { useCartStore } from '../stores/cartStore'
+
 export default {
   components: {
     Header,
@@ -10,7 +12,10 @@ export default {
   },
   setup() {
     const toast = useToast()
-    return { toast }
+    const itemsStore = useItemsStore()
+    const cartStore = useCartStore()
+    itemsStore.fetchItems()
+    return { toast, itemsStore, cartStore }
   },
   data() {
     return {
@@ -18,21 +23,20 @@ export default {
     }
   },
   computed: {
-        ...mapGetters(['items']),
 
         currentItem() {
           const id = this.$route.params.id
-          return this.items.find(item => String(item.id) === String(id))
+          return this.itemsStore.items.find(item => String(item.id) === String(id))
         }
   },
   methods: {
     async addToCart() {
         if (!this.selectedSize) {
-          this.toast.warning("Please select a size");
+          this.toast.warning("Please select a size")
           return
         }
         try{
-          await this.$store.dispatch('addToCart', {
+          await this.cartStore.addToCart({
             title: this.currentItem.title,
             price: this.currentItem.price,
             imageURL: this.currentItem.imageURL,
@@ -51,9 +55,6 @@ export default {
       this.selectedSize = size
     }
   },
-  mounted() {
-    this.$store.dispatch('fetchItems')
-  }
 }
 </script>
 

@@ -1,34 +1,28 @@
 <script>
 import { useToast } from "vue-toastification"
-import { mapActions, mapGetters } from 'vuex'
+import { useCartStore } from '../stores/cartStore'
 export default {
     setup() {
-        const toast = useToast();
-        return { toast }
-    },
-    data(){
-        return {
-            k: 1
-        }
-    },
-    computed: {
-        ...mapGetters({
-            cart: 'cartItems'
-        })
+        const toast = useToast()
+
+        const cartStore = useCartStore()
+        cartStore.fetchCart()
+
+        return { toast, cartStore }
+
     },
     methods: {
-        ...mapActions(['fetchCart']),
 
         async addToCart(item) {
             try{
-                const existingItem = this.cart.find(i => i.title === item.title && i.size === item.size)
+                const existingItem = this.cartStore.cartItems.find(i => i.title === item.title && i.size === item.size)
                 if (existingItem) {
-                await this.$store.dispatch('updateQuantity', { 
+                await this.cartStore.updateQuantity({ 
                     id: existingItem.id, 
                     quantity: existingItem.quantity + 1 
                 })
             } else {
-                await this.$store.dispatch('addToCart', {
+                await this.cartStore.addToCart({
                     title: item.title,
                     price: item.price,
                     imageURL: item.imageURL,
@@ -48,10 +42,10 @@ export default {
         async decreaseQty(item) {
             if (item.quantity > 1) {
                 try {
-                    await this.$store.dispatch('updateQuantity', { 
+                    await this.cartStore.updateQuantity({ 
                         id: item.id, 
                         quantity: item.quantity - 1 
-                    });
+                    })
                 } catch(e) {
                     this.toast.error(e.message);
                 }
@@ -63,7 +57,7 @@ export default {
         async removeFromCart(id) {
             if (!id) return
             try{
-                await this.$store.dispatch('removeFromCart', id)
+                await this.cartStore.removeFromCart(id)
                 this.toast.success("Product removed!");
             } catch(e) {
                 this.toast.error("Error: " + e.message);
@@ -73,18 +67,13 @@ export default {
 
     
     },
-    mounted(){
-        if (this.$store.state.user) {
-        this.fetchCart()
-    }
-    }
-    }
+}
 </script>
 
 <template>
     <div class="gap-3 d-flex flex-column">
         <div class="item d-flex justify-content-between align-items-center" 
-        v-for="item in cart" :key="item.id">
+        v-for="item in cartStore.cartItems" :key="item.id">
 
             <img :src="item.imageURL" alt="">
 

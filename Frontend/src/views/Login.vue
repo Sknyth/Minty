@@ -2,35 +2,37 @@
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
+import { useAuthStore } from '../stores/authStore'
 export default {
   components: { Header, Footer },
   setup() {
-    const toast = useToast();
-    return { toast }
+    const toast = useToast()
+    const authStore = useAuthStore()
+    return { toast, authStore }
   },
   data() {
-    return { email: '', password: '', message: '' };
+    return { email: '', password: '', message: '' }
   },
   methods: {
     async signIn() {
       try {
-        await this.$store.dispatch('signIn', {
+        await this.authStore.signIn({
           email: this.email,
           password: this.password,
-        });
+        })
 
         this.$router.push('/profile');
-        this.toast.success("Sign in successful!");
+        this.toast.success("Sign in successful!")
       } catch (e) {
         if(e.message === 'Invalid login credentials'){
-          this.toast.error('Error: ' + 'Email or password is incorrect');
+          this.toast.error('Error: ' + 'Email or password is incorrect')
           return
         }
         if(e.message === 'missing email or phone'){
-          this.toast.error('Error: ' + 'All fields are required');
+          this.toast.error('Error: ' + 'All fields are required')
           return
         }
-        this.toast.error('Error: ' + e.message);
+        this.toast.error('Error: ' + e.message)
       }
     },
   },

@@ -1,14 +1,17 @@
 <script>
 import { useToast } from "vue-toastification"
-import { mapActions, mapGetters } from 'vuex'
+import { useProfileStore } from '../stores/profileStore'
 
 export default {
     props: {
         componentName: String
     },
     setup() {
-        const toast = useToast();
-        return { toast }
+        const toast = useToast()
+
+        const profileStore = useProfileStore()
+        
+        return { toast, profileStore }
     },
     data(){
         return {
@@ -25,10 +28,11 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['addresses', 'currentAddressId']),
+        currentAddressId() {
+            return this.profileStore.selectedAddressId
+        }
     },
     methods: {
-        ...mapActions(['fetchAddresses', 'addAddress', 'deleteAddress', 'updateAddress', 'updateSelectedMetadata']),
         
         resetAddressFields(){
             this.country = ''
@@ -43,7 +47,7 @@ export default {
 
         async addAddress(){
             try {
-                await this.$store.dispatch('addAddress',{
+                await this.profileStore.addAddress({
                     country: this.country,
                     city: this.city,
                     street: this.street,
@@ -51,9 +55,9 @@ export default {
                     apt: this.apt,
                     postcode: this.postcode,
                     phone: this.phone
-                });
-                this.resetAddressFields();
-                this.toggleAddAddress = true;
+                })
+                this.resetAddressFields()
+                this.toggleAddAddress = true
                 this.toast.success("Address added!")
             } catch(e){
                 this.toast.error('Error: ' + e.message)
@@ -62,7 +66,7 @@ export default {
 
         async updateAddress(){
             try {
-                await this.$store.dispatch('updateAddress',{
+                await this.profileStore.updateAddress({
                     id: this.editId, 
                     country: this.country,
                     city: this.city,
@@ -82,8 +86,7 @@ export default {
         },
 
         editAddress(address){
-
-            this.editId = address.id 
+            this.editId = this.profileStore.addresses.find(a => a.id === address.id)?.id || null
             this.country = address.country
             this.city = address.city
             this.street = address.street
@@ -98,7 +101,7 @@ export default {
 
         async selectAddress(id) {
             try {
-                await this.updateSelectedMetadata({ addressId: id })
+                await this.profileStore.updateSelectedMetadata({ addressId: id })
                 this.toast.success("Address selected")
             } catch (e) {
                 this.toast.error("Error: " + e.message)
@@ -111,8 +114,8 @@ export default {
             this.toggleEdit = false
         },
     },
-    mounted(){
-        this.fetchAddresses()
+    async mounted() {
+        await this.profileStore.fetchAddresses()
     }
 }
 </script>
@@ -121,13 +124,13 @@ export default {
     <div>
         <h2>{{ componentName }}</h2>
 
-        <div v-if="addresses.length === 0 && toggleAddAddress">
+        <div v-if="profileStore.addresses.length === 0 && toggleAddAddress">
             <p class="text-center">You don't have addresses</p>
         </div>
 
-        <div v-else-if="toggleAddAddress ?? addresses.length != 0">
+        <div v-else-if="toggleAddAddress ?? profileStore.addresses.length != 0">
             <div 
-                v-for="address in addresses" 
+                v-for="address in profileStore.addresses" 
                 :key="address.id" 
                 :class="{ 'active-card': address.id === currentAddressId }" 
                 @click="selectAddress(address.id)" 

@@ -2,12 +2,14 @@
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
+import { useAuthStore } from '../stores/authStore'
 
   export default{
     components: { Header, Footer },
     setup() {
-      const toast = useToast();
-      return { toast }
+      const toast = useToast()
+      const authStore = useAuthStore()
+      return { toast, authStore }
     },
     data() {
       return {
@@ -20,24 +22,24 @@ import Header from '../components/Header.vue'
     methods: {
     async signUp() {
       try {
-        await this.$store.dispatch('signUp', {
+        await this.authStore.signUp({
           email: this.email,
           password: this.password,
           name: this.name,
-        });
+        })
 
-        this.$router.push('/profile');
+        this.$router.push('/profile')
         this.toast.success("Sign up successful!");
       } catch (e) {
         if(e.message === 'Signup requires a valid password'){
-          this.toast.error('Error: ' + 'Password is required');
+          this.toast.error('Error: ' + 'Password is required')
           return
         }
         if(e.message === 'Anonymous sign-ins are disabled'){
-          this.toast.error('Error: ' + 'All fields are required');
+          this.toast.error('Error: ' + 'All fields are required')
           return
         }
-        this.toast.error('Error: ' + e.message);
+        this.toast.error('Error: ' + e.message)
       }
     },
   },

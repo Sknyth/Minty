@@ -5,35 +5,44 @@ import ProfileAddresses from '@/components/ProfileAddresses.vue'
 import ProfilePayments from '@/components/ProfilePayments.vue'
 import ProfilePersInfo from '@/components/ProfilePersInfo.vue'
 import { useToast } from "vue-toastification"
-import { mapActions, mapGetters } from 'vuex'
+import { useCartStore } from '../stores/cartStore'
+import { useProfileStore } from '../stores/profileStore'
 export default {
 	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },
 	setup() {
-    const toast = useToast();
-    return { toast }
+		const toast = useToast()
+		const cartStore = useCartStore()
+		const profileStore = useProfileStore()
+
+		profileStore.fetchProfile()
+		profileStore.fetchPaymentMethods()
+		profileStore.fetchAddresses()
+
+		return { toast, cartStore, profileStore }
   },
 	computed: {
-		...mapGetters(['currentAddressId','currentPaymentId', 'cartItems', 'cartTotal'])
+		currentPaymentId() {
+			return this.profileStore.selectedPaymentId
+		},
+		currentAddressId() {
+			return this.profileStore.selectedAddressId
+		}
 	},
 	methods: {
-		...mapActions(['createOrder']),
 		async handleConfirmOrder() { 
 			try {
-				const totalWithDelivery = this.cartItems.reduce((total, item) => { return total + (item.price * (item.quantity || 1))}, 0)
-				const order = await this.$store.dispatch('createOrder', { 
+				const totalWithDelivery = this.cartStore.cartItems.reduce((total, item) => { return total + (item.price * (item.quantity || 1))}, 0)
+				const order = await this.cartStore.createOrder({ 
 					cartTotal: totalWithDelivery 
 				})
 				this.toast.success(`Order #${order.id.slice(0, 8)} created!`)
 				
-				this.$router.push('/');
+				this.$router.push('/')
 				
 			} catch (e) {
-				console.error("Caught error:", e)
-				
 					this.toast.error(e.message)
 				}
 			}
-		
 	},
 }
 </script>
@@ -58,7 +67,7 @@ export default {
 				<h3 class="fw-bold">Order summary</h3>
 				<div class="summary-row d-flex justify-content-between">
 					<p>Items</p>
-						<p>${{ cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) }}</p>				
+						<p>${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) }}</p>				
 					</div>
 				<div class="summary-row d-flex justify-content-between">
 					<p>Delivery</p>
@@ -67,7 +76,7 @@ export default {
 				<hr class="color2" />
 				<div class="summary-total d-flex justify-content-between align-items-center">
 					<h4 class="fw-bold">Total</h4>
-					<span class=" fw-bold">${{ cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
+					<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
 				</div>
 				<button @click="handleConfirmOrder" :disabled="!currentPaymentId || !currentAddressId" class="bg-color2 color1 summary-btn">Confirm order</button>
 			</div>

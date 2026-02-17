@@ -1,13 +1,17 @@
 <script>
 import { useToast } from "vue-toastification"
-import { mapActions, mapGetters } from 'vuex'
+import { useProfileStore } from '../stores/profileStore'
 export default {
     props: {
         componentName: String
     },
     setup() {
-        const toast = useToast();
-        return { toast }
+        const toast = useToast()
+
+        const profileStore = useProfileStore()
+
+        return { toast, profileStore }
+
     },
     data() {
         return {
@@ -20,19 +24,19 @@ export default {
         };
     },
     computed: {
-    ...mapGetters({
-      payment_methods: 'allPayments',
-      currentPaymentId: 'currentPaymentId'
-    })
+        currentPaymentId() {
+            return this.profileStore.selectedPaymentId
+        }
     },
     methods: {
-        ...mapActions(['fetchPaymentMethods', 'addPaymentMethod', 'deletePaymentMethod', 'updateSelectedMetadata']),
         maskCard(number) {
-            return `**** **** **** ${number.slice(-4)}`;
+            if (!number) return '';
+            const str = number.toString();
+            return `**** **** **** ${str.slice(-4)}`
         },
         async addPaymentMethod() {
             try {
-                await this.$store.dispatch('addPaymentMethod', {
+                await this.profileStore.addPaymentMethod({
                     number: this.cardNumber,
                     holder_name: this.cardHolderName,
                     expiration_date: this.cardExpirationDate,
@@ -57,18 +61,18 @@ export default {
         },
         async deletePaymentMethod(id) {
             try {
-                await this.$store.dispatch('deletePaymentMethod', id);
+                await this.profileStore.deletePaymentMethod(id)
                 this.toast.success("Method deleted successfully!")
                 
                 if (this.selectedPaymentId === id) {
-                    this.selectedPaymentId = null;
+                    this.selectedPaymentId = null
                 }
                 if (this.currentPaymentId === id) {
-                    await this.updateSelectedMetadata({ paymentId: null })
+                    await this.profileStore.updateSelectedMetadata({ paymentId: null })
                 }
                 this.ToggleChange = false
             } catch (e) {
-                this.toast.error("Error: " + e.message);
+                this.toast.error("Error: " + e.message)
             } 
         },
         getCardType(number) {
@@ -86,37 +90,37 @@ export default {
         },
         async selectPayment(id){
            try {
-                await this.updateSelectedMetadata({ paymentId: id })
+                await this.profileStore.updateSelectedMetadata({ paymentId: id })
                 this.toast.success("Payment selected")
             } catch (e) {
                 this.toast.error("Error: " + e.message)
             }
             
     },
-    mounted() {
-    this.fetchPaymentMethods()
-}
+    async mounted() {
+        await this.profileStore.fetchPaymentMethods()
+    }
 }}
 </script>
 
 <template>
     <div>
         <h2>{{ componentName }}</h2>
-        <div class="no-methods" v-if="payment_methods.length === 0 && toggleAddMethod" >
+        <div class="no-methods" v-if="profileStore.paymentMethods.length === 0 && toggleAddMethod" >
             <p>You don't have payment methods</p>
         </div>
-        <div v-else-if="toggleAddMethod ?? payment_methods.length != 0">
+        <div v-else-if="toggleAddMethod ?? profileStore.paymentMethods.length != 0">
             <div class="row gap-3 justify-content-start">
                 <div
-                 v-for="method in payment_methods" 
+                 v-for="method in profileStore.paymentMethods" 
                  :key="method.id" 
-                 :class="{ 'active-card': method.id === currentPaymentId }"
+                 :class="{ 'active-card': method.id === profileStore.selectedPaymentId }"
                  class="col payment-card"
                  @click="selectPayment(method.id)"
                  >
                 <h4>{{ getCardType(method.number) }}</h4>
                 <p>{{ maskCard(method.number) }}</p>
-                <button <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
+                <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
                 </div>
             </div>
             

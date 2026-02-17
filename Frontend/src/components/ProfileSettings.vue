@@ -1,14 +1,14 @@
 <script>
 import { useToast } from "vue-toastification"
-import { mapGetters } from "vuex"
+import { useAuthStore } from '../stores/authStore'
 export default {
     setup() {
-        const toast = useToast();
-        return { toast }
+        const toast = useToast()
+
+        const authStore = useAuthStore()
+
+        return { toast, authStore }
     },
-    computed: {
-        ...mapGetters(['user']),
-    }, 
     data() {
         return {
           ToggleChange: false,
@@ -21,21 +21,19 @@ export default {
   },
     methods: {
         async updatePassword() {
-            if(user.password !== this.passwords.old){
-                this.toast.error("Old password doesn't match!")
-            }
             if (this.passwords.new !== this.passwords.confirm) {
-            this.toast.error("Passwords do not match!")
-            return
+                this.toast.error("Passwords do not match!")
+                return
             }   
             try {
-            await this.$store.dispatch('updatePassword', this.passwords.new)
+            await this.authStore.updatePassword(this.passwords.new)
             
             this.toast.success("Password changed successfully!")
-            this.ToggleChange = false
             this.passwords = { old: '', new: '', confirm: '' }
+            this.ToggleChange = false
+
             } catch (e) {
-            this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + e.message)
             }
         }
     }

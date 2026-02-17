@@ -1,40 +1,42 @@
 <script>
 import { useToast } from "vue-toastification"
-import { mapGetters } from 'vuex'
+import { useAuthStore } from '../stores/authStore'
+import { useProfileStore } from '../stores/profileStore'
 export default {
   props: {
     componentName: String,
   },
   setup() {
-    const toast = useToast();
-    return { toast }
+    const toast = useToast()
+
+    const profileStore = useProfileStore()
+    const authStore = useAuthStore()
+
+    return { toast, profileStore, authStore }
   },
   data() {
     return {
       ToggleChange: false,
-    };
+    }
   },
-  computed: {
-    ...mapGetters(['user', 'profile']),
-  },  
   async mounted() {
-    this.$store.dispatch('fetchProfile')
+    await this.profileStore.fetchProfile()
   },
   methods: {
     async updateProfile() {
       try {
-        await this.$store.dispatch('updateProfile',{
-          name: this.profile.name,
-					surname: this.profile.surname,
-          phone: this.profile.phone
+        await this.profileStore.updateProfile({
+          name: this.profileStore.profile.name,
+					surname: this.profileStore.profile.surname,
+          phone: this.profileStore.profile.phone
         })
 
-        await this.$store.dispatch('updateEmail', {
-          email: String(this.user.email).trim()
+        await this.authStore.updateEmail({
+          email: String(this.authStore.user.email).trim()
         })
         
         this.toast.success("Data saved successfully!")
-        this.ToggleChange = false;
+        this.ToggleChange = false
       } catch (e) {
         alert(e)
         this.toast.error("Error: " + e.message)
@@ -43,9 +45,9 @@ export default {
     },
     async fetchProfile(){
       try {
-        await this.$store.dispatch('fetchProfile')
+        await this.profileStore.fetchProfile()
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
   }
@@ -56,28 +58,28 @@ export default {
 <template>
   <div>
     <h2>{{ componentName }}</h2>
-    <div v-if="profile && user" class="personal-information">
+    <div v-if="profileStore.profile" class="personal-information">
       
       <form @submit.prevent="updateProfile" class="d-flex gap-4 form-change-info justify-content-between row">
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Name</label>
-          <input v-if="ToggleChange" v-model="profile.name" type="text">
-          <p v-else>{{ profile.name }}</p>
+          <input v-if="ToggleChange" v-model="profileStore.profile.name" type="text">
+          <p v-else>{{ profileStore.profile.name }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Surname</label>
-          <input v-if="ToggleChange" v-model="profile.surname" type="text">
-          <p v-else>{{ profile.surname }}</p>
+          <input v-if="ToggleChange" v-model="profileStore.profile.surname" type="text">
+          <p v-else>{{ profileStore.profile.surname }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Email</label>
-          <input v-if="ToggleChange" v-model.trim="user.email" type="email">
-          <p v-else>{{ user.email }}</p>
+          <input v-if="ToggleChange" v-model.trim="authStore.user.email" type="email">
+          <p v-else>{{ authStore.user.email }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Phone number</label>
-          <input v-if="ToggleChange" v-model.trim="profile.phone" type="tel">
-          <p v-else>{{ profile.phone }}</p>
+          <input v-if="ToggleChange" v-model.trim="profileStore.profile.phone" type="tel">
+          <p v-else>{{ profileStore.profile.phone }}</p>
         </div>
         <button v-if="ToggleChange" type="submit" class="button-color1 btn-change">Save Changes</button>
         <button v-else type="button" class="button-color1 btn-change" @click="ToggleChange = !ToggleChange">Change</button>

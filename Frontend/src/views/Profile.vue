@@ -1,6 +1,5 @@
 <script>
 import { useToast } from "vue-toastification"
-import { mapGetters } from 'vuex'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ProfileAddresses from '../components/ProfileAddresses.vue'
@@ -8,11 +7,20 @@ import ProfileOrders from '../components/ProfileOrders.vue'
 import ProfilePayments from '../components/ProfilePayments.vue'
 import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import ProfileSettings from '../components/ProfileSettings.vue'
+import { useAuthStore } from '../stores/authStore'
+import { useProfileStore } from '../stores/profileStore'
 export default {
   components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
   setup() {
-    const toast = useToast();
-    return { toast }
+    const toast = useToast()
+
+    const profileStore = useProfileStore()
+    profileStore.fetchProfile()
+    profileStore.fetchPaymentMethods()
+    profileStore.fetchAddresses()
+    const authStore = useAuthStore()
+
+    return { toast, profileStore, authStore }
   },
   data() {
     return {
@@ -20,44 +28,41 @@ export default {
       selectedOption: 'Profile',
     };
   },
-  computed: {
-    ...mapGetters(['user', 'profile']),
-  },  
-  async mounted() {
-    this.$store.dispatch('fetchProfile')
-  },
   methods: {
     logout() {
       try{
-        this.$store.dispatch('signOut');
-        this.$router.push('/login');
-        this.toast.success("Successful exit!");
+        this.authStore.signOut()
+        this.$router.push('/login')
+        this.toast.success("Successful exit!")
       } catch(e){
-        this.toast.error("Error: " + e.message);
+        this.toast.error("Error: " + e.message)
       }
       
 
     },
     changeOption(event) {
-      const buttons = event.currentTarget.parentNode.querySelectorAll('button');
-      buttons.forEach((btn) => btn.classList.remove('btn-chosen'));
+      const buttons = event.currentTarget.parentNode.querySelectorAll('button')
+      buttons.forEach((btn) => btn.classList.remove('btn-chosen'))
       event.currentTarget.classList.add('btn-chosen');
-      this.selectedOption = event.currentTarget.textContent;
+      this.selectedOption = event.currentTarget.textContent
     },
   },
-};
+  
+  
+}
 </script>
 
 
 <template>
   <Header />
     <div class="container">
-      <div v-if="profile">
+      <div v-if="profileStore.profile">
+        
 
         <div class="profile-card">
-          <h2>{{ profile.name }}</h2>
-          <p>{{ user.email }}</p>
-          <p>Created: {{ profile.created_at.slice(0, 10) }}</p>
+          <h2>{{ profileStore.profile.name }}</h2>
+          <p>{{ authStore.user.email }}</p>
+          <p>Created: {{ profileStore.profile.created_at.slice(0, 10) }}</p>
         </div>
 
         <div class="choice-option">
@@ -81,12 +86,12 @@ export default {
         <button class="btn btn-danger" id="btn-logout" @click="logout">Logout</button>
 
       </div>
-      <div v-else-if="loading">
+      <!-- <div v-else-if="loading">
         <p class="text-center fs-4 mt-5">Loading profile...</p>
       </div>
       <div v-else>
         <p class="text-center fs-4 mt-5">Please log in to view your profile.</p>
-      </div>
+      </div> -->
     </div> 
   <Footer /> 
 </template>

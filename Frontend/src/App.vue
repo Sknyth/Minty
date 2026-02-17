@@ -1,9 +1,5 @@
-<script lang="ts">
-export default {
-  async created() {
-    await this.$store.dispatch('initializeAuth');
-  }
-}
+<script setup>
+import { RouterView } from 'vue-router'
 </script>
 
 <template>

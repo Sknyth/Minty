@@ -1,18 +1,24 @@
-<script lang="ts">
+<script>
+import { useAuthStore } from '../stores/authStore'
+import { useProfileStore } from '../stores/profileStore'
 export default {
-computed: {
-    user() {
-      return this.$store.state.user;
-    },
-  },
+	setup() {
+		const profileStore = useProfileStore()
+		const authStore = useAuthStore()
+
+		return {
+			getters: authStore.$state,
+			user: profileStore.$state.user,
+			fetchProfile: profileStore.fetchProfile
+		}
+	},
   
   async mounted() {
-    if (this.$store.getters.isAuth && !this.$store.state.user) {
-      await this.$store.dispatch('fetchProfile');
+    if (this.getters.isAuth && !this.user) {
+      await this.fetchProfile()
     }
   }
-
-};
+}
 </script>
 
 <template>

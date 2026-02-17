@@ -3,25 +3,31 @@ import { mapActions, mapGetters } from 'vuex'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'
+import { useToast } from "vue-toastification"
+import { useCartStore } from '../stores/cartStore'
 
 export default {
 	components: { Header, Footer, ItemsInCart },
-	computed: {
-      ...mapGetters(['cartItems']),
+	setup() {
+				const toast = useToast()
+				const cartStore = useCartStore()
+				cartStore.fetchCart()
 
+				return { toast, cartStore }
+		},
+	computed: {
 			totalQuantity() {
-				return this.cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+				return this.cartStore.cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
 			},
 			totalPrice() {
-				return this.cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0)
+				return this.cartStore.cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0)
 			}
   },
 	
 	methods: {
-		...mapActions(['fetchCart']),
 		goToCheckout() {
-    if (this.cartItems.length > 0) {
-      this.$store.commit('SET_ORDER_ACCESS', true)
+    if (this.cartStore.cartItems.length > 0) {
+      this.cartStore.orderAccess = true
       this.$router.push('/orderPlacement')
     } else {
       this.toast.error("Cart is empty")
@@ -34,7 +40,7 @@ export default {
 <template>
 	<main>
 		<Header />
-		<div v-if="cartItems.length === 0">
+		<div v-if="cartStore.cartItems.length === 0">
 			<div class="container d-flex align-items-center justify-content-between">
 				<div></div>
 				<img
@@ -62,12 +68,12 @@ export default {
 				</div>
 			</div>
 		</div>
-		<div v-else-if="cartItems" class="container align-items-center">
+		<div v-else-if="cartStore.cartItems" class="container align-items-center">
 
         <div class="top-name d-flex justify-content-between">
             <h1 class="fw-bold">Cart</h1>
-            <p v-if="totalQuantity === 1"> {{ totalQuantity }} product</p>
-            <p v-else>{{ totalQuantity }} products</p>
+            <p v-if="cartStore.totalQuantity === 1"> {{ totalQuantity }} product</p>
+            <p v-else>{{totalQuantity }} products</p>
         </div>
 		<div class="d-flex">
 			<ItemsInCart />
@@ -103,10 +109,10 @@ export default {
 		</div>
 		
 		</div>
-		<div v-else class="loading-state text-center p-5">
+		<!-- <div v-else class="loading-state text-center p-5">
 			<div class="spinner-border"></div>
 			<p>Loading products data...</p>
-		</div>
+		</div> -->
 		<Footer />
 	</main>
 </template>

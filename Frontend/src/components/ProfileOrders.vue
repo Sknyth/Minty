@@ -1,11 +1,12 @@
 <script>
-import { mapGetters } from 'vuex'
+import { useOrdersStore } from '../stores/ordersStore'
 export default {
-    computed: {
-        ...mapGetters(['orders'])
+    setup() {
+        const ordersStore = useOrdersStore()
+        return { ordersStore }
     },
     async mounted() {
-        this.$store.dispatch('fetchOrders')
+        this.ordersStore.fetchOrders()
     },
 }
 </script>
@@ -13,7 +14,7 @@ export default {
 <template>
     <h2>Order history</h2>
 
-    <div v-for="order in orders" :key="order.id">
+    <div v-for="order in ordersStore.orders" :key="order.id">
         <div class="d-flex justify-content-between align-items-center mt-3 p-3 order-card">
             <div>
             <h4>Order #{{ order.id.slice(0, 8) }}</h4>
