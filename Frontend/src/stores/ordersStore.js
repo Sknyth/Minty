@@ -2,19 +2,21 @@ import {defineStore} from 'pinia'
 import {useAuthStore} from './authStore'
 import {useProfileStore} from './profileStore'
 import { supabase } from '../supabase'
+import { useCartStore } from './cartStore'
 
 export const useOrdersStore = defineStore('orders', {
 	state: () => ({
 		orders: [],
 		cartTotal: 0,
 		authStore: useAuthStore(),
-		profile: useProfileStore()
+		profileStore: useProfileStore(),
+		cartStore: useCartStore()
 	}),
 	actions: {
+		
 		async createOrder(payload) {
-
 			if (!this.authStore.user || !this.authStore.user.id) throw new Error("Log in to place an order")
-			if (!this.profile.selectedAddressId || !this.profile.selectedPaymentId) {
+			if (!this.profileStore.selectedAddressId || !this.profileStore.selectedPaymentId) {
 				throw new Error("Select address and payment method")
 			}
 
@@ -25,18 +27,19 @@ export const useOrdersStore = defineStore('orders', {
 				.from('orders')
 				.insert({
 					user_id: this.authStore.user.id,
-					customer_name: this.profile.name,
-					customer_surname: this.profile.surname,
-					address_id: this.profile.selectedAddressId,
-					payment_id: this.profile.selectedPaymentId,
-					items: this.cartItems,
+					customer_name: this.profileStore.profile.name,
+					customer_surname: this.profileStore.profile.surname,
+					email: this.authStore.user.email,
+					address_id: this.profileStore.selectedAddressId,
+					payment_id: this.profileStore.selectedPaymentId,
+					items: this.cartStore.cartItems,
 					total_price: cartTotal,
 					status: 'pending'
 				})
 				.select()
 				.single()
 
-			this.cartTotal = cartTotal
+				this.cartTotal = cartTotal
 
 			if (error) throw error
 
@@ -47,8 +50,8 @@ export const useOrdersStore = defineStore('orders', {
 
 			if (cartError) throw cartError
 
-			this.cartItems = []
-			this.cartTotal = 0
+			this.cartStore.cartItems = []
+			this.cartStore.cartTotal = 0
 
 			return data
 		},

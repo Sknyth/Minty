@@ -6,19 +6,21 @@ import ProfilePayments from '@/components/ProfilePayments.vue'
 import ProfilePersInfo from '@/components/ProfilePersInfo.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
+import { useOrdersStore } from '../stores/ordersStore'
 import { useProfileStore } from '../stores/profileStore'
 export default {
 	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },
 	setup() {
 		const toast = useToast()
-		const cartStore = useCartStore()
 		const profileStore = useProfileStore()
+		const cartStore = useCartStore()
+		const ordersStore = useOrdersStore()
 
 		profileStore.fetchProfile()
 		profileStore.fetchPaymentMethods()
 		profileStore.fetchAddresses()
 
-		return { toast, cartStore, profileStore }
+		return { toast, cartStore, profileStore, ordersStore }
   },
 	computed: {
 		currentPaymentId() {
@@ -31,16 +33,19 @@ export default {
 	methods: {
 		async handleConfirmOrder() { 
 			try {
-				const totalWithDelivery = this.cartStore.cartItems.reduce((total, item) => { return total + (item.price * (item.quantity || 1))}, 0)
-				const order = await this.cartStore.createOrder({ 
+				const totalWithDelivery = this.cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12
+				const order = await this.ordersStore.createOrder({ 
 					cartTotal: totalWithDelivery 
 				})
+				this.ordersStore.fetchOrders()
 				this.toast.success(`Order #${order.id.slice(0, 8)} created!`)
 				
 				this.$router.push('/')
 				
 			} catch (e) {
 					this.toast.error(e.message)
+
+					console.error('Order creation failed:', e)
 				}
 			}
 	},
