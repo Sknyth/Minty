@@ -99,5 +99,13 @@ export const useAuthStore = defineStore('auth', {
 				])
 			}
 		},
+
+		async signOut() {
+			const { error } = await supabase.auth.signOut()
+			if (error) throw error
+			this.user = null
+			this.profile = null
+			this.cartStore.clearCart()
+		}
 	}
 })

@@ -29,7 +29,6 @@ app.use(Toast, options)
 const authStore = useAuthStore()
 authStore.getUser().then(async () => {
   await authStore.getUser()
-
 })
 
 
