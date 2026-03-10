@@ -1,5 +1,4 @@
 <script>
-import { mapActions, mapGetters } from 'vuex'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'

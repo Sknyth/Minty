@@ -1,14 +1,14 @@
 <script lang="ts">
 export default {
   props: {
-    imageURL: String,
-    title: String,
+    image_url: String,
+    name: String,
     price: Number,
     id: [Number, String],
   },
   methods: {
     addToCart() {
-      this.$emit('add-to-cart', this.title, this.price, this.imageURL);
+      this.$emit('add-to-cart', this.name, this.price, this.image_url)
     },
   },
 }
@@ -18,12 +18,12 @@ export default {
   <div class="product-card">
     <router-link :to="{ name: 'Item', params: { id: id } }" class="card-link">
       <div class="image-container">
-        <img :src="imageURL" class="item-img" :alt="title" />
+        <img :src="image_url" class="item-img" :alt="name" />
         <div class="view-tag">View Item</div>
       </div>
       
       <div class="card-content">
-        <h5 class="item-title">{{ title }}</h5>
+        <h5 class="item-title">{{ name }}</h5>
         <p class="item-price color1">${{ price }}</p>
       </div>
     </router-link>

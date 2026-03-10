@@ -36,10 +36,12 @@ export default {
         }
         try{
           await this.cartStore.addToCart({
-            title: this.currentItem.title,
+            name: this.currentItem.name,
             price: this.currentItem.price,
-            imageURL: this.currentItem.imageURL,
-            size: this.selectedSize
+            image_url: this.currentItem.image_url,
+            description: this.currentItem.description,
+            size: this.selectedSize,
+            quantity: 1
           })
           this.toast.success("Product added!")
         } catch(e){
@@ -120,7 +122,7 @@ export default {
               </div>
               <div class="size-grid">
                 <button 
-                  v-for="size in currentItem.size" 
+                  v-for="size in currentItem.sizes" 
                   :key="size"
                   @click="selectSize(size)"
                   :class="['size-btn', { 'active': selectedSize === size }]"

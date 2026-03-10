@@ -12,7 +12,6 @@ export default {
 
     },
     methods: {
-
         async addToCart(item) {
             try{
                 const existingItem = this.cartStore.cartItems.find(i => i.title === item.title && i.size === item.size)
@@ -23,9 +22,10 @@ export default {
                 })
             } else {
                 await this.cartStore.addToCart({
-                    title: item.title,
+                    name: item.name,
                     price: item.price,
-                    imageURL: item.imageURL,
+                    image_url: item.image_url,
+                    description: item.description,
                     size: item.size,
                     quantity: 1
                 })
@@ -75,9 +75,9 @@ export default {
         <div class="item d-flex justify-content-between align-items-center" 
         v-for="item in cartStore.cartItems" :key="item.id">
 
-            <img :src="item.imageURL" alt="">
+            <img :src="item.image_url" alt="">
 
-            <span class="fw-bold">{{ item.title }}</span>
+            <span class="fw-bold">{{ item.name }}</span>
 
             <span class="fw-bold">size {{ item.size }}</span>
             

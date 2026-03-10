@@ -21,10 +21,11 @@ export default {
       async addToCart(item) {
         try{
           await this.cartStore.addToCart({
-            title: item.title,
+            name: item.name,
             price: item.price,
-            imageURL: item.imageURL,
-            size: item.size?.[0] || null          
+            image_url: item.image_url,
+            description: item.description,
+            size: item.sizes[0]      
           })
           this.toast.success('Product added!')
         } catch(e){
@@ -49,8 +50,8 @@ export default {
 					<Card
 						v-for="product in productsStore.products"
 						:key="product.id"
-						:imageURL="product.image_url"
-						:title="product.title"
+						:image_url="product.image_url"
+						:name="product.name"
 						:price="product.price"
             :id="product.id"
 						@add-to-cart="() => addToCart(product)"
