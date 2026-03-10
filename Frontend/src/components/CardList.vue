@@ -1,6 +1,6 @@
 <script>
 import { useToast } from "vue-toastification"
-import { useItemsStore } from '../stores/itemsStore'
+import { useProductsStore } from '../stores/ProductStore'
 import { useCartStore } from '../stores/cartStore'
 import Card from './Card.vue'
 
@@ -9,13 +9,13 @@ export default {
   setup() {
       const toast = useToast()
 
-      const itemsStore = useItemsStore()
-      itemsStore.fetchItems()
+      const productsStore = useProductsStore()
+      productsStore.fetchProducts()
 
       const cartStore = useCartStore()
 
 
-      return { toast, itemsStore, cartStore }
+      return { toast, productsStore, cartStore }
   },
   methods: {
       async addToCart(item) {
@@ -47,13 +47,13 @@ export default {
 		<div class="row">
 			<div class="col">
 					<Card
-						v-for="item in itemsStore.items"
-						:key="item.id"
-						:imageURL="item.imageURL"
-						:title="item.title"
-						:price="item.price"
-            :id="item.id"
-						@add-to-cart="() => addToCart(item)"
+						v-for="product in productsStore.products"
+						:key="product.id"
+						:imageURL="product.image_url"
+						:title="product.title"
+						:price="product.price"
+            :id="product.id"
+						@add-to-cart="() => addToCart(product)"
 						class="custom-card d-inline-block"
 					/>
 

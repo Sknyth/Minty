@@ -2,7 +2,7 @@
 import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
-import { useItemsStore } from '../stores/itemsStore'
+import { useProductsStore } from '../stores/ProductStore'
 import { useCartStore } from '../stores/cartStore'
 
 export default {
@@ -12,10 +12,10 @@ export default {
   },
   setup() {
     const toast = useToast()
-    const itemsStore = useItemsStore()
+    const productsStore = useProductsStore()
     const cartStore = useCartStore()
-    itemsStore.fetchItems()
-    return { toast, itemsStore, cartStore }
+    productsStore.fetchProducts()
+    return { toast, productsStore, cartStore }
   },
   data() {
     return {
@@ -23,11 +23,10 @@ export default {
     }
   },
   computed: {
-
-        currentItem() {
-          const id = this.$route.params.id
-          return this.itemsStore.items.find(item => String(item.id) === String(id))
-        }
+    currentItem() {
+      const id = this.$route.params.id
+      return this.productsStore.products.find(item => String(item.id) === String(id))
+    }
   },
   methods: {
     async addToCart() {
@@ -75,13 +74,13 @@ export default {
             
             <div class="carousel-inner h-100">
               <div class="carousel-item active h-100">
-                <img :src="currentItem.imageURL" class="main-img" alt="Nike Air Force 1">
+                <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force 1">
               </div>
               <div class="carousel-item h-100">
-                <img :src="currentItem.imageURL" class="main-img" alt="Nike Air Force Black">
+                <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Black">
               </div>
               <div class="carousel-item h-100">
-                <img :src="currentItem.imageURL" class="main-img" alt="Nike Air Force Cream">
+                <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Cream">
               </div>
             </div>
 
@@ -108,9 +107,9 @@ export default {
             <div class="mb-4">
               <p class="fw-bold mb-3">Color: <span class="fw-normal color3">Original White</span></p>
               <div class="d-flex gap-2">
-                <div class="swatch active"><img :src="currentItem.imageURL" alt=""></div>
-                <!-- <div class="swatch"><img :src="currentItem.imageURL" alt=""></div>
-                <div class="swatch"><img :src="currentItem.imageURL" alt=""></div> -->
+                <div class="swatch active"><img :src="currentItem.image_url" alt=""></div>
+                <!-- <div class="swatch"><img :src="currentItem.image_url" alt=""></div>
+                <div class="swatch"><img :src="currentItem.image_url" alt=""></div> -->
               </div>
             </div>
 
