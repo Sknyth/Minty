@@ -1,23 +1,20 @@
 <script>
 import { useAuthStore } from '../stores/authStore'
+import { useProductsStore } from '../stores/productStore'
 import { useProfileStore } from '../stores/profileStore'
 export default {
 	setup() {
 		const profileStore = useProfileStore()
 		const authStore = useAuthStore()
+		const productsStore = useProductsStore()
 
+		return { profileStore, authStore, productsStore }
+	},
+	data() {
 		return {
-			getters: authStore.$state,
-			user: profileStore.$state.user,
-			fetchProfile: profileStore.fetchProfile
+			searchQuery: ''
 		}
 	},
-  
-  async mounted() {
-    if (this.getters.isAuth && !this.user) {
-      await this.fetchProfile()
-    }
-  }
 }
 </script>
 
@@ -29,8 +26,8 @@ export default {
 			>
 
 			<div class="search-box">
-				<input type="text" placeholder="Search..." />
-				<button>Search</button>
+				<input type="text" placeholder="Search..." v-model="searchQuery" @keyup.enter="productsStore.searchProducts(searchQuery)"/>
+				<button @click="productsStore.searchProducts(searchQuery)">Search</button>
 			</div>
 
 			<div class="social-links d-flex">

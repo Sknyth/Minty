@@ -2,8 +2,8 @@
 import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
-import { useProductsStore } from '../stores/ProductStore'
 import { useCartStore } from '../stores/cartStore'
+import { useProductsStore } from '../stores/productStore'
 
 export default {
   components: {

@@ -1,8 +1,8 @@
 <script>
-import { useToast } from "vue-toastification"
-import { useProductsStore } from '../stores/ProductStore'
-import { useCartStore } from '../stores/cartStore'
-import Card from './Card.vue'
+import { useToast } from "vue-toastification";
+import { useCartStore } from '../stores/cartStore';
+import { useProductsStore } from '../stores/productStore';
+import Card from './Card.vue';
 
 export default {
   components: { Card },
