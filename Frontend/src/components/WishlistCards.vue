@@ -52,10 +52,18 @@ export default {
           return
         }
         this.toast.error("Error: " + e.message)
-
       }
-    }
+    },
   },
+  computed: {
+    favoriteProducts() {
+      const favIds = this.wishlistStore.wishlistProducts.map(item => item.product_id)
+
+      return this.productsStore.products.filter(product => 
+        favIds.includes(product.id)
+      )
+    }
+  }
 }
 </script>
 
@@ -64,7 +72,7 @@ export default {
 		<div class="row">
 			<div class="col">
 					<Card
-						v-for="product in productsStore.products"
+						v-for="product in favoriteProducts"
 						:key="product.id"
 						:image_url="product.image_url"
 						:name="product.name"

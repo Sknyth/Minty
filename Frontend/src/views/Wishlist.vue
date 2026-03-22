@@ -1,12 +1,25 @@
-<script setup lang="ts">
+<script>
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
+import WishlistCards from '../components/WishlistCards.vue'
+import { useWishlistStore } from '../stores/wishlistStore'
+
+export default {
+	components: { Header, Footer, WishlistCards },
+	setup() {
+		const wishlistStore = useWishlistStore()
+		wishlistStore.fetchWishlist()
+
+		return { wishlistStore }
+	}
+
+}
 </script>
 
 <template>
 	<main>
 		<Header />
-		<div class="container d-flex align-items-center justify-content-between">
+		<div v-if="wishlistStore.wishlistProducts.length === 0" class="container d-flex align-items-center justify-content-between">
 			<div></div>
 			<img
 				class="image-container position-absolute"
@@ -31,6 +44,8 @@ import Header from '../components/Header.vue'
 				</div>
 			</div>
 		</div>
+
+		<WishlistCards v-else />
 		<Footer />
 	</main>
 </template>

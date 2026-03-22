@@ -26,7 +26,7 @@ export default {
         <div v-else-if="order.status === 'pending'" class="status-pending" >{{ order.status }}</div>
         <div v-else-if="order.status === 'cancelled'" class="status-canceled" >{{ order.status }}</div>
         
-        <h5 class="money">{{ order.total_price }}$</h5>
+        <h5 class="color1">{{ order.total_price }}$</h5>
         </div>
         
     </div>
@@ -58,8 +58,5 @@ export default {
     padding: 5px 10px;
     border-radius: 20px;
     text-transform: capitalize;
-}
-.money {
-    color: var(--color1);
 }
 </style>

@@ -1,6 +1,6 @@
 <script>
 import { useAuthStore } from '../stores/authStore'
-import { useProductsStore } from '../stores/productStore'
+import { useProductsStore } from '../stores/productsStore'
 import { useProfileStore } from '../stores/profileStore'
 export default {
 	setup() {
@@ -31,11 +31,11 @@ export default {
 			</div>
 
 			<div class="social-links d-flex">
-				<RouterLink to="/emptyFavorite">
+				<RouterLink to="/wishlist">
 					<img src="/favorite(heart).svg" alt=""/>
 				</RouterLink>
 
-				<RouterLink v-if="!user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
+				<RouterLink v-if="!authStore.user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
 				<RouterLink v-else to="/profile"><img src="/login.svg" alt="" /></RouterLink>
 
 				<RouterLink to="/cart"><img src="/cart.svg" alt="" /></RouterLink>
@@ -64,7 +64,12 @@ export default {
 	border-radius: 0 5px 5px 0;
 	padding: 0 16px;
 	height: 40px;
+	transition: 0.3s all ease;
 }
+.search-box button:hover {
+	opacity: 0.8;
+}
+
 .social-links {
 	gap: 25px;
 }

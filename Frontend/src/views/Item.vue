@@ -3,7 +3,7 @@ import Footer from '@/components/Footer.vue'
 import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
-import { useProductsStore } from '../stores/productStore'
+import { useProductsStore } from '../stores/productsStore'
 
 export default {
   components: {
@@ -76,7 +76,7 @@ export default {
             
             <div class="carousel-inner h-100">
               <div class="carousel-item active h-100">
-                <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force 1">
+                <img :src="currentItem.image_url" class="main-img" alt="">
               </div>
               <div class="carousel-item h-100">
                 <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Black">
@@ -101,8 +101,8 @@ export default {
 
         <div class="col-lg-4 col-md-5 d-flex align-items-center bg-white border-start">
           <div class="info-content p-5 w-100">
-            <h1 class="logo color1 mb-2">{{ currentItem.title }}</h1>
-            <h2 class="fs-4 fw-light mb-4 color3">${{ currentItem.price }}</h2>
+            <h1 class="mb-">{{ currentItem.name }}</h1>
+            <h2 class="fs-4 mb-4 color1">${{ currentItem.price }}</h2>
 
             <hr class="my-4 opacity-10">
 
@@ -141,9 +141,9 @@ export default {
               </button>
             </div>
 
-            <p class="mt-5 color3 small lh-lg">
+            <!-- <p class="mt-5 color3 small lh-lg">
               {{currentItem.description}}
-            </p>
+            </p> -->
           </div>
         </div>
 

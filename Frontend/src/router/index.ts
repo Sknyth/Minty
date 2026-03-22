@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { supabase } from '../supabase.js'
 
 import Cart from '@/views/Cart.vue'
-import EmptyFavorite from '@/views/EmptyFavorite.vue'
+import Wishlist from '@/views/Wishlist.vue'
 import HomeView from '@/views/HomeView.vue'
 import Item from '@/views/Item.vue'
 import Login from '@/views/Login.vue'
@@ -14,7 +14,7 @@ import Register from '@/views/Register.vue'
 const routes = [
 	{ path: '/', component: HomeView, name: 'HomeView' },
 	{ path: '/cart', component: Cart, name: 'Cart' },
-	{ path: '/emptyFavorite', component: EmptyFavorite, name: 'EmptyFavorite' },
+	{ path: '/wishlist', component: Wishlist, name: 'Wishlist' },
 	{ path: '/item:id', component: Item, name: 'Item' },
 	{ path: '/register', component: Register, name: 'Register', meta: { notAuth: true } },
 	{ path: '/login', component: Login, name: 'Login', meta: { notAuth: true } },
