@@ -10,6 +10,11 @@ export const useCartStore = defineStore('cart', {
 		orderAccess: false,
 		authStore: useAuthStore(),
 	}),
+	getters: {
+    isInCart: (state) => (item) => {
+      return state.cartItems.find(i => i.name === item.name && i.size === item.size)
+    }
+  },
 	actions: {
 		async fetchCart() {
 			if (!this.authStore.user) return

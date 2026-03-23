@@ -12,24 +12,12 @@ export default {
 
     },
     methods: {
-        async addToCart(item) {
+        async updateQuantity(item) {
             try{
-                const existingItem = this.cartStore.cartItems.find(i => i.title === item.title && i.size === item.size)
-                if (existingItem) {
                 await this.cartStore.updateQuantity({ 
-                    id: existingItem.id, 
-                    quantity: existingItem.quantity + 1 
+                    id: item.id, 
+                    quantity: item.quantity + 1 
                 })
-            } else {
-                await this.cartStore.addToCart({
-                    name: item.name,
-                    price: item.price,
-                    image_url: item.image_url,
-                    description: item.description,
-                    size: item.size,
-                    quantity: 1
-                })
-            }
             } catch(e){
             if(e.message === 'User not authenticated'){
                 this.toast.error("Error: " + 'You are not logged in')
@@ -39,7 +27,7 @@ export default {
             }
         },
 
-        async decreaseQty(item) {
+        async decreaseQuantity(item) {
             if (item.quantity > 1) {
                 try {
                     await this.cartStore.updateQuantity({ 
@@ -62,10 +50,7 @@ export default {
             } catch(e) {
                 this.toast.error("Error: " + e.message);
             }
-            
         },
-
-    
     },
 }
 </script>
@@ -87,9 +72,9 @@ export default {
             </div>
 
             <div class="count d-flex justify-content-between align-items-center bg-color2">
-                <img @click="decreaseQty(item)" src="/public/-.svg" alt="">
+                <img @click="decreaseQuantity(item)" src="/public/-.svg" alt="">
                 <span class="fw-bold">{{ item.quantity }}</span>
-                <img @click="addToCart(item)" src="/public/+.svg" alt="">
+                <img @click="updateQuantity(item)" src="/public/+.svg" alt="">
             </div>
 
             <span class="fw-bold">${{ item.price * item.quantity }}</span>

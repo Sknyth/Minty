@@ -8,13 +8,11 @@ export const useWishlistStore = defineStore('wishlist', {
     loading: false,
 		authStore: useAuthStore()
   }),
-
   getters: {
     isInWishlist: (state) => (productId) => {
       return state.wishlistProducts.some(item => item.product_id === productId)
     }
   },
-
   actions: {
     async fetchWishlist() {
       if (!this.authStore.user) return

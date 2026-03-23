@@ -20,13 +20,23 @@ export default {
   methods: {
     async addToCart(product) {
       try{
-        await this.cartStore.addToCart({
-          name: product.name,
-          price: product.price,
-          image_url: product.image_url,
-          description: product.description,
-          size: product.sizes[0]      
-        })
+        const cartProduct = { ...product, size: product.sizes[0] }
+        const existingItem = this.cartStore.isInCart(cartProduct)
+        if(existingItem){
+          await this.cartStore.updateQuantity({
+            id: existingItem.id,
+            quantity: existingItem.quantity + 1
+          })
+        }
+        else {
+          await this.cartStore.addToCart({
+            name: product.name,
+            price: product.price,
+            image_url: product.image_url,
+            description: product.description,
+            size: product.sizes[0]      
+          })
+        }
         this.toast.success('Product added to your cart!')
       } catch(e){
         if(e.message === 'User not authenticated'){
