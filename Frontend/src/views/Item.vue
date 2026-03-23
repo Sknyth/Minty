@@ -4,6 +4,7 @@ import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
+import { useWishlistStore } from '../stores/wishlistStore'
 
 export default {
   components: {
@@ -13,9 +14,10 @@ export default {
   setup() {
     const toast = useToast()
     const productsStore = useProductsStore()
+    const wishlistStore = useWishlistStore()
     const cartStore = useCartStore()
     productsStore.fetchProducts()
-    return { toast, productsStore, cartStore }
+    return { toast, productsStore, cartStore, wishlistStore }
   },
   data() {
     return {
@@ -26,35 +28,55 @@ export default {
     currentItem() {
       const id = this.$route.params.id
       return this.productsStore.products.find(item => String(item.id) === String(id))
+    },
+    isInWishlistComputed() {
+      return this.wishlistStore.isInWishlist(this.currentItem.id)
     }
   },
   methods: {
     async addToCart() {
-        if (!this.selectedSize) {
-          this.toast.warning("Please select a size")
+      if (!this.selectedSize) {
+        this.toast.warning("Please select a size")
+        return
+      }
+      try{
+        await this.cartStore.addToCart({
+          name: this.currentItem.name,
+          price: this.currentItem.price,
+          image_url: this.currentItem.image_url,
+          description: this.currentItem.description,
+          size: this.selectedSize,
+          quantity: 1
+        })
+        this.toast.success("Product added!")
+      } catch(e){
+        if(e.message === 'User not authenticated'){
+          this.toast.error("Error: " + 'You are not logged in')
           return
         }
-        try{
-          await this.cartStore.addToCart({
-            name: this.currentItem.name,
-            price: this.currentItem.price,
-            image_url: this.currentItem.image_url,
-            description: this.currentItem.description,
-            size: this.selectedSize,
-            quantity: 1
-          })
-          this.toast.success("Product added!")
-        } catch(e){
-          if(e.message === 'User not authenticated'){
-            this.toast.error("Error: " + 'You are not logged in')
-            return
-          }
-          this.toast.error("Error: " + e.message)
-        }
-      },
+        this.toast.error("Error: " + e.message)
+      }
+    },
     selectSize(size) {
       this.selectedSize = size
-    }
+    },
+    async toggleWishlist(productID) {
+      try {
+        if (this.wishlistStore.isInWishlist(productID)) {
+          await this.wishlistStore.deleteFromWishlist(productID)
+          this.toast.success('Product removed from wishlist!')
+        } else {
+          await this.wishlistStore.addToWishlist(productID)
+          this.toast.success('Product added to your wishlist!') 
+        }
+      } catch(e) {
+        if(e.message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
+          this.toast.error("Error: Already in wishlist")
+          return
+        }
+        this.toast.error("Error: " + e.message)
+      }
+    },
   },
 }
 </script>
@@ -63,11 +85,11 @@ export default {
   <Header />
   
   <main v-if="currentItem" class="product-wrapper">
-    <div class="container h-100 p-0">
-      <div class="row g-0 h-100">
+    <div class="container p-0">
+      <div class="row g-0">
         
-        <div class="col-lg-8 col-md-7 h-100 position-relative">
-          <div id="itemCarousel" class="carousel slide h-100" data-bs-ride="carousel">
+        <div class="col-lg-8 col-md-7 position-relative">
+          <div id="itemCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
               <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="0" class="active"></button>
               <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="1"></button>
@@ -100,7 +122,7 @@ export default {
         </div>
 
         <div class="col-lg-4 col-md-5 d-flex align-items-center bg-white border-start">
-          <div class="info-content p-5 w-100">
+          <div class="info-content p-4 w-100">
             <h1 class="mb-">{{ currentItem.name }}</h1>
             <h2 class="fs-4 mb-4 color1">${{ currentItem.price }}</h2>
 
@@ -118,7 +140,6 @@ export default {
             <div class="mb-5">
               <div class="d-flex justify-content-between mb-3">
                 <span class="fw-bold">Select Size (EU)</span>
-                <a href="#" class="color1 text-decoration-underline small">Size Guide</a>
               </div>
               <div class="size-grid">
                 <button 
@@ -136,14 +157,10 @@ export default {
               <button @click="addToCart" class="button-color1 py-3 fs-5 shadow-sm rounded-pill">
                 Add to Cart
               </button>
-              <button class="empty-btn color3 text-decoration-underline small">
-                Save to Wishlist
+              <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
+                {{ isInWishlistComputed ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
               </button>
             </div>
-
-            <!-- <p class="mt-5 color3 small lh-lg">
-              {{currentItem.description}}
-            </p> -->
           </div>
         </div>
 
@@ -158,8 +175,10 @@ export default {
 </template>
 
 <style scoped>
-.product-wrapper {
+.carousel {
   height: calc(100vh - 80px - 165px);
+}
+.product-wrapper {
   margin-top: 80px;
   overflow: hidden;
 }
@@ -258,5 +277,20 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.wishlist-btn {
+  border: 2px solid var(--color1);
+  background: white;
+  color: var(--color1);
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  background-color: var(--color1);
+  color: white;
 }
 </style>
