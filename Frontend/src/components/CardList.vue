@@ -42,8 +42,7 @@ export default {
         if(e.message === 'User not authenticated'){
           this.toast.error("Error: " + 'You are not logged in')
           return
-        }
-          
+        }    
         this.toast.error("Error: " + e.message)
       }
     },
