@@ -130,7 +130,7 @@ export const useProfileStore = defineStore('profile', {
 			this.paymentMethods = paymentMethods
 		},
 
-		async addPaymentMethod({ number, holder_name, expiration_date, cvv }) {
+		async addPaymentMethod({ number, holder_name, expiration_date, cvv, type }) {
 			if (!this.authStore.user) throw new Error('User not authenticated')
 
 			const { error } = await supabase
@@ -141,7 +141,8 @@ export const useProfileStore = defineStore('profile', {
 						number: number,
 						holder_name: holder_name,
 						expiration_date: expiration_date,
-						cvv: cvv
+						cvv: cvv,
+						type: type
 					}
 				])
 
@@ -170,15 +171,11 @@ export const useProfileStore = defineStore('profile', {
 				.update(updateData)
 				.eq('id', this.authStore.user.id)
 				.select()
-				.single()
 
-			if (error) {
-				console.error("Supabase Error:", error.message)
-				throw error
-			}
+			if (error) throw error
 
 			if (data) {
-				this.profile = data
+				this.profile = { ...this.profile, ...data }
 
 				if (addressId) this.selectedAddressId = addressId
 				if (paymentId) this.selectedPaymentId = paymentId

@@ -14,7 +14,12 @@ export default {
 <template>
     <h2>Order history</h2>
 
-    <div v-for="order in ordersStore.orders" :key="order.id">
+    <div class="no-orders text-center" v-if="ordersStore.orders.length == 0" >
+        <p>You don't have orders</p>
+    </div>
+
+    <div v-else v-for="order in ordersStore.orders" :key="order.id">
+
         <div class="d-flex justify-content-between align-items-center mt-3 p-3 order-card">
             <div>
             <h4>Order #{{ order.id.slice(0, 8) }}</h4>
@@ -58,5 +63,9 @@ export default {
     padding: 5px 10px;
     border-radius: 20px;
     text-transform: capitalize;
+}
+.no-orders {
+    padding: 0;
+    margin: 20px 0;
 }
 </style>

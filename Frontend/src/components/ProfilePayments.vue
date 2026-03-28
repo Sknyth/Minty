@@ -41,6 +41,7 @@ export default {
                     holder_name: this.cardHolderName,
                     expiration_date: this.cardExpirationDate,
                     cvv: this.cardCvv,
+                    type: this.getCardType(this.cardNumber)
                 });
                 this.cardNumber = ''
                 this.cardHolderName = ''
@@ -55,7 +56,6 @@ export default {
                     this.toast.error('Error: ' + 'Fill in all fields');
                     return
                 }
-                    
                 this.toast.error('Error: ' + e.message)
             }
         },
@@ -72,6 +72,10 @@ export default {
                 }
                 this.ToggleChange = false
             } catch (e) {
+                if(e.message === 'update or delete on table "payment_methods" violates foreign key constraint "fk_payment" on table "orders"'){
+                    this.toast.error("Error: You cannot delete a payment method if you order something with it")
+                    return    
+                }
                 this.toast.error("Error: " + e.message)
             } 
         },
@@ -106,7 +110,7 @@ export default {
 <template>
     <div>
         <h2>{{ componentName }}</h2>
-        <div class="no-methods" v-if="profileStore.paymentMethods.length === 0 && toggleAddMethod" >
+        <div class="no-methods text-center" v-if="profileStore.paymentMethods.length === 0 && toggleAddMethod" >
             <p>You don't have payment methods</p>
         </div>
         <div v-else-if="toggleAddMethod ?? profileStore.paymentMethods.length != 0">
@@ -118,7 +122,7 @@ export default {
                  class="col payment-card"
                  @click="selectPayment(method.id)"
                  >
-                <h4>{{ getCardType(method.number) }}</h4>
+                <h4>{{ method.type }}</h4>
                 <p>{{ maskCard(method.number) }}</p>
                 <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
                 </div>
@@ -151,7 +155,7 @@ export default {
         </div>
         
         <div class="d-flex justify-content-end">
-            <button @click="toggleAddMethod = !toggleAddMethod" v-if="toggleAddMethod" class="button-color1 mt-3 ">+ Add payment methods</button>
+            <button @click="toggleAddMethod = !toggleAddMethod" v-if="toggleAddMethod" class="button-color1 mt-3 ">+ Add payment method</button>
         </div>
         
         
@@ -191,7 +195,5 @@ export default {
 .no-methods p {
     padding: 0;
     margin: 20px 0;
-    text-align: center;
-
 }
 </style>

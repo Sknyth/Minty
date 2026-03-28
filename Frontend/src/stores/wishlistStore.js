@@ -15,7 +15,7 @@ export const useWishlistStore = defineStore('wishlist', {
   },
   actions: {
     async fetchWishlist() {
-      if (!this.authStore.user) return
+      if (!this.authStore.user) throw new Error('You are not logged in')
 
       this.loading = true
 
@@ -31,8 +31,7 @@ export const useWishlistStore = defineStore('wishlist', {
     },
 
     async addToWishlist(productId) {
-      if (!this.authStore.user) return
-
+      if (!this.authStore.user) throw new Error('You are not logged in')
       this.loading = true
 
       const { error } = await supabase
@@ -51,7 +50,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
 
     async deleteFromWishlist(productId) {
-      if (!this.authStore.user) return
+      if (!this.authStore.user) throw new Error('You are not logged in')
 
       this.loading = true
 

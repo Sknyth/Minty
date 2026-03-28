@@ -13,7 +13,6 @@ export const useOrdersStore = defineStore('orders', {
 		cartStore: useCartStore()
 	}),
 	actions: {
-		
 		async createOrder(payload) {
 			if (!this.authStore.user || !this.authStore.user.id) throw new Error("Log in to place an order")
 			if (!this.profileStore.selectedAddressId || !this.profileStore.selectedPaymentId) {
@@ -21,7 +20,6 @@ export const useOrdersStore = defineStore('orders', {
 			}
 
 			const cartTotal = payload?.cartTotal || 0
-
 
 			const { data, error } = await supabase
 				.from('orders')
@@ -39,7 +37,7 @@ export const useOrdersStore = defineStore('orders', {
 				.select()
 				.single()
 
-				this.cartTotal = cartTotal
+			this.cartTotal = cartTotal
 
 			if (error) throw error
 

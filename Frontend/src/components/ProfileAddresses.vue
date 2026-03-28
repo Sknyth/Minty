@@ -33,7 +33,6 @@ export default {
         }
     },
     methods: {
-        
         resetAddressFields(){
             this.country = ''
             this.city = ''
@@ -83,6 +82,28 @@ export default {
             } catch(e){
                 this.toast.error("Error: " + e.message)
             }
+        },
+
+        async deleteAddress(id) {
+            try {
+                await this.profileStore.deleteAddress(id)
+                
+                if (this.selectedAddressId === id) {
+                    this.selectedAddressId = null
+                }
+                if (this.currentAddressId === id) {
+                    await this.profileStore.updateSelectedMetadata({ addressId: null })
+                }
+                
+                this.ToggleChange = false
+                this.toast.success("Method deleted successfully!")
+            } catch (e) {
+                if(e.message === 'update or delete on table "addresses" violates foreign key constraint "fk_orders_address_strict" on table "orders"'){
+                    this.toast.error("Error: You cannot delete a address if you order something with it")
+                    return    
+                }
+                this.toast.error("Error: " + e.message)
+            } 
         },
 
         editAddress(address){

@@ -38,11 +38,7 @@ export default {
           })
         }
         this.toast.success('Product added to your cart!')
-      } catch(e){
-        if(e.message === 'User not authenticated'){
-          this.toast.error("Error: " + 'You are not logged in')
-          return
-        }    
+      } catch(e){   
         this.toast.error("Error: " + e.message)
       }
     },

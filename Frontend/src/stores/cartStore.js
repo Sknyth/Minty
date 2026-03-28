@@ -27,7 +27,7 @@ export const useCartStore = defineStore('cart', {
 		},
 
 		async addToCart({ image_url, name, price, description, size, quantity }) {
-			if (!this.authStore.user) throw new Error('User not authenticated')
+			if (!this.authStore.user) throw new Error('You are not logged in')
 
 			const { error } = await supabase
 				.from('cart')

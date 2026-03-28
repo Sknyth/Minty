@@ -50,10 +50,6 @@ export default {
         })
         this.toast.success("Product added!")
       } catch(e){
-        if(e.message === 'User not authenticated'){
-          this.toast.error("Error: " + 'You are not logged in')
-          return
-        }
         this.toast.error("Error: " + e.message)
       }
     },

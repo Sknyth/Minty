@@ -43,9 +43,15 @@ export default {
 				this.$router.push('/')
 				
 			} catch (e) {
-					this.toast.error(e.message)
+				if(e.message === 'insert or update on table "orders" violates foreign key constraint "fk_orders_address_strict"'){
+					this.toast.warning('Please select address')
+					return
+				} else if(e.message === 'insert or update on table "orders" violates foreign key constraint "fk_payment"'){
+					this.toast.warning('Please select payment method')
+					return
+				}
 
-					console.error('Order creation failed:', e)
+				this.toast.error('Error: ' + e.message)
 				}
 			}
 	},
@@ -83,7 +89,7 @@ export default {
 					<h4 class="fw-bold">Total</h4>
 					<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
 				</div>
-				<button @click="handleConfirmOrder" :disabled="!currentPaymentId || !currentAddressId" class="bg-color2 color1 summary-btn">Confirm order</button>
+				<button @click="handleConfirmOrder" class="bg-color2 color1 summary-btn">Confirm order</button>
 			</div>
 		</div>
 
@@ -168,15 +174,6 @@ export default {
 						<p class="fw-bold">Email</p>
 						<p class="color1">support@minty.com</p>
 					</div>
-				</div>
-
-				<div class="panel">
-					<h3 class="fw-bold">Delivery notes</h3>
-					<textarea
-						rows="5"
-						placeholder="Add a note for the courier..."
-					></textarea>
-					<button class="bg-color1 text-white side-btn">Save notes</button>
 				</div>
 			</aside>
 		</div>
