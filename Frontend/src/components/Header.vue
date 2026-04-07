@@ -12,7 +12,7 @@ export default {
 	},
 	data() {
 		return {
-			searchQuery: ''
+			searchQuery: '',
 		}
 	},
 }
@@ -30,7 +30,7 @@ export default {
 				<button @click="productsStore.searchProducts(searchQuery)">Search</button>
 			</div>
 
-			<div class="social-links d-flex">
+			<div class="social-links">
 				<RouterLink to="/wishlist">
 					<img src="/favorite(heart).svg" alt=""/>
 				</RouterLink>
@@ -69,8 +69,30 @@ export default {
 .search-box button:hover {
 	opacity: 0.8;
 }
-
 .social-links {
+	display: flex;
 	gap: 25px;
+}
+.social-links img:hover {
+	opacity: 0.8;
+}
+@media (max-width: 1000px) {
+	.search-box input {
+		width: 300px;
+	}
+}
+@media (max-width: 768px) {
+	.header {
+		height: auto;
+		padding: 12px;
+	}
+	.container {
+		flex-direction: column;
+		gap: 12px;
+		padding: 12px;
+	}
+	.search-box input {
+		width: 260px;
+	}
 }
 </style>

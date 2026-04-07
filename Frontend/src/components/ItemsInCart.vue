@@ -115,4 +115,14 @@ export default {
     width: 26px;
     cursor: pointer;
 }
+@media (max-width: 1399px) {
+    .item {
+        width: 1100px;
+    }
+}
+@media (max-width: 1199px) {
+    .item {
+        width: 100%;
+    }
+}
 </style>

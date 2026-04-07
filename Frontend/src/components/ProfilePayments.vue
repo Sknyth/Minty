@@ -119,12 +119,16 @@ export default {
                  v-for="method in profileStore.paymentMethods" 
                  :key="method.id" 
                  :class="{ 'active-card': method.id === profileStore.selectedPaymentId }"
-                 class="col payment-card"
+                 class="col payment-card mb-3 mt-3 d-flex justify-content-between flex-column"
                  @click="selectPayment(method.id)"
                  >
-                <h4>{{ method.type }}</h4>
-                <p>{{ maskCard(method.number) }}</p>
-                <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
+                 <div class="d-flex flex-column gap-2">
+                    <h4>{{ method.type }}</h4>
+                    <p>{{ maskCard(method.number) }}</p>
+                 </div>
+                 <div>
+                     <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
+                 </div>
                 </div>
             </div>
             
@@ -169,9 +173,9 @@ export default {
     border-radius: 8px;
     padding: 15px;
     width: 400px;
+    min-height: 200px;
     flex: 0 0 auto;
     cursor: pointer;
-
 }
 .active-card {
     border: 2px solid var(--color1);
@@ -191,6 +195,10 @@ export default {
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+#btn-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1);
 }
 .no-methods p {
     padding: 0;

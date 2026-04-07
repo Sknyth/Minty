@@ -23,8 +23,7 @@ export default {
             street: '',
             house_number: '',
             apt: '',
-            postcode: '',
-            phone: '',
+            postcode: ''
         }
     },
     computed: {
@@ -40,7 +39,6 @@ export default {
             this.house_number = ''
             this.apt = ''
             this.postcode = ''
-            this.phone = ''
             this.editId = null
         },
 
@@ -53,7 +51,6 @@ export default {
                     house_number: this.house_number,
                     apt: this.apt,
                     postcode: this.postcode,
-                    phone: this.phone
                 })
                 this.resetAddressFields()
                 this.toggleAddAddress = true
@@ -73,7 +70,6 @@ export default {
                     house_number: this.house_number,
                     apt: this.apt,
                     postcode: this.postcode,
-                    phone: this.phone
                 })
                 this.toggleAddAddress = true
                 this.toggleEdit = false
@@ -114,7 +110,6 @@ export default {
             this.house_number = address.house_number
             this.apt = address.apt
             this.postcode = address.postcode
-            this.phone = address.phone
 
             this.toggleAddAddress = false
             this.toggleEdit = true
@@ -149,19 +144,25 @@ export default {
             <p class="text-center">You don't have addresses</p>
         </div>
 
-        <div v-else-if="toggleAddAddress ?? profileStore.addresses.length != 0">
+        <div class="row" v-else-if="toggleAddAddress ?? profileStore.addresses.length != 0">
             <div 
                 v-for="address in profileStore.addresses" 
                 :key="address.id" 
                 :class="{ 'active-card': address.id === currentAddressId }" 
                 @click="selectAddress(address.id)" 
-                class="address-card mb-3">
-                <h4>Main address</h4>
-                <p>{{ address.street }}, {{ address.house_number }}</p>
-                <p>{{ address.city }}, {{ address.postcode }}</p>
+                class="address-card col mb-3 mt-3 d-flex justify-content-between flex-column">
+                <div>
+                    <h4>Main address</h4>
+                    <span>{{ address.street }}, {{ address.house_number }}</span>
+                    <br>
+                    <span>{{ address.city }}, {{ address.postcode }}</span>
+                </div>
                 
-                <button @click.stop="editAddress(address)" id="btn-edit">Edit</button>
-                <button @click.stop="deleteAddress(address.id)" id="btn-delete">Delete</button>
+                <div>
+                    <button @click.stop="editAddress(address)" id="btn-edit">Edit</button>
+
+                    <button @click.stop="deleteAddress(address.id)" id="btn-delete">Delete</button>
+                </div>
             </div>
         </div>
 
@@ -190,10 +191,6 @@ export default {
                 <div class="d-flex flex-column gap-2 col">
                     <label>Postcode</label>
                     <input v-model="postcode" type="text" placeholder="Postcode">
-                </div>
-                <div class="d-flex flex-column gap-2 col">
-                    <label>Phone</label>
-                    <input v-model="phone" type="text" placeholder="Phone">
                 </div>
             </div>
 
@@ -227,6 +224,8 @@ export default {
     border-radius: 8px;
     padding: 15px;
     width: 400px;
+    min-height: 200px;
+    flex: 0 0 auto;
     cursor: pointer;
 }
 .active-card {
@@ -240,12 +239,20 @@ export default {
     padding: 5px 10px;
     border-radius: 4px;
     margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+#btn-edit:hover {
+    background-color: rgba(21, 132, 255, 0.1);
 }
 #btn-delete {
     color: #dc3545;
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+#btn-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1);
 }
 .add-address input {
     width: 340px;

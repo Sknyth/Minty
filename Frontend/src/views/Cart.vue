@@ -68,16 +68,15 @@ export default {
 			</div>
 		</div>
 		<div v-else-if="cartStore.cartItems" class="container align-items-center">
-
         <div class="top-name d-flex justify-content-between">
             <h1 class="fw-bold">Cart</h1>
             <p v-if="cartStore.totalQuantity === 1"> {{ totalQuantity }} product</p>
-            <p v-else>{{totalQuantity }} products</p>
+            <p v-else>{{ totalQuantity }} products</p>
         </div>
-		<div class="d-flex">
-			<ItemsInCart />
+		<div class="d-flex row">
+			<ItemsInCart class="col-xl" />
 
-			<div class="total-box bg-color1 justify-content-between">
+			<div class="total-box bg-color1 justify-content-between d-flex flex-column col-xl mb-5 mt-3">
 				<div class="text-white">
 					<div class="d-flex justify-content-between">
 						<p>Delivery:</p>
@@ -99,7 +98,7 @@ export default {
 				<RouterLink to="/orderPlacement" class="bg-color2 color1 btn-order d-flex justify-content-center align-items-center">Place an order</RouterLink>
 
 
-				<div class="d-flex align-items-center justify-content-between text-white">
+				<div class="d-flex align-items-center text-white">
 					<input class="agree" type="checkbox" name="agree" />
 					<p class="fs-6 ">By clicking the "Place Order" button, you consent to the processing of <a href="#">personal data.</a></p>
 				</div>
@@ -129,12 +128,10 @@ export default {
 }
 
 .text-container {
-	width: 578px;
-	margin-top: 85px;
+	margin-top: 60px;
 	gap: 25px;
 }
 .text-container p {
-	width: 400px;
 	margin: 0 auto;
 }
 .button-box {
@@ -142,16 +139,10 @@ export default {
 }
 
 .total-box {
-	height: auto;
-	max-height: 350px;
-	width: 300px;
 	border-radius: 10px;
 	padding: 24px;
-	margin-left: auto;
 }
-.total-box p {
-	margin: 4px;
-}
+
 .btn-order {
 	width: 100%;
 	height: 48px;

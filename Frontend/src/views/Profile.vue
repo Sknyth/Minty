@@ -58,7 +58,6 @@ export default {
     <div class="container">
       <div v-if="profileStore.profile">
         
-
         <div class="profile-card">
           <h2>{{ profileStore.profile.name }}</h2>
           <p>{{ authStore.user.email }}</p>
@@ -81,17 +80,14 @@ export default {
           <ProfilePayments :componentName="'Payment methods'" v-if="selectedOption === 'Payments'" />
           <ProfileSettings v-if="selectedOption === 'Settings'" />
         </div>
-        
 
-        <button class="btn btn-danger" id="btn-logout" @click="logout">Logout</button>
+        <button class="btn btn-danger mt-4 mb-4 w-100" id="btn-logout" @click="logout">Logout</button>
 
       </div>
-      <!-- <div v-else-if="loading">
-        <p class="text-center fs-4 mt-5">Loading profile...</p>
+      <div v-else class="loading-state text-center p-5">
+        <div class="spinner-border"></div>
+        <p>Loading products data...</p>
       </div>
-      <div v-else>
-        <p class="text-center fs-4 mt-5">Please log in to view your profile.</p>
-      </div> -->
     </div> 
   <Footer /> 
 </template>
@@ -133,10 +129,7 @@ export default {
   min-height: 200px;
 }
 
-
 #btn-logout{
-  font-size: 18px;
-  margin-top: 30px;
-  width: 100%;
+ font-size: 18px;
 }
 </style>

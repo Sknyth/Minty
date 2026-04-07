@@ -76,7 +76,6 @@ export const useProfileStore = defineStore('profile', {
 						house_number: house_number,
 						apt: apt,
 						postcode: postcode,
-						phone: phone
 					}
 				])
 
@@ -103,7 +102,6 @@ export const useProfileStore = defineStore('profile', {
 					house_number: house_number,
 					apt: apt,
 					postcode: postcode,
-					phone: phone
 				})
 				.eq('id', id)
 
