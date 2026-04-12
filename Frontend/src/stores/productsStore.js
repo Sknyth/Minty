@@ -32,5 +32,32 @@ export const useProductsStore = defineStore('products', {
 			this.products = data
 			this.loading = false
 		},
+		async sortProducts(criteria) {
+			this.loading = true
+			let orderBy = 'id'
+			let ascending = true
+
+			if (criteria === 'price-low') {
+				orderBy = 'price'
+				ascending = true
+			} else if (criteria === 'price-high') {
+				orderBy = 'price'
+				ascending = false
+			} else if (criteria === 'name') {
+				orderBy = 'name'
+				ascending = true
+			} else if (criteria === 'standard') {
+				orderBy = 'id'
+				ascending = true
+			}
+
+			const { data, error } = await supabase
+				.from('products')
+				.select('*')
+				.order(orderBy, { ascending })
+			if (error) throw error
+			this.products = data
+			this.loading = false
+		},
 	},
 })

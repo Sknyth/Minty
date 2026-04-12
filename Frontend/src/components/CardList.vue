@@ -65,29 +65,29 @@ export default {
 </script>
 
 <template>
-	<div class="container">
-		<div class="row">
-			<div class="col">
-					<Card
-						v-for="product in productsStore.products"
-						:key="product.id"
-						:image_url="product.image_url"
-						:name="product.name"
-						:price="product.price"
-            :id="product.id"
-						@add-to-cart="() => addToCart(product)"
-            @toggle-wishlist="toggleWishlist"
-						class="custom-card d-inline-block"
-					/>
-
-			</div>
+	<div class="container-xxl mt-4">
+		<div class="products-layout">
+				<Card
+					v-for="product in productsStore.products"
+					:key="product.id"
+					:image_url="product.image_url"
+					:name="product.name"
+					:price="product.price"
+          :id="product.id"
+					@add-to-cart="() => addToCart(product)"
+          @toggle-wishlist="toggleWishlist"
+					class="custom-card"
+				/>
 		</div>
 	</div>
 </template>
 
-<style>
-.custom-card {
-  width: auto;
-	margin-top: 10px;
+<style scoped>
+.products-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 230px); 
+  justify-content: center; 
+  gap: 14px;
+  margin: 0 auto;
 }
 </style>
