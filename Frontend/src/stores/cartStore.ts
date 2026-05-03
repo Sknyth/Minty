@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import { supabase } from '../supabase'
 import { useAuthStore } from './authStore'
-import type { CartItem, CartItemUpdate } from '@/types'
+import type { CartItem, CartItemInput, CartItemUpdate } from '@/types'
 
 export const useCartStore = defineStore('cart', {
 	state: () => ({
@@ -13,7 +13,7 @@ export const useCartStore = defineStore('cart', {
 	}),
 	getters: {
     isInCart: (state) => (item: CartItem) => {
-      return state.cartItems.some((i: CartItem) => i.name === item.name && i.size === item.size)
+      return state.cartItems.find((i: CartItem) => i.name === item.name && i.size === item.size)
     }
   },
 	actions: {
@@ -27,7 +27,7 @@ export const useCartStore = defineStore('cart', {
 			this.cartItems = data as CartItem[]
 		},
 
-		async addToCart({ image_url, name, price, description, size, quantity }: CartItem) {
+		async addToCart({ image_url, name, price, description, size, quantity }: CartItemInput) {
 			if (!this.authStore.user) throw new Error('You are not logged in')
 
 			const { error } = await supabase

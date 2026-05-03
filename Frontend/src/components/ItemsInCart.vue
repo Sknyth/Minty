@@ -1,6 +1,8 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
+import type { CartItem } from '../types'
+
 export default {
     setup() {
         const toast = useToast()
@@ -12,22 +14,22 @@ export default {
 
     },
     methods: {
-        async updateQuantity(item) {
+        async updateQuantity(item: CartItem) {
             try{
                 await this.cartStore.updateQuantity({ 
                     id: item.id, 
                     quantity: item.quantity + 1 
                 })
             } catch(e){
-            if(e.message === 'User not authenticated'){
+            if((e as Error).message === 'User not authenticated'){
                 this.toast.error("Error: " + 'You are not logged in')
                 return
             }
-            this.toast.error("Error: " + e.message)
+            this.toast.error("Error: " + (e as Error).message)
             }
         },
 
-        async decreaseQuantity(item) {
+        async decreaseQuantity(item: CartItem) {
             if (item.quantity > 1) {
                 try {
                     await this.cartStore.updateQuantity({ 
@@ -35,20 +37,20 @@ export default {
                         quantity: item.quantity - 1 
                     })
                 } catch(e) {
-                    this.toast.error(e.message);
+                    this.toast.error((e as Error).message);
                 }
             } else {
                 await this.removeFromCart(item.id);
             }
         },
 
-        async removeFromCart(id) {
+        async removeFromCart(id: string) {
             if (!id) return
             try{
                 await this.cartStore.removeFromCart(id)
                 this.toast.success("Product removed!");
             } catch(e) {
-                this.toast.error("Error: " + e.message);
+                this.toast.error("Error: " + (e as Error).message);
             }
         },
     },
@@ -60,7 +62,7 @@ export default {
         <div class="item d-flex justify-content-between align-items-center" 
         v-for="item in cartStore.cartItems" :key="item.id">
 
-            <img :src="item.image_url" alt="">
+            <img :src="item.image_url ?? undefined" alt="">
 
             <span class="fw-bold">{{ item.name }}</span>
 

@@ -10,3 +10,5 @@ export interface CartItem {
 }
 
 export type CartItemUpdate = Pick<CartItem, 'id' | 'quantity'>
+
+export type CartItemInput = Omit<CartItem, 'id' | 'user_id' | 'quantity'> & { quantity?: number }

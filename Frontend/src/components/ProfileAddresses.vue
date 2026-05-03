@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useProfileStore } from '../stores/profileStore'
+import type { AddressInput, Address } from '../types'
 
 export default {
     props: {
@@ -17,13 +18,13 @@ export default {
         return {
             toggleAddAddress: true,
             toggleEdit: false,
-            editId: null, 
+            editId: null as string | null, 
             country: '',
             city: '',
             street: '',
-            house_number: '',
-            apt: '',
-            postcode: ''
+            house_number: null as number | null,
+            apt: null as number | null,
+            postcode: null as number | null
         }
     },
     computed: {
@@ -36,9 +37,9 @@ export default {
             this.country = ''
             this.city = ''
             this.street = ''
-            this.house_number = ''
-            this.apt = ''
-            this.postcode = ''
+            this.house_number = null 
+            this.apt = null
+            this.postcode = null
             this.editId = null
         },
 
@@ -51,59 +52,55 @@ export default {
                     house_number: this.house_number,
                     apt: this.apt,
                     postcode: this.postcode,
-                })
+                } as AddressInput)
                 this.resetAddressFields()
                 this.toggleAddAddress = true
                 this.toast.success("Address added!")
             } catch(e){
-                this.toast.error('Error: ' + e.message)
+                this.toast.error('Error: ' + (e as Error).message)
             }
         },
 
         async updateAddress(){
             try {
                 await this.profileStore.updateAddress({
-                    id: this.editId, 
+                    id: this.editId as string, 
                     country: this.country,
                     city: this.city,
                     street: this.street,
                     house_number: this.house_number,
                     apt: this.apt,
                     postcode: this.postcode,
-                })
+                } as Address)
                 this.toggleAddAddress = true
                 this.toggleEdit = false
                 this.resetAddressFields()
                 this.toast.success("Address updated successfully!")
             } catch(e){
-                this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + (e as Error).message)
             }
         },
 
-        async deleteAddress(id) {
+        async deleteAddress(id: string){ 
             try {
                 await this.profileStore.deleteAddress(id)
                 
-                if (this.selectedAddressId === id) {
-                    this.selectedAddressId = null
-                }
                 if (this.currentAddressId === id) {
-                    await this.profileStore.updateSelectedMetadata({ addressId: null })
+                    await this.profileStore.updateSelectedMetadata({ addressId: '', paymentId: this.profileStore.selectedPaymentId || '' })
                 }
                 
-                this.ToggleChange = false
-                this.toast.success("Method deleted successfully!")
+                this.toast.success("Address deleted successfully!")
             } catch (e) {
-                if(e.message === 'update or delete on table "addresses" violates foreign key constraint "fk_orders_address_strict" on table "orders"'){
+                if((e as Error).message === 'update or delete on table "addresses" violates foreign key constraint "fk_orders_address_strict" on table "orders"'){
                     this.toast.error("Error: You cannot delete a address if you order something with it")
                     return    
                 }
-                this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + (e as Error).message)
             } 
         },
 
-        editAddress(address){
-            this.editId = this.profileStore.addresses.find(a => a.id === address.id)?.id || null
+        editAddress(address: Address){
+            this.editId = this.profileStore.addresses.find((a: Address) => a.id === address.id)?.id || null
             this.country = address.country
             this.city = address.city
             this.street = address.street
@@ -115,12 +112,12 @@ export default {
             this.toggleEdit = true
         },
 
-        async selectAddress(id) {
+        async selectAddress(id: string) {
             try {
-                await this.profileStore.updateSelectedMetadata({ addressId: id })
+                await this.profileStore.updateSelectedMetadata({ addressId: id, paymentId: this.profileStore.selectedPaymentId || '' })
                 this.toast.success("Address selected")
             } catch (e) {
-                this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + (e as Error).message)
             }
         },
 

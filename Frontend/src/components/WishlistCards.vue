@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import Card from './Card.vue'
+import type { CartItem, Product } from '../types'
 
 export default {
   components: { Card },
@@ -18,9 +19,9 @@ export default {
       return { toast, productsStore, cartStore, wishlistStore }
   },
   methods: {
-    async addToCart(product) {
+    async addToCart(product: Product) {
       try{
-        const cartProduct = { ...product, size: product.sizes[0] }
+        const cartProduct: CartItem = { ...product, size: product.sizes[0], quantity: 1, user_id: '' }
         const existingItem = this.cartStore.isInCart(cartProduct)
         if(existingItem){
           await this.cartStore.updateQuantity({
@@ -39,14 +40,14 @@ export default {
         }
         this.toast.success('Product added to your cart!')
       } catch(e){
-        if(e.message === 'User not authenticated'){
+        if((e as Error).message === 'User not authenticated'){
           this.toast.error("Error: " + 'You are not logged in')
           return
         }    
-        this.toast.error("Error: " + e.message)
+        this.toast.error("Error: " + (e as Error).message)
       }
     },
-    async toggleWishlist(productID) {
+    async toggleWishlist(productID: string) {
       try {
         if (this.wishlistStore.isInWishlist(productID)) {
           await this.wishlistStore.deleteFromWishlist(productID)
@@ -56,11 +57,11 @@ export default {
           this.toast.success('Product added to your wishlist!') 
         }
       } catch(e) {
-        if(e.message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
+        if((e as Error).message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
           this.toast.error("Error: Already in wishlist")
           return
         }
-        this.toast.error("Error: " + e.message)
+        this.toast.error("Error: " + (e as Error).message)
       }
     },
   },

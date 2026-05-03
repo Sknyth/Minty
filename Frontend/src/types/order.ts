@@ -10,6 +10,6 @@ export interface Order {
 	payment_id: string
 	items: CartItem[]
 	total_price: number
-	status: 'pending' | 'completed' | 'cancelled'
+	status: 'pending' | 'delivered' | 'cancelled'
 	created_at: string
 }

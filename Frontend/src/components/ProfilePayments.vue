@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useProfileStore } from '../stores/profileStore'
+import type { PaymentMethod } from '../types'
 export default {
     props: {
         componentName: String
@@ -15,10 +16,10 @@ export default {
     },
     data() {
         return {
-            cardNumber: '',
+            cardNumber: null as number | null,
             cardHolderName: '',
             cardExpirationDate: '',
-            cardCvv: '',
+            cardCvv: null as number | null,
             toggleAddMethod: true,
             editId: null,
         };
@@ -29,7 +30,7 @@ export default {
         }
     },
     methods: {
-        maskCard(number) {
+        maskCard(number: number) {
             if (!number) return '';
             const str = number.toString();
             return `**** **** **** ${str.slice(-4)}`
@@ -42,44 +43,42 @@ export default {
                     expiration_date: this.cardExpirationDate,
                     cvv: this.cardCvv,
                     type: this.getCardType(this.cardNumber)
-                });
-                this.cardNumber = ''
+                } as PaymentMethod);
+                this.cardNumber = null
                 this.cardHolderName = ''
                 this.cardExpirationDate = ''
-                this.cardCvv = ''
+                this.cardCvv = null
 
                 this.toggleAddMethod = !this.toggleAddMethod
 
                 this.toast.success("Payment method added!")
             } catch (e) {
-                if(e.message === 'invalid input syntax for type bigint: ""'){
+                if((e as Error).message === 'invalid input syntax for type bigint: ""'){
                     this.toast.error('Error: ' + 'Fill in all fields');
                     return
                 }
-                this.toast.error('Error: ' + e.message)
+                this.toast.error('Error: ' + (e as Error).message)
             }
         },
-        async deletePaymentMethod(id) {
+        async deletePaymentMethod(id: string) {
             try {
                 await this.profileStore.deletePaymentMethod(id)
                 this.toast.success("Method deleted successfully!")
-                
-                if (this.selectedPaymentId === id) {
-                    this.selectedPaymentId = null
-                }
+
                 if (this.currentPaymentId === id) {
-                    await this.profileStore.updateSelectedMetadata({ paymentId: null })
+                    await this.profileStore.updateSelectedMetadata({ paymentId: '', addressId: this.profileStore.selectedAddressId || '' })
                 }
-                this.ToggleChange = false
             } catch (e) {
-                if(e.message === 'update or delete on table "payment_methods" violates foreign key constraint "fk_payment" on table "orders"'){
+                if((e as Error).message === 'update or delete on table "payment_methods" violates foreign key constraint "fk_payment" on table "orders"'){
                     this.toast.error("Error: You cannot delete a payment method if you order something with it")
                     return    
                 }
-                this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + (e as Error).message)
             } 
         },
-        getCardType(number) {
+        getCardType(number: number | null): string {
+            if (!number) return 'Unknown'
+            const str = number.toString()
             const re = {
             Visa: /^4/,
             Mastercard: /^5[1-5]|^2(?:22[1-9]|2[3-9]\d|[3-6]\d\d|7[01]\d|720)/,
@@ -88,16 +87,16 @@ export default {
             }
 
             for (const [card, pattern] of Object.entries(re)) {
-            if (pattern.test(number)) return card
+            if (pattern.test(str)) return card
             }
             return 'Unknown'
         },
-        async selectPayment(id){
+        async selectPayment(id: string) {
            try {
-                await this.profileStore.updateSelectedMetadata({ paymentId: id })
+                await this.profileStore.updateSelectedMetadata({ paymentId: id, addressId: this.profileStore.selectedAddressId || '' })
                 this.toast.success("Payment selected")
             } catch (e) {
-                this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + (e as Error).message)
             }
             
     },

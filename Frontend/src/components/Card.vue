@@ -1,10 +1,12 @@
-<script>
+<script lang="ts">
 import { useWishlistStore } from '../stores/wishlistStore'
+import type { PropType } from 'vue'
 
 export default {
   props: {
     image_url: {
-      type: String,
+      type: String as PropType<string | null>,
+      default: null,
       required: true
     },
     name: {
@@ -16,7 +18,7 @@ export default {
       required: true
     },
     id: {
-      type: [Number, String],
+      type: String,
       required: true
     }
   },
@@ -49,7 +51,7 @@ export default {
 
     <router-link :to="{ name: 'Item', params: { id: id } }" class="card-link">
       <div class="image-container">
-        <img :src="image_url" class="item-img" :alt="name" />
+        <img :src="image_url ?? undefined" class="item-img" :alt="name" />
         <div class="view-tag">View Item</div>
       </div>
       

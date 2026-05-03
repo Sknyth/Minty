@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../supabase'
 import { useAuthStore } from './authStore'
-import type { Profile, Address, PaymentMethod } from '@/types'
+import type { Profile, Address, PaymentMethod, AddressInput } from '@/types'
 
 export const useProfileStore = defineStore('profile', {
 	state: () => ({
@@ -65,7 +65,7 @@ export const useProfileStore = defineStore('profile', {
 			this.addresses = data as Address[]
 		},
 
-		async addAddress({ country, city, street, house_number, apt, postcode}: Address) {
+		async addAddress({ country, city, street, house_number, apt, postcode}: AddressInput) {
 			const authStore = useAuthStore()
 
 			if (!authStore.user) throw new Error('User not authenticated')

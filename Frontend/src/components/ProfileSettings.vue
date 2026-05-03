@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
 export default {
@@ -33,7 +33,7 @@ export default {
             this.ToggleChange = false
 
             } catch (e) {
-                this.toast.error("Error: " + e.message)
+                this.toast.error("Error: " + (e as Error).message)
             }
         }
     }
@@ -41,53 +41,51 @@ export default {
 </script>
 
 <template>
-    <h2>Security Settings</h2>
-    <div v-if="ToggleChange" class="personal-information mt-3">
-    
+    <div>
+        <h2>Security Settings</h2>
+        <div v-if="ToggleChange" class="personal-information mt-3">
+        
 
-    <form @submit.prevent="updatePassword" class="d-flex gap-4 form-change-info justify-content-between row">
-      
-        <div class="d-flex flex-column gap-2 col info-box">
-            <label>Current Password</label>
-            <input v-if="ToggleChange" v-model="passwords.old" type="password" placeholder="Enter current password">
+        <form @submit.prevent="updatePassword" class="d-flex gap-4 form-change-info justify-content-between row">
+        
+            <div class="d-flex flex-column gap-2 col info-box">
+                <label>Current Password</label>
+                <input v-if="ToggleChange" v-model="passwords.old" type="password" placeholder="Enter current password">
+            </div>
+
+            <div class="d-flex flex-column gap-2 col info-box">
+                <label>New Password</label>
+                <input v-if="ToggleChange" v-model="passwords.new" type="password" placeholder="Min 6 characters">
+            </div>
+
+            <div class="d-flex flex-column gap-2 col info-box">
+                <label>Confirm Password</label>
+                <input v-if="ToggleChange" v-model="passwords.confirm" type="password" placeholder="Repeat new password">
         </div>
 
-        <div class="d-flex flex-column gap-2 col info-box">
-            <label>New Password</label>
-            <input v-if="ToggleChange" v-model="passwords.new" type="password" placeholder="Min 6 characters">
+        <div class="gap-3 d-flex">
+            <button 
+            v-if="ToggleChange" 
+            type="submit" 
+            class="button-color1"
+            >
+            Save New Password
+            </button>
+            <button @click="ToggleChange = false" class="button-color1">
+            Back
+            </button>
         </div>
+            
+        </form>
 
-        <div class="d-flex flex-column gap-2 col info-box">
-            <label>Confirm Password</label>
-            <input v-if="ToggleChange" v-model="passwords.confirm" type="password" placeholder="Repeat new password">
-      </div>
-
-      <div class="gap-3 d-flex">
-        <button 
-        v-if="ToggleChange" 
-        type="submit" 
-        class="button-color1"
-        >
-        Save New Password
-        </button>
-        <button @click="ToggleChange = false" class="button-color1">
-        Back
-        </button>
-      </div>
         
-    </form>
-
+        </div>
     
+        <div class="d-flex pass-change-box" v-if="!ToggleChange">
+            <p>To change password click</p>
+            <span class="fw-bold btn-change" @click="ToggleChange = !ToggleChange">here</span>
+        </div>
     </div>
-  
-    <div class="d-flex pass-change-box" v-if="!ToggleChange">
-        <p>To change password click</p>
-        <span class="fw-bold btn-change" @click="ToggleChange = !ToggleChange">here</span>
-        
-    </div>
-    
-
-    
 </template>
 
 <style scoped>

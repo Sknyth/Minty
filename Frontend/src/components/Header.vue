@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { useAuthStore } from '../stores/authStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useProfileStore } from '../stores/profileStore'

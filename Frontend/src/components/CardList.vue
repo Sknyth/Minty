@@ -4,6 +4,7 @@ import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import Card from './Card.vue'
+import type { CartItem, Product } from '../types'
 
 export default {
   components: { Card },
@@ -18,14 +19,19 @@ export default {
       return { toast, productsStore, cartStore, wishlistStore }
   },
   methods: {
-    async addToCart(product: object) {
+    async addToCart(product: Product) {
       try{
-        const cartProduct = { ...product, size: product.sizes[0]}
-        const existingItem: boolean = this.cartStore.isInCart(cartProduct)
+          const cartProduct: CartItem = { 
+          ...product, 
+          size: product.sizes[0],
+          user_id: '',
+          quantity: 1
+        }
+        const existingItem = this.cartStore.isInCart(cartProduct)
         if(existingItem){
           await this.cartStore.updateQuantity({
-            id: existingItem.id as number,
-            quantity: existingItem.quantity + 1 as number 
+            id: existingItem.id,
+            quantity: existingItem.quantity + 1
           })
         }
         else {
@@ -39,10 +45,10 @@ export default {
         }
         this.toast.success('Product added to your cart!')
       } catch(e){   
-        this.toast.error("Error: " + e.message)
+        this.toast.error("Error: " + (e as Error).message)
       }
     },
-    async toggleWishlist(productID) {
+    async toggleWishlist(productID: string) {
       try {
         if (this.wishlistStore.isInWishlist(productID)) {
           await this.wishlistStore.deleteFromWishlist(productID)
@@ -52,11 +58,11 @@ export default {
           this.toast.success('Product added to your wishlist!') 
         }
       } catch(e) {
-        if(e.message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
+        if((e as Error).message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
           this.toast.error("Error: Already in wishlist")
           return
         }
-        this.toast.error("Error: " + e.message)
+        this.toast.error("Error: " + (e as Error).message)
 
       }
     }
