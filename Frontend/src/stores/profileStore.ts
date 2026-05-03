@@ -1,39 +1,41 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../supabase'
 import { useAuthStore } from './authStore'
+import type { Profile, Address, PaymentMethod } from '@/types'
 
 export const useProfileStore = defineStore('profile', {
 	state: () => ({
-		profile: null,
-		paymentMethods: [],
-		addresses: [],
-		selectedAddressId: null,
-		selectedPaymentId: null,
-		authStore: useAuthStore(),
+		profile: null as Profile | null,
+		paymentMethods: [] as PaymentMethod[],
+		addresses: [] as Address[],
+		selectedAddressId: null as string | null,
+		selectedPaymentId: null as string | null,
 	}),
 	actions: {
 		async fetchProfile() {
-			if (!this.authStore.user) return
+			const authStore = useAuthStore()
+			if (!authStore.user) return
 
-			const { data: profile, error } = await supabase
+			const { data, error } = await supabase
 				.from('profiles')
 				.select('*')
-				.eq('id', this.authStore.user.id)
+				.eq('id', authStore.user.id)
 				.single()
 
 			if (error) throw error
-			this.profile = profile
+			this.profile = data as Profile
 
-			if (profile.selected_address_id) {
-				this.selectedAddressId = profile.selected_address_id
+			if (data.selected_address_id) {
+				this.selectedAddressId = data.selected_address_id
 			}
-			if (profile.selected_payment_id) {
-				this.selectedPaymentId = profile.selected_payment_id
+			if (data.selected_payment_id) {
+				this.selectedPaymentId = data.selected_payment_id
 			}
 		},
 
-		async updateProfile({ name, surname, phone }) {
-			if (!this.authStore.user || !this.authStore.user.id) {
+		async updateProfile({ name, surname, phone }: { name: string, surname: string, phone: string | null }) {
+			const authStore = useAuthStore()
+			if (!authStore.user || !authStore.user.id) {
 				throw new Error("User is not authorized")
 			}
 
@@ -44,32 +46,35 @@ export const useProfileStore = defineStore('profile', {
 					surname,
 					phone
 				})
-				.eq('id', this.authStore.user.id)
+				.eq('id', authStore.user.id)
 				.select()
 				.single()
 
 			if (error) throw error
-			this.profile = updatedProfile
+			this.profile = updatedProfile as Profile
 		},
 
 		async fetchAddresses() {
-			if (!this.authStore.user) return
-			const { data: addresses, error } = await supabase
+			const authStore = useAuthStore()
+			if (!authStore.user) return
+			const { data, error } = await supabase
 				.from('addresses')
 				.select('*')
-				.eq('user_id', this.authStore.user.id)
+				.eq('user_id', authStore.user.id)
 			if (error) throw error
-			this.addresses = addresses
+			this.addresses = data as Address[]
 		},
 
-		async addAddress({ country, city, street, house_number, apt, postcode, phone }) {
-			if (!this.authStore.user) throw new Error('User not authenticated')
+		async addAddress({ country, city, street, house_number, apt, postcode}: Address) {
+			const authStore = useAuthStore()
+
+			if (!authStore.user) throw new Error('User not authenticated')
 
 			const { error } = await supabase
 				.from('addresses')
 				.insert([
 					{
-						user_id: this.authStore.user.id,
+						user_id: authStore.user.id,
 						country: country,
 						city: city,
 						street: street,
@@ -83,8 +88,9 @@ export const useProfileStore = defineStore('profile', {
 			await this.fetchAddresses()
 		},
 
-		async updateAddress({ id, country, city, street, house_number, apt, postcode, phone }) {
-			if (!this.authStore.user || !this.authStore.user.id) {
+		async updateAddress({ id, country, city, street, house_number, apt, postcode }: Address) {
+			const authStore = useAuthStore()
+			if (!authStore.user || !authStore.user.id) {
 				throw new Error("User is not authorized")
 			}
 
@@ -93,7 +99,7 @@ export const useProfileStore = defineStore('profile', {
 			}
 
 
-			const { data, error } = await supabase
+			const { error } = await supabase
 				.from('addresses')
 				.update({
 					country: country,
@@ -109,7 +115,7 @@ export const useProfileStore = defineStore('profile', {
 			await this.fetchAddresses()
 		},
 
-		async deleteAddress(id) {
+		async deleteAddress(id: string) {
 			const { error } = await supabase
 				.from('addresses')
 				.delete()
@@ -119,23 +125,25 @@ export const useProfileStore = defineStore('profile', {
 		},
 
 		async fetchPaymentMethods() {
-			if (!this.authStore.user) return
+			const authStore = useAuthStore()
+			if (!authStore.user) return
 			const { data: paymentMethods, error } = await supabase
 				.from('payment_methods')
 				.select('*')
-				.eq('user_id', this.authStore.user.id)
+				.eq('user_id', authStore.user.id)
 			if (error) throw error
 			this.paymentMethods = paymentMethods
 		},
 
-		async addPaymentMethod({ number, holder_name, expiration_date, cvv, type }) {
-			if (!this.authStore.user) throw new Error('User not authenticated')
+		async addPaymentMethod({ number, holder_name, expiration_date, cvv, type }: PaymentMethod) {
+			const authStore = useAuthStore()
+			if (!authStore.user) throw new Error('User not authenticated')
 
 			const { error } = await supabase
 				.from('payment_methods')
 				.insert([
 					{
-						user_id: this.authStore.user.id,
+						user_id: authStore.user.id,
 						number: number,
 						holder_name: holder_name,
 						expiration_date: expiration_date,
@@ -148,7 +156,7 @@ export const useProfileStore = defineStore('profile', {
 			await this.fetchPaymentMethods()
 		},
 
-		async deletePaymentMethod(id) {
+		async deletePaymentMethod(id: string) {
 			const { error } = await supabase
 				.from('payment_methods')
 				.delete()
@@ -157,23 +165,24 @@ export const useProfileStore = defineStore('profile', {
 			this.paymentMethods = this.paymentMethods.filter(method => method.id !== id)
 		},
 
-		async updateSelectedMetadata({ addressId, paymentId }) {
-			if (!this.authStore.user) return
+		async updateSelectedMetadata({ addressId, paymentId }: { addressId: string; paymentId: string }) {
+			const authStore = useAuthStore()
+			if (!authStore.user) return
 
-			const updateData = {}
+			const updateData: Partial<Profile> = {}
 			if (addressId) updateData.selected_address_id = addressId
 			if (paymentId) updateData.selected_payment_id = paymentId
 
 			const { data, error } = await supabase
 				.from('profiles')
 				.update(updateData)
-				.eq('id', this.authStore.user.id)
+				.eq('id', authStore.user.id)
 				.select()
 
 			if (error) throw error
 
 			if (data) {
-				this.profile = { ...this.profile, ...data }
+				this.profile = { ...this.profile, ...data[0] } as Profile
 
 				if (addressId) this.selectedAddressId = addressId
 				if (paymentId) this.selectedPaymentId = paymentId

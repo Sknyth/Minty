@@ -3,10 +3,22 @@ import { useWishlistStore } from '../stores/wishlistStore'
 
 export default {
   props: {
-    image_url: String,
-    name: String,
-    price: Number,
-    id: [Number, String],
+    image_url: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    id: {
+      type: [Number, String],
+      required: true
+    }
   },
   setup() {
     return {

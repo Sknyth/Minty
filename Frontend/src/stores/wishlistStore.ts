@@ -1,42 +1,44 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../supabase'
 import { useAuthStore } from './authStore'
+import type { WishlistItem } from '@/types'
 
 export const useWishlistStore = defineStore('wishlist', {
   state: () => ({
-    wishlistProducts: [],
+    wishlistProducts: [] as WishlistItem[],
     loading: false,
-		authStore: useAuthStore()
   }),
   getters: {
-    isInWishlist: (state) => (productId) => {
-      return state.wishlistProducts.some(item => item.product_id === productId)
+    isInWishlist: (state) => (productId: string) => {
+      return state.wishlistProducts.some((item: WishlistItem) => item.product_id === productId)
     }
   },
   actions: {
     async fetchWishlist() {
-      if (!this.authStore.user) throw new Error('You are not logged in')
+      const authStore = useAuthStore()
+      if (!authStore.user) throw new Error('You are not logged in')
 
       this.loading = true
 
       const { data, error } = await supabase
         .from('wishlist')
         .select('product_id')
-        .eq('user_id', this.authStore.user.id)
+        .eq('user_id', authStore.user.id)
 
       if (error) throw error
 
-      this.wishlistProducts = data
+      this.wishlistProducts = data as WishlistItem[]
       this.loading = false
     },
 
-    async addToWishlist(productId) {
-      if (!this.authStore.user) throw new Error('You are not logged in')
+    async addToWishlist(productId: string) {
+      const authStore = useAuthStore()
+      if (!authStore.user) throw new Error('You are not logged in')
       this.loading = true
 
       const { error } = await supabase
         .from('wishlist')
-        .insert([{ user_id: this.authStore.user.id, product_id: productId }])
+        .insert([{ user_id: authStore.user.id, product_id: productId }])
 
       if (error) {
         this.loading = false
@@ -49,15 +51,16 @@ export const useWishlistStore = defineStore('wishlist', {
     },
 
 
-    async deleteFromWishlist(productId) {
-      if (!this.authStore.user) throw new Error('You are not logged in')
+    async deleteFromWishlist(productId: string) {
+      const authStore = useAuthStore()
+      if (!authStore.user) throw new Error('You are not logged in')
 
       this.loading = true
 
       const { error } = await supabase
         .from('wishlist')
         .delete()
-        .match({ user_id: this.authStore.user.id, product_id: productId })
+        .match({ user_id: authStore.user.id, product_id: productId })
 
       if (error) {
         this.loading = false

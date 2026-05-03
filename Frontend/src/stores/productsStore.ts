@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { supabase } from '../supabase'
+import type { Product, Criteria } from '@/types'
 
 export const useProductsStore = defineStore('products', {
 	state: () => ({
-		products: [],
+		products: [] as Product[],
 		loading: false,
 	}),
 	actions: {
@@ -14,10 +15,10 @@ export const useProductsStore = defineStore('products', {
 				.select('*')
 				.order('id')
 			if (error) throw error
-			this.products = data
+			this.products = data as Product[]
 			this.loading = false
 		},
-		async searchProducts(query) {
+		async searchProducts(query: string) {
 			this.loading = true
 			if (!query) return await this.fetchProducts()
 
@@ -29,10 +30,10 @@ export const useProductsStore = defineStore('products', {
 					type: 'websearch'
 				})
 			if (error) throw error
-			this.products = data
+			this.products = data as Product[]
 			this.loading = false
 		},
-		async sortProducts(criteria) {
+		async sortProducts(criteria: Criteria) {
 			this.loading = true
 			let orderBy = 'id'
 			let ascending = true
@@ -56,7 +57,7 @@ export const useProductsStore = defineStore('products', {
 				.select('*')
 				.order(orderBy, { ascending })
 			if (error) throw error
-			this.products = data
+			this.products = data as Product[]
 			this.loading = false
 		},
 	},

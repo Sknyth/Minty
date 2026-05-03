@@ -1,32 +1,33 @@
 import {defineStore} from 'pinia'
 import { supabase } from '../supabase'
 import { useAuthStore } from './authStore'
+import type { CartItem, CartItemUpdate } from '@/types'
 
 export const useCartStore = defineStore('cart', {
 	state: () => ({
-		cartItems: [],
+		cartItems: [] as CartItem[],
 		cartTotal: 0,
-		quantity: 1,
+		quantity: 1 ,
 		orderAccess: false,
 		authStore: useAuthStore(),
 	}),
 	getters: {
-    isInCart: (state) => (item) => {
-      return state.cartItems.find(i => i.name === item.name && i.size === item.size)
+    isInCart: (state) => (item: CartItem) => {
+      return state.cartItems.some((i: CartItem) => i.name === item.name && i.size === item.size)
     }
   },
 	actions: {
 		async fetchCart() {
 			if (!this.authStore.user) return
-			const { data: cart, error } = await supabase
+			const { data, error } = await supabase
 				.from('cart')
 				.select('*')
 				.eq('user_id', this.authStore.user.id)
 			if (error) throw error
-			this.cartItems = cart
+			this.cartItems = data as CartItem[]
 		},
 
-		async addToCart({ image_url, name, price, description, size, quantity }) {
+		async addToCart({ image_url, name, price, description, size, quantity }: CartItem) {
 			if (!this.authStore.user) throw new Error('You are not logged in')
 
 			const { error } = await supabase
@@ -47,7 +48,7 @@ export const useCartStore = defineStore('cart', {
 			this.fetchCart()
 		},
 
-		async removeFromCart(id) {
+		async removeFromCart(id: string) {
 			const { error } = await supabase
 				.from('cart')
 				.delete()
@@ -56,7 +57,7 @@ export const useCartStore = defineStore('cart', {
 			this.cartItems = this.cartItems.filter(item => item.id !== id)
 		},
 
-		async updateQuantity({ id, quantity }) {
+		async updateQuantity({ id, quantity }: CartItemUpdate) {
 			const { error } = await supabase
 				.from('cart')
 				.update({ quantity: quantity })

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
@@ -18,14 +18,14 @@ export default {
       return { toast, productsStore, cartStore, wishlistStore }
   },
   methods: {
-    async addToCart(product) {
+    async addToCart(product: object) {
       try{
-        const cartProduct = { ...product, size: product.sizes[0] }
-        const existingItem = this.cartStore.isInCart(cartProduct)
+        const cartProduct = { ...product, size: product.sizes[0]}
+        const existingItem: boolean = this.cartStore.isInCart(cartProduct)
         if(existingItem){
           await this.cartStore.updateQuantity({
-            id: existingItem.id,
-            quantity: existingItem.quantity + 1
+            id: existingItem.id as number,
+            quantity: existingItem.quantity + 1 as number 
           })
         }
         else {

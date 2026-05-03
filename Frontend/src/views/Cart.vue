@@ -3,7 +3,7 @@ import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'
 import { useToast } from "vue-toastification"
-import { useCartStore } from '../stores/cartStore'
+import { useCartStore } from '../stores/cartStore.ts'
 
 export default {
 	components: { Header, Footer, ItemsInCart },
