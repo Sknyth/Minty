@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
@@ -31,15 +31,15 @@ import { useAuthStore } from '../stores/authStore'
         this.$router.push('/profile')
         this.toast.success("Sign up successful!");
       } catch (e) {
-        if(e.message === 'Signup requires a valid password'){
+        if((e as Error).message === 'Signup requires a valid password'){
           this.toast.error('Error: ' + 'Password is required')
           return
         }
-        if(e.message === 'Anonymous sign-ins are disabled'){
+        if((e as Error).message === 'Anonymous sign-ins are disabled'){
           this.toast.error('Error: ' + 'All fields are required')
           return
         }
-        this.toast.error('Error: ' + e.message)
+        this.toast.error('Error: ' + (e as Error).message)
       }
     },
   },
@@ -49,6 +49,7 @@ import { useAuthStore } from '../stores/authStore'
 </script>
 
 <template>
+  <div>
     <Header />
     <div class="d-flex container">
       <div class="bg-color1 d-flex flex-column justify-content-center reg-box" >
@@ -81,6 +82,7 @@ import { useAuthStore } from '../stores/authStore'
     </div>
       
     <Footer />
+  </div>
 </template>
 
 <style scoped>

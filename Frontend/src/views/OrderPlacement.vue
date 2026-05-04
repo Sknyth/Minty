@@ -1,9 +1,9 @@
-<script>
-import Footer from '@/components/Footer.vue'
-import Header from '@/components/Header.vue'
-import ProfileAddresses from '@/components/ProfileAddresses.vue'
-import ProfilePayments from '@/components/ProfilePayments.vue'
-import ProfilePersInfo from '@/components/ProfilePersInfo.vue'
+<script lang="ts">
+import Footer from '../components/Footer.vue'
+import Header from '../components/Header.vue'
+import ProfileAddresses from '../components/ProfileAddresses.vue'
+import ProfilePayments from '../components/ProfilePayments.vue'
+import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useOrdersStore } from '../stores/ordersStore'
@@ -33,7 +33,7 @@ export default {
 	methods: {
 		async handleConfirmOrder() { 
 			try {
-				const totalWithDelivery = this.cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12
+				const totalWithDelivery = this.cartStore.cartItems.reduce((total: number, item: { price: number; quantity: number }) => total + (item.price * item.quantity), 0) + 12
 				const order = await this.ordersStore.createOrder({ 
 					cartTotal: totalWithDelivery 
 				})
@@ -43,15 +43,15 @@ export default {
 				this.$router.push('/')
 				
 			} catch (e) {
-				if(e.message === 'insert or update on table "orders" violates foreign key constraint "fk_orders_address_strict"'){
+				if((e as Error).message === 'insert or update on table "orders" violates foreign key constraint "fk_orders_address_strict"'){
 					this.toast.warning('Please select address')
 					return
-				} else if(e.message === 'insert or update on table "orders" violates foreign key constraint "fk_payment"'){
+				} else if((e as Error).message === 'insert or update on table "orders" violates foreign key constraint "fk_payment"'){
 					this.toast.warning('Please select payment method')
 					return
 				}
 
-				this.toast.error('Error: ' + e.message)
+				this.toast.error('Error: ' + (e as Error).message)
 				}
 			}
 	},
@@ -59,126 +59,128 @@ export default {
 </script>
 
 <template>
-	<Header />
-	<main class="order-page container">
-		<div class="order-hero d-flex align-items-center justify-content-between">
-			<div class="hero-text">
-				<h1 class="fw-bold">Order placement</h1>
-				<p class="hero-subtitle color3">
-					Complete the form to confirm your delivery details. Your cart is
-					almost ready.
-				</p>
-				<div class="hero-badges d-flex align-items-center">
-					<span class="badge-item bg-color2 color1">Fast delivery</span>
-					<span class="badge-item bg-color2 color1">Secure payment</span>
-					<span class="badge-item bg-color2 color1">Easy returns</span>
+	<div>
+		<Header />
+		<main class="order-page container">
+			<div class="order-hero d-flex align-items-center justify-content-between">
+				<div class="hero-text">
+					<h1 class="fw-bold">Order placement</h1>
+					<p class="hero-subtitle color3">
+						Complete the form to confirm your delivery details. Your cart is
+						almost ready.
+					</p>
+					<div class="hero-badges d-flex align-items-center">
+						<span class="badge-item bg-color2 color1">Fast delivery</span>
+						<span class="badge-item bg-color2 color1">Secure payment</span>
+						<span class="badge-item bg-color2 color1">Easy returns</span>
+					</div>
+				</div>
+				<div class="hero-card bg-color1 text-white">
+					<h3 class="fw-bold">Order summary</h3>
+					<div class="summary-row d-flex justify-content-between">
+						<p>Items</p>
+							<p>${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) }}</p>				
+						</div>
+					<div class="summary-row d-flex justify-content-between">
+						<p>Delivery</p>
+						<p>$12</p>
+					</div>
+					<hr class="color2" />
+					<div class="summary-total d-flex justify-content-between align-items-center">
+						<h4 class="fw-bold">Total</h4>
+						<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
+					</div>
+					<button @click="handleConfirmOrder" class="bg-color2 color1 summary-btn">Confirm order</button>
 				</div>
 			</div>
-			<div class="hero-card bg-color1 text-white">
-				<h3 class="fw-bold">Order summary</h3>
-				<div class="summary-row d-flex justify-content-between">
-					<p>Items</p>
-						<p>${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) }}</p>				
+
+			<div class="order-body">
+				<div class="order-grid">
+					<section class="panel">
+						<div class="section-head">
+							<div>
+								<span class="section-kicker">Step 1</span>
+								<p class="section-sub color3">
+									Add your contact details for the order.
+								</p>
+							</div>
+							<div class="section-tags">
+								<span class="tag bg-color2 color1">Required</span>
+								<span class="tag bg-color2 color1">Profile</span>
+							</div>
+						</div>
+						<div class="section-body">
+							<ProfilePersInfo 
+							:componentName="'Contact details'" 
+							/>
+						</div>
+					</section>
+
+					<section class="panel">
+						<div class="section-head">
+							<div>
+								<span class="section-kicker">Step 2</span>
+								<p class="section-sub color3">
+									Choose where we should deliver your order.
+								</p>
+							</div>
+							<div class="section-tags">
+								<span class="tag bg-color2 color1">Editable</span>
+								<span class="tag bg-color2 color1">Primary</span>
+							</div>
+						</div>
+						<div class="section-body">
+							<ProfileAddresses :componentName="'Delivery address'"  />
+						</div>
+					</section>
+
+					<section class="panel">
+						<div class="section-head">
+							<div>
+								<span class="section-kicker">Step 3</span>
+								<p class="section-sub color3">
+									Select your preferred way to pay.
+								</p>
+							</div>
+							<div class="section-tags">
+								<span class="tag bg-color2 color1">Secure</span>
+								<span class="tag bg-color2 color1">PCI DSS</span>
+							</div>
+						</div>
+						<div class="section-body">
+							<ProfilePayments 
+							:componentName="'Payment method'" />
+						</div>
+					</section>
+				</div>
+
+				<aside class="side-panel">
+					<div class="panel">
+						<div class="section-head">
+							<div>
+								<h3 class="fw-bold">Need help?</h3>
+								<p class="section-sub color3">
+									Our manager will confirm the order and delivery time with you.
+								</p>
+							</div>
+							<div class="section-tags">
+								<span class="tag bg-color2 color1">Support</span>
+							</div>
+						</div>
+						<div class="support-box">
+							<p class="fw-bold">Support line</p>
+							<p class="color1">+1 (800) 123-4567</p>
+						</div>
+						<div class="support-box">
+							<p class="fw-bold">Email</p>
+							<p class="color1">support@minty.com</p>
+						</div>
 					</div>
-				<div class="summary-row d-flex justify-content-between">
-					<p>Delivery</p>
-					<p>$12</p>
-				</div>
-				<hr class="color2" />
-				<div class="summary-total d-flex justify-content-between align-items-center">
-					<h4 class="fw-bold">Total</h4>
-					<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
-				</div>
-				<button @click="handleConfirmOrder" class="bg-color2 color1 summary-btn">Confirm order</button>
+				</aside>
 			</div>
-		</div>
-
-		<div class="order-body">
-			<div class="order-grid">
-				<section class="panel">
-					<div class="section-head">
-						<div>
-							<span class="section-kicker">Step 1</span>
-							<p class="section-sub color3">
-								Add your contact details for the order.
-							</p>
-						</div>
-						<div class="section-tags">
-							<span class="tag bg-color2 color1">Required</span>
-							<span class="tag bg-color2 color1">Profile</span>
-						</div>
-					</div>
-					<div class="section-body">
-						<ProfilePersInfo 
-						:componentName="'Contact details'" 
-						/>
-					</div>
-				</section>
-
-				<section class="panel">
-					<div class="section-head">
-						<div>
-							<span class="section-kicker">Step 2</span>
-							<p class="section-sub color3">
-								Choose where we should deliver your order.
-							</p>
-						</div>
-						<div class="section-tags">
-							<span class="tag bg-color2 color1">Editable</span>
-							<span class="tag bg-color2 color1">Primary</span>
-						</div>
-					</div>
-					<div class="section-body">
-						<ProfileAddresses :componentName="'Delivery address'"  />
-					</div>
-				</section>
-
-				<section class="panel">
-					<div class="section-head">
-						<div>
-							<span class="section-kicker">Step 3</span>
-							<p class="section-sub color3">
-								Select your preferred way to pay.
-							</p>
-						</div>
-						<div class="section-tags">
-							<span class="tag bg-color2 color1">Secure</span>
-							<span class="tag bg-color2 color1">PCI DSS</span>
-						</div>
-					</div>
-					<div class="section-body">
-						<ProfilePayments 
-						:componentName="'Payment method'" />
-					</div>
-				</section>
-			</div>
-
-			<aside class="side-panel">
-				<div class="panel">
-					<div class="section-head">
-						<div>
-							<h3 class="fw-bold">Need help?</h3>
-							<p class="section-sub color3">
-								Our manager will confirm the order and delivery time with you.
-							</p>
-						</div>
-						<div class="section-tags">
-							<span class="tag bg-color2 color1">Support</span>
-						</div>
-					</div>
-					<div class="support-box">
-						<p class="fw-bold">Support line</p>
-						<p class="color1">+1 (800) 123-4567</p>
-					</div>
-					<div class="support-box">
-						<p class="fw-bold">Email</p>
-						<p class="color1">support@minty.com</p>
-					</div>
-				</div>
-			</aside>
-		</div>
-	</main>
-	<Footer />
+		</main>
+		<Footer />
+	</div>
 </template>
 
 <style scoped>

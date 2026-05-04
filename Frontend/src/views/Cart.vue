@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'
 import { useToast } from "vue-toastification"
-import { useCartStore } from '../stores/cartStore.ts'
+import { useCartStore } from '../stores/cartStore'
 
 export default {
 	components: { Header, Footer, ItemsInCart },
@@ -16,10 +16,10 @@ export default {
 		},
 	computed: {
 			totalQuantity() {
-				return this.cartStore.cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+				return this.cartStore.cartItems.reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 1), 0)
 			},
 			totalPrice() {
-				return this.cartStore.cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0)
+				return this.cartStore.cartItems.reduce((total: number, item: { price: number, quantity: number }) => total + (item.price * (item.quantity || 1)), 0)
 			}
   },
 	
@@ -70,8 +70,8 @@ export default {
 		<div v-else-if="cartStore.cartItems" class="container align-items-center">
         <div class="top-name d-flex justify-content-between">
             <h1 class="fw-bold">Cart</h1>
-            <p v-if="cartStore.totalQuantity === 1"> {{ totalQuantity }} product</p>
-            <p v-else>{{ totalQuantity }} products</p>
+            <!-- <p v-if="cartStore.totalQuantity === 1"> {{ totalQuantity }} product</p> -->
+            <p>{{ totalQuantity }} products</p>
         </div>
 		<div class="d-flex row">
 			<ItemsInCart class="col-xl" />

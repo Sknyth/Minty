@@ -67,9 +67,9 @@ export default {
   },
   computed: {
     favoriteProducts() {
-      const favIds = this.wishlistStore.wishlistProducts.map(item => item.product_id)
+      const favIds = this.wishlistStore.wishlistProducts.map((item: { product_id: string }) => item.product_id)
 
-      return this.productsStore.products.filter(product => 
+      return this.productsStore.products.filter((product: Product) => 
         favIds.includes(product.id)
       )
     }

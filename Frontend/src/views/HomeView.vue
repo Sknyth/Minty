@@ -1,7 +1,8 @@
-<script>
-import CardList from '@/components/CardList.vue'
-import Footer from '@/components/Footer.vue'
-import Header from '@/components/Header.vue'
+<script lang="ts">
+import type { Criteria } from '../types'
+import CardList from '../components/CardList.vue'
+import Footer from '../components/Footer.vue'
+import Header from '../components/Header.vue'
 import { useProductsStore } from '../stores/productsStore'
 
 export default {
@@ -14,7 +15,7 @@ export default {
 	},
 	data() {
 		return {
-			sortOption: 'price-low'
+			sortOption: 'price-low' as Criteria
 		}
 	},
 	methods: {

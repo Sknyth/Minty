@@ -78,96 +78,98 @@ export default {
 </script>
 
 <template>
-  <Header />
-  
-  <main v-if="currentItem" class="product-wrapper">
-    <div class="container p-0">
-      <div class="row g-0">
-        
-        <div class="col-lg-8 col-md-7 position-relative">
-          <div id="itemCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-              <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="0" class="active"></button>
-              <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="1"></button>
-              <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="2"></button>
-            </div>
-            
-            <div class="carousel-inner h-100">
-              <div class="carousel-item active h-100">
-                <img :src="currentItem.image_url" class="main-img" alt="">
+  <div>
+    <Header />
+    
+    <main v-if="currentItem" class="product-wrapper">
+      <div class="container p-0">
+        <div class="row g-0">
+          
+          <div class="col-lg-8 col-md-7 position-relative">
+            <div id="itemCarousel" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-indicators">
+                <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="2"></button>
               </div>
-              <div class="carousel-item h-100">
-                <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Black">
+              
+              <div class="carousel-inner h-100">
+                <div class="carousel-item active h-100">
+                  <img :src="currentItem.image_url" class="main-img" alt="">
+                </div>
+                <div class="carousel-item h-100">
+                  <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Black">
+                </div>
+                <div class="carousel-item h-100">
+                  <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Cream">
+                </div>
               </div>
-              <div class="carousel-item h-100">
-                <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Cream">
-              </div>
-            </div>
 
-            <button class="carousel-control-prev custom-nav" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
-              <div class="nav-circle">
-                <span class="chevron-left"></span>
-              </div>
-            </button>
-            <button class="carousel-control-next custom-nav" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
-              <div class="nav-circle">
-                <span class="chevron-right"></span>
-              </div>
-            </button>
+              <button class="carousel-control-prev custom-nav" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
+                <div class="nav-circle">
+                  <span class="chevron-left"></span>
+                </div>
+              </button>
+              <button class="carousel-control-next custom-nav" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
+                <div class="nav-circle">
+                  <span class="chevron-right"></span>
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div class="col-lg-4 col-md-5 d-flex align-items-center bg-white border-start">
-          <div class="info-content p-4 w-100">
-            <h1 class="mb-">{{ currentItem.name }}</h1>
-            <h2 class="fs-4 mb-4 color1">${{ currentItem.price }}</h2>
+          <div class="col-lg-4 col-md-5 d-flex align-items-center bg-white border-start">
+            <div class="info-content p-4 w-100">
+              <h1 class="mb-">{{ currentItem.name }}</h1>
+              <h2 class="fs-4 mb-4 color1">${{ currentItem.price }}</h2>
 
-            <hr class="my-4 opacity-10">
+              <hr class="my-4 opacity-10">
 
-            <div class="mb-4">
-              <p class="fw-bold mb-3">Color: <span class="fw-normal color3">Original White</span></p>
-              <div class="d-flex gap-2">
-                <div class="swatch active"><img :src="currentItem.image_url" alt=""></div>
-                <!-- <div class="swatch"><img :src="currentItem.image_url" alt=""></div>
-                <div class="swatch"><img :src="currentItem.image_url" alt=""></div> -->
+              <div class="mb-4">
+                <p class="fw-bold mb-3">Color: <span class="fw-normal color3">Original White</span></p>
+                <div class="d-flex gap-2">
+                  <div class="swatch active"><img :src="currentItem.image_url" alt=""></div>
+                  <!-- <div class="swatch"><img :src="currentItem.image_url" alt=""></div>
+                  <div class="swatch"><img :src="currentItem.image_url" alt=""></div> -->
+                </div>
               </div>
-            </div>
 
-            <div class="mb-5">
-              <div class="d-flex justify-content-between mb-3">
-                <span class="fw-bold">Select Size (EU)</span>
+              <div class="mb-5">
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="fw-bold">Select Size (EU)</span>
+                </div>
+                <div class="size-grid">
+                  <button 
+                    v-for="size in currentItem.sizes" 
+                    :key="size"
+                    @click="selectSize(size)"
+                    :class="['size-btn', { 'active': selectedSize === size }]"
+                  >
+                    {{ size }}
+                  </button>
+                </div>
               </div>
-              <div class="size-grid">
-                <button 
-                  v-for="size in currentItem.sizes" 
-                  :key="size"
-                  @click="selectSize(size)"
-                  :class="['size-btn', { 'active': selectedSize === size }]"
-                >
-                  {{ size }}
+
+              <div class="d-grid gap-3">
+                <button @click="addToCart" class="button-color1 py-3 fs-5 shadow-sm rounded-pill">
+                  Add to Cart
+                </button>
+                <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
+                  {{ isInWishlistComputed ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
                 </button>
               </div>
             </div>
-
-            <div class="d-grid gap-3">
-              <button @click="addToCart" class="button-color1 py-3 fs-5 shadow-sm rounded-pill">
-                Add to Cart
-              </button>
-              <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
-                {{ isInWishlistComputed ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
-              </button>
-            </div>
           </div>
-        </div>
 
+        </div>
       </div>
+    </main>
+    <div v-else class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading product data...</p>
     </div>
-  </main>
-  <div v-else class="loading-state text-center p-5">
-    <div class="spinner-border"></div>
-    <p>Loading product data...</p>
+    <Footer />
   </div>
-  <Footer />
 </template>
 
 <style scoped>
