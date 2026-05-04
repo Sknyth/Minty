@@ -1,0 +1,1 @@
+export type Criteria = 'price-low' | 'price-high' | 'name' | 'standard'
