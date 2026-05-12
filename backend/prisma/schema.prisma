@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Int
+  image_url   String
+  sizes       Int[]
+  created_at  DateTime @default(now())
+  Cart    Cart[]
+  OrderItem OrderItem[]
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  name     String
+  surname  String?
+  phone    String?
+  role     Role   @default(user)
+  created_at DateTime @default(now())
+  hashedRefreshToken String?
+
+  selectedAddressId Int?
+  selectedPaymentId Int?
+
+  Cart    Cart[]
+  Address Address[]
+  Order   Order[]
+  Payment Payment[]
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int    @default(1)
+  size      Int @default(36)
+  created_at DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  street    String
+  city      String
+  house_number  String
+  country   String
+  apt       String
+  postcode  String
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+  id              Int  @id @default(autoincrement())
+  userId          Int
+  number          String
+  holder_name     String
+  cvv             String
+  expiration_date String
+  type            String
+
+  user            User @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+
+  cardNumber         String
+  cardHolderName     String
+  cardCvv            String
+  cardExpirationDate String
+  cardType           String
+
+  shippingStreet      String
+  shippingCity        String
+  shippingCountry     String
+  shippingHouseNumber Int
+  shippingApt         Int
+  shippingPostcode    Int
+
+  total_price         Int
+  status              OrderStatus @default(pending)
+
+  createdAt DateTime  @default(now())
+
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  size      Int
+  price     Int
+
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+enum Role {
+  user  @map("USER")
+  admin @map("ADMIN")
+}
+
+enum OrderStatus {
+  pending
+  delivered
+  cancelled
+}

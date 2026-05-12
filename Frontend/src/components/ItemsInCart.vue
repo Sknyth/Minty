@@ -44,7 +44,7 @@ export default {
             }
         },
 
-        async removeFromCart(id: string) {
+        async removeFromCart(id: number) {
             if (!id) return
             try{
                 await this.cartStore.removeFromCart(id)
@@ -62,27 +62,27 @@ export default {
         <div class="item d-flex justify-content-between align-items-center" 
         v-for="item in cartStore.cartItems" :key="item.id">
 
-            <img :src="item.image_url ?? undefined" alt="">
+            <img :src="item.product.image_url ?? undefined" alt="">
 
-            <span class="fw-bold">{{ item.name }}</span>
+            <span class="fw-bold">{{ item.product.name }}</span>
 
             <span class="fw-bold">size {{ item.size }}</span>
             
             <div>
-                <p class="fw-bold">${{ item.price }}</p>
+                <p class="fw-bold">${{ item.product.price }}</p>
                 <span>Price for 1 unit.</span>
             </div>
 
             <div class="count d-flex justify-content-between align-items-center bg-color2">
-                <img @click="decreaseQuantity(item)" src="/public/-.svg" alt="">
+                <img @click="decreaseQuantity(item)" src="/-.svg" alt="">
                 <span class="fw-bold">{{ item.quantity }}</span>
-                <img @click="updateQuantity(item)" src="/public/+.svg" alt="">
+                <img @click="updateQuantity(item)" src="/+.svg" alt="">
             </div>
 
-            <span class="fw-bold">${{ item.price * item.quantity }}</span>
+            <span class="fw-bold">${{ item.product.price * item.quantity }}</span>
 
             <div class="trash">
-                <img @click="removeFromCart(item.id)" src="/public/trash.svg" alt="">
+                <img @click="removeFromCart(item.id)" src="/trash.svg" alt="">
             </div>
             
         </div>

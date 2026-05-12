@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useWishlistStore } from '../stores/wishlistStore'
+// import { useWishlistStore } from '../stores/wishlistStore'
 import type { PropType } from 'vue'
 
 export default {
@@ -18,19 +18,19 @@ export default {
       required: true
     },
     id: {
-      type: String,
+      type: Number,
       required: true
     }
   },
   setup() {
     return {
-      wishlistStore: useWishlistStore()
+      // wishlistStore: useWishlistStore()
     }
   },
   computed: {
-    isInWishlistComputed() {
-      return this.wishlistStore.isInWishlist(this.id)
-    }
+    // isInWishlistComputed() {
+    //   return this.wishlistStore.isInWishlist(this.id)
+    // }
   },
   methods: {
     addToCart() {
@@ -46,7 +46,7 @@ export default {
 <template>
   <div class="product-card">
     <button class="wishlist-btn" @click="toggleWishlist">
-      <i :class="isInWishlistComputed ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i>
+      <!-- <i :class="isInWishlistComputed ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i> -->
     </button>
 
     <router-link :to="{ name: 'Item', params: { id: id } }" class="card-link">

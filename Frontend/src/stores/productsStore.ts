@@ -10,11 +10,8 @@ export const useProductsStore = defineStore('products', {
 	actions: {
 		async fetchProducts() {
 			this.loading = true
-			const { data, error } = await supabase
-				.from('products')
-				.select('*')
-				.order('id')
-			if (error) throw error
+			const res = await fetch('http://localhost:3000')
+			const data = await res.json()
 			this.products = data as Product[]
 			this.loading = false
 		},

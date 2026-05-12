@@ -1,8 +1,8 @@
 <script lang="ts">
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
-import { useProfileStore } from '../stores/profileStore'
-import type { Profile } from '../types'
+
+import type { User } from '../types'
 export default {
   props: {
     componentName: String,
@@ -10,10 +10,9 @@ export default {
   setup() {
     const toast = useToast()
 
-    const profileStore = useProfileStore()
     const authStore = useAuthStore()
 
-    return { toast, profileStore, authStore }
+    return { toast, authStore }
   },
   data() {
     return {
@@ -21,34 +20,31 @@ export default {
     }
   },
   async mounted() {
-    await this.profileStore.fetchProfile()
+    await this.authStore.getUser()
   },
   methods: {
     async updateProfile() {
       try {
-        await this.profileStore.updateProfile({
-          name: this.profileStore.profile?.name,
-					surname: this.profileStore.profile?.surname,
-          phone: this.profileStore.profile?.phone
-        } as Profile)
-
-        await this.authStore.updateEmail(String(this.authStore.user?.email).trim() )
-        
+        if(!this.authStore.user) return
+        await this.authStore.updateUser(
+          this.authStore.user?.name ?? '',
+          this.authStore.user?.surname ?? '',
+          this.authStore.user?.phone ?? ''
+        )
         this.toast.success("Data saved successfully!")
         this.ToggleChange = false
       } catch (e) {
-        alert(e)
         this.toast.error("Error: " + (e as Error).message)
         
       }
     },
-    async fetchProfile(){
-      try {
-        await this.profileStore.fetchProfile()
-      } catch (e) {
-        this.toast.error("Error: " + (e as Error).message)
-      }
-    },
+    // async fetchProfile(){
+    //   try {
+    //     await this.profileStore.fetchProfile()
+    //   } catch (e) {
+    //     this.toast.error("Error: " + (e as Error).message)
+    //   }
+    // },
   }
 };
 
@@ -57,37 +53,33 @@ export default {
 <template>
   <div>
     <h2>{{ componentName }}</h2>
-    <div v-if="profileStore.profile" class="personal-information">
+    <div v-if="authStore.user" class="personal-information">
       
       <form @submit.prevent="updateProfile" class="d-flex gap-4 form-change-info justify-content-between row">
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Name</label>
-          <input v-if="ToggleChange" v-model="profileStore.profile.name" type="text">
-          <p v-else>{{ profileStore.profile.name }}</p>
+          <input v-if="ToggleChange" v-model="authStore.user.name" type="text">
+          <p v-else>{{ authStore.user.name }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Surname</label>
-          <input v-if="ToggleChange" v-model="profileStore.profile.surname" type="text">
-          <p v-else>{{ profileStore.profile.surname }}</p>
+          <input v-if="ToggleChange" v-model="authStore.user.surname" type="text">
+          <p v-else>{{ authStore.user.surname }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Email</label>
           <input v-if="ToggleChange && authStore.user" v-model.trim="authStore.user.email" type="email">
-          <p v-else>{{ authStore.user?.email }}</p>
+          <p v-else>{{ authStore.user.email }}</p>
         </div>
         <div class="d-flex flex-column gap-2 col info-box">
           <label for="">Phone number</label>
-          <input v-if="ToggleChange" v-model.trim="profileStore.profile.phone" type="tel">
-          <p v-else>{{ profileStore.profile?.phone }}</p>
+          <input v-if="ToggleChange" v-model.trim="authStore.user.phone" type="tel">
+          <p v-else>{{ authStore.user.phone }}</p>
         </div>
         <button v-if="ToggleChange" type="submit" class="button-color1 btn-change">Save Changes</button>
         <button v-else type="button" class="button-color1 btn-change" @click="ToggleChange = !ToggleChange">Change</button>
       </form>
     </div>
-    <div v-else class="loading-state text-center p-5">
-			<div class="spinner-border"></div>
-			<p>Loading products data...</p>
-		</div>
   </div>
 </template>
 

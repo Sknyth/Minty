@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Address" ALTER COLUMN "apt" SET DATA TYPE TEXT;

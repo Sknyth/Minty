@@ -31,9 +31,9 @@ export default {
 			</div>
 
 			<div class="social-links">
-				<RouterLink to="/wishlist">
+				<!-- <RouterLink to="/wishlist">
 					<img src="/favorite(heart).svg" alt=""/>
-				</RouterLink>
+				</RouterLink> -->
 
 				<RouterLink v-if="!authStore.user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
 				<RouterLink v-else to="/profile"><img src="/login.svg" alt="" /></RouterLink>

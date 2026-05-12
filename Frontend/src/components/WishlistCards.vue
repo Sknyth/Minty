@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
@@ -103,4 +103,9 @@ export default {
   gap: 14px;
   margin: 0 auto;
 }
-</style>
+</style> -->
+
+<script lang="ts">
+</script>
+
+<template></template>

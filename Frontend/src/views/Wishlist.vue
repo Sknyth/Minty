@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import WishlistCards from '../components/WishlistCards.vue'
@@ -68,4 +68,9 @@ export default {
 .button-box {
 	margin-top: 30px;
 }
-</style>
+</style> -->
+
+<script lang="ts">
+</script>
+
+<template></template>

@@ -1,12 +1,12 @@
 export interface Address {
-	id: string
+	id: number
 	user_id: string
 	country: string
 	city: string
 	street: string
-	house_number: number | null
-	apt: number | null
-	postcode: number | null
+	house_number: string | null
+	apt: string | null
+	postcode: string | null
 }
 
 export type AddressInput = Omit<Address, 'id' | 'user_id'>

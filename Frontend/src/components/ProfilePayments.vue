@@ -1,6 +1,6 @@
 <script lang="ts">
 import { useToast } from "vue-toastification"
-import { useProfileStore } from '../stores/profileStore'
+import { usePaymentStore } from '../stores/paymentStore'
 import type { PaymentMethod } from '../types'
 export default {
     props: {
@@ -9,45 +9,45 @@ export default {
     setup() {
         const toast = useToast()
 
-        const profileStore = useProfileStore()
+        const paymentStore = usePaymentStore()
+        // this.paymentStore.fetchPayment()
 
-        return { toast, profileStore }
+        return { toast, paymentStore }
 
     },
     data() {
         return {
-            cardNumber: null as number | null,
+            cardNumber: '',
             cardHolderName: '',
             cardExpirationDate: '',
-            cardCvv: null as number | null,
+            cardCvv: '',
             toggleAddMethod: true,
             editId: null,
         };
     },
     computed: {
         currentPaymentId() {
-            return this.profileStore.selectedPaymentId
+            return this.paymentStore.selectedPaymentId
         }
     },
     methods: {
-        maskCard(number: number) {
-            if (!number) return '';
-            const str = number.toString();
-            return `**** **** **** ${str.slice(-4)}`
+        maskCard(number: string) {
+            if (!number) return ''
+            return `**** **** **** ${number.slice(-4)}`
         },
         async addPaymentMethod() {
             try {
-                await this.profileStore.addPaymentMethod({
+                await this.paymentStore.addPayment({
                     number: this.cardNumber,
                     holder_name: this.cardHolderName,
                     expiration_date: this.cardExpirationDate,
                     cvv: this.cardCvv,
                     type: this.getCardType(this.cardNumber)
                 } as PaymentMethod);
-                this.cardNumber = null
+                this.cardNumber = ''
                 this.cardHolderName = ''
                 this.cardExpirationDate = ''
-                this.cardCvv = null
+                this.cardCvv = ''
 
                 this.toggleAddMethod = !this.toggleAddMethod
 
@@ -60,25 +60,16 @@ export default {
                 this.toast.error('Error: ' + (e as Error).message)
             }
         },
-        async deletePaymentMethod(id: string) {
+        async deletePayment(id: number) {
             try {
-                await this.profileStore.deletePaymentMethod(id)
+                await this.paymentStore.deletePayment(id)
                 this.toast.success("Method deleted successfully!")
-
-                if (this.currentPaymentId === id) {
-                    await this.profileStore.updateSelectedMetadata({ paymentId: '', addressId: this.profileStore.selectedAddressId || '' })
-                }
             } catch (e) {
-                if((e as Error).message === 'update or delete on table "payment_methods" violates foreign key constraint "fk_payment" on table "orders"'){
-                    this.toast.error("Error: You cannot delete a payment method if you order something with it")
-                    return    
-                }
                 this.toast.error("Error: " + (e as Error).message)
             } 
         },
-        getCardType(number: number | null): string {
+        getCardType(number: string): string {
             if (!number) return 'Unknown'
-            const str = number.toString()
             const re = {
             Visa: /^4/,
             Mastercard: /^5[1-5]|^2(?:22[1-9]|2[3-9]\d|[3-6]\d\d|7[01]\d|720)/,
@@ -87,37 +78,40 @@ export default {
             }
 
             for (const [card, pattern] of Object.entries(re)) {
-            if (pattern.test(str)) return card
+            if (pattern.test(number)) return card
             }
             return 'Unknown'
         },
-        async selectPayment(id: string) {
+        async selectPayment(selectedPaymentId: number | null) {
            try {
-                await this.profileStore.updateSelectedMetadata({ paymentId: id, addressId: this.profileStore.selectedAddressId || '' })
+                await this.paymentStore.selectPayment(selectedPaymentId)
                 this.toast.success("Payment selected")
             } catch (e) {
                 this.toast.error("Error: " + (e as Error).message)
-            }
-            
+            }   
+        },
     },
+
     async mounted() {
-        await this.profileStore.fetchPaymentMethods()
+        await this.paymentStore.fetchPayment()
     }
-}}
+}
 </script>
 
 <template>
     <div>
         <h2>{{ componentName }}</h2>
-        <div class="no-methods text-center" v-if="profileStore.paymentMethods.length === 0 && toggleAddMethod" >
+        <!-- <div class="no-methods text-center" >
+            v-if="paymentStore.payment.length === 0 && toggleAddMethod"
             <p>You don't have payment methods</p>
-        </div>
-        <div v-else-if="toggleAddMethod ?? profileStore.paymentMethods.length != 0">
+        </div> -->
+        <div v-if="toggleAddMethod">
+            <!-- v-else-if="toggleAddMethod ?? profileStore.paymentMethods.length != 0" -->
             <div class="row gap-3 justify-content-start">
                 <div
-                 v-for="method in profileStore.paymentMethods" 
+                 v-for="method in paymentStore.payment" 
                  :key="method.id" 
-                 :class="{ 'active-card': method.id === profileStore.selectedPaymentId }"
+                 :class="{ 'active-card': method.id === paymentStore.selectedPaymentId }"
                  class="col payment-card mb-3 mt-3 d-flex justify-content-between flex-column"
                  @click="selectPayment(method.id)"
                  >
@@ -126,7 +120,7 @@ export default {
                     <p>{{ maskCard(method.number) }}</p>
                  </div>
                  <div>
-                     <button @click.stop="deletePaymentMethod(method.id)" id="btn-delete">Delete</button>
+                     <button @click.stop="deletePayment(method.id)" id="btn-delete">Delete</button>
                  </div>
                 </div>
             </div>

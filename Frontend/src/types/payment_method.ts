@@ -1,10 +1,10 @@
 export interface PaymentMethod {
-	id: string
+	id: number
 	user_id: string
-	number: number
+	number: string
 	expiration_date: string
 	holder_name: string
-	cvv: number
+	cvv: string
 	type: 'MasterCard' | 'Visa' | 'Mir' | 'Maestro' | 'Unknown'
 }
 

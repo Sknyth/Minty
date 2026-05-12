@@ -4,7 +4,7 @@ import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
-import { useWishlistStore } from '../stores/wishlistStore'
+// import { useWishlistStore } from '../stores/wishlistStore'
 
 export default {
   components: {
@@ -14,10 +14,10 @@ export default {
   setup() {
     const toast = useToast()
     const productsStore = useProductsStore()
-    const wishlistStore = useWishlistStore()
+    // const wishlistStore = useWishlistStore()
     const cartStore = useCartStore()
     productsStore.fetchProducts()
-    return { toast, productsStore, cartStore, wishlistStore }
+    return { toast, productsStore, cartStore, /* wishlistStore */ }
   },
   data() {
     return {
@@ -29,9 +29,9 @@ export default {
       const id = this.$route.params.id
       return this.productsStore.products.find(item => String(item.id) === String(id))
     },
-    isInWishlistComputed() {
-      return this.wishlistStore.isInWishlist(this.currentItem.id)
-    }
+    // isInWishlistComputed() {
+    //   return this.wishlistStore.isInWishlist(this.currentItem.id)
+    // }
   },
   methods: {
     async addToCart() {
@@ -41,10 +41,7 @@ export default {
       }
       try{
         await this.cartStore.addToCart({
-          name: this.currentItem.name,
-          price: this.currentItem.price,
-          image_url: this.currentItem.image_url,
-          description: this.currentItem.description,
+          product_id: this.currentItem.id,
           size: this.selectedSize,
           quantity: 1
         })
@@ -154,9 +151,9 @@ export default {
                 <button @click="addToCart" class="button-color1 py-3 fs-5 shadow-sm rounded-pill">
                   Add to Cart
                 </button>
-                <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
+                <!-- <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
                   {{ isInWishlistComputed ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
-                </button>
+                </button> -->
               </div>
             </div>
           </div>
