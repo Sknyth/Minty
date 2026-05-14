@@ -1,10 +1,10 @@
-<!-- <script lang="ts">
+<script lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import Card from './Card.vue'
-import type { CartItem, Product } from '../types'
+import type { CartItem, CartItemInput, Product } from '../types'
 
 export default {
   components: { Card },
@@ -21,33 +21,31 @@ export default {
   methods: {
     async addToCart(product: Product) {
       try{
-        const cartProduct: CartItem = { ...product, size: product.sizes[0], quantity: 1, user_id: '' }
-        const existingItem = this.cartStore.isInCart(cartProduct)
+          const cartProduct: CartItemInput = { 
+          product_id: product.id,
+          size: product.sizes[0],
+          quantity: 1
+        }
+        const existingItem = this.cartStore.isInCart(cartProduct.product_id, cartProduct.size)
         if(existingItem){
           await this.cartStore.updateQuantity({
             id: existingItem.id,
             quantity: existingItem.quantity + 1
           })
-        }
-        else {
-          await this.cartStore.addToCart({
-            name: product.name,
-            price: product.price,
-            image_url: product.image_url,
-            description: product.description,
-            size: product.sizes[0]      
-          })
-        }
-        this.toast.success('Product added to your cart!')
-      } catch(e){
-        if((e as Error).message === 'User not authenticated'){
-          this.toast.error("Error: " + 'You are not logged in')
+          this.toast.success('Product added to your cart!')  
           return
-        }    
+        }else {
+          await this.cartStore.addToCart({
+            ...cartProduct     
+          })
+          this.toast.success('Product added to your cart!')
+        }
+
+      } catch(e){   
         this.toast.error("Error: " + (e as Error).message)
       }
     },
-    async toggleWishlist(productID: string) {
+    async toggleWishlist(productID: number) {
       try {
         if (this.wishlistStore.isInWishlist(productID)) {
           await this.wishlistStore.deleteFromWishlist(productID)
@@ -57,17 +55,13 @@ export default {
           this.toast.success('Product added to your wishlist!') 
         }
       } catch(e) {
-        if((e as Error).message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
-          this.toast.error("Error: Already in wishlist")
-          return
-        }
         this.toast.error("Error: " + (e as Error).message)
       }
     },
   },
   computed: {
     favoriteProducts() {
-      const favIds = this.wishlistStore.wishlistProducts.map((item: { product_id: string }) => item.product_id)
+      const favIds = this.wishlistStore.wishlist.map((item: { productId: number }) => item.productId)
 
       return this.productsStore.products.filter((product: Product) => 
         favIds.includes(product.id)
@@ -103,9 +97,5 @@ export default {
   gap: 14px;
   margin: 0 auto;
 }
-</style> -->
+</style>
 
-<script lang="ts">
-</script>
-
-<template></template>

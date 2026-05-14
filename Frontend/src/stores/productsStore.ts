@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { supabase } from '../supabase'
 import type { Product, Criteria } from '@/types'
 
 export const useProductsStore = defineStore('products', {
@@ -11,25 +10,24 @@ export const useProductsStore = defineStore('products', {
 		async fetchProducts() {
 			this.loading = true
 			const res = await fetch('http://localhost:3000')
-			const data = await res.json()
-			this.products = data as Product[]
+			this.products = await res.json()
 			this.loading = false
 		},
-		async searchProducts(query: string) {
-			this.loading = true
-			if (!query) return await this.fetchProducts()
+		// async searchProducts(query: string) {
+		// 	this.loading = true
+		// 	if (!query) return await this.fetchProducts()
 
-			const { data, error } = await supabase
-				.from('products')
-				.select('*')
-				.textSearch('name', query, {
-					config: 'english',
-					type: 'websearch'
-				})
-			if (error) throw error
-			this.products = data as Product[]
-			this.loading = false
-		},
+		// 	const { data, error } = await supabase
+		// 		.from('products')
+		// 		.select('*')
+		// 		.textSearch('name', query, {
+		// 			config: 'english',
+		// 			type: 'websearch'
+		// 		})
+		// 	if (error) throw error
+		// 	this.products = data as Product[]
+		// 	this.loading = false
+		// },
 		async sortProducts(criteria: Criteria) {
 			this.loading = true
 			let orderBy = 'id'
@@ -49,12 +47,12 @@ export const useProductsStore = defineStore('products', {
 				ascending = true
 			}
 
-			const { data, error } = await supabase
-				.from('products')
-				.select('*')
-				.order(orderBy, { ascending })
-			if (error) throw error
-			this.products = data as Product[]
+			// const { data, error } = await supabase
+			// 	.from('products')
+			// 	.select('*')
+			// 	.order(orderBy, { ascending })
+			// if (error) throw error
+			// this.products = data as Product[]
 			this.loading = false
 		},
 	},

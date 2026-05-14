@@ -62,6 +62,19 @@ export const useCartStore = defineStore('cart', {
 			this.cartItems = this.cartItems.filter(item => item.id !== id)
 		},
 
+		async removeCart() {
+			const authStore = useAuthStore()
+			if (!authStore.user) throw new Error('You are not logged in')
+			const req = await fetch(`http://localhost:3000/cart/removeCart/${authStore.user.id}`, {
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${authStore.access_token}`,
+				}
+			})
+			if (!req.ok) throw new Error('Failed to clear cart')
+			this.cartItems = []
+		},
+
 		async updateQuantity({ id, quantity }: CartItemUpdate) {
 			const authStore = useAuthStore()
 			const req = await fetch(`http://localhost:3000/cart/updateQuantity`, {

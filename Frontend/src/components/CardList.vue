@@ -3,7 +3,7 @@ import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
-// import { useWishlistStore } from '../stores/wishlistStore'
+import { useWishlistStore } from '../stores/wishlistStore'
 import type { CartItemInput, Product } from '../types'
 import Card from './Card.vue'
 
@@ -11,16 +11,14 @@ export default {
   components: { Card },
   setup() {
       const toast = useToast()
-      // const wishlistStore = useWishlistStore()
+      const wishlistStore = useWishlistStore()
       const cartStore = useCartStore()
       const productsStore = useProductsStore()
       const authStore = useAuthStore()
       productsStore.fetchProducts()
-      // if (authStore.isAuth) {
-      //   wishlistStore.fetchWishlist()
-      // }
+      wishlistStore.fetchWishlist()
 
-      return { toast, productsStore, cartStore, authStore }
+      return { toast, productsStore, cartStore, authStore, wishlistStore }
   },
   methods: {
     async addToCart(product: Product) {
@@ -49,24 +47,19 @@ export default {
         this.toast.error("Error: " + (e as Error).message)
       }
     },
-    // async toggleWishlist(productID: string) {
-    //   try {
-    //     if (this.wishlistStore.isInWishlist(productID)) {
-    //       await this.wishlistStore.deleteFromWishlist(productID)
-    //       this.toast.success('Product removed from wishlist!')
-    //     } else {
-    //       await this.wishlistStore.addToWishlist(productID)
-    //       this.toast.success('Product added to your wishlist!') 
-    //     }
-    //   } catch(e) {
-    //     if((e as Error).message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
-    //       this.toast.error("Error: Already in wishlist")
-    //       return
-    //     }
-    //     this.toast.error("Error: " + (e as Error).message)
-
-    //   }
-    // }
+    async toggleWishlist(productID: number) {
+      try {
+        if (this.wishlistStore.isInWishlist(productID)) {
+          await this.wishlistStore.deleteFromWishlist(productID)
+          this.toast.success('Product removed from wishlist!')
+        } else {
+          await this.wishlistStore.addToWishlist(productID)
+          this.toast.success('Product added to your wishlist!') 
+        }
+      } catch(e) {
+        this.toast.error("Error: " + (e as Error).message)
+      }
+    }
   },
 }
 </script>
@@ -83,10 +76,10 @@ export default {
           :id="product.id"
 					@add-to-cart="() => addToCart(product)"
 					class="custom-card"
+          @toggle-wishlist="toggleWishlist"
           />
         </div>
       </div>
-      <!-- @toggle-wishlist="toggleWishlist" -->
     </template>
 
 <style scoped>

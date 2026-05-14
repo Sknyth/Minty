@@ -1,11 +1,13 @@
 import { Controller, Get, Param, Post, Body, Patch, ParseIntPipe } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client'
 import { UserService } from './user.service'
+import { Public } from 'src/auth/public.decorator'
 
 @Controller('user')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
+	@Public()
 	@Post()
 	async createUser(@Body() data: Prisma.UserCreateInput): Promise<Omit<User, 'password'>> {
 		return this.userService.createUser(data);
@@ -29,5 +31,10 @@ export class UserController {
 	@Patch('selectPayment/:userId')
 	async selectPayment(@Param('userId', ParseIntPipe) userId: number, @Body() body: { selectedPaymentId: number}){
 		return this.userService.selectPayment(userId, body.selectedPaymentId);
+	}
+
+	@Patch('selectAddress/:userId')
+	async selectAddress(@Param('userId', ParseIntPipe) userId: number, @Body() body: { selectedAddressId: number}){
+		return this.userService.selectAddress(userId, body.selectedAddressId);
 	}
 }

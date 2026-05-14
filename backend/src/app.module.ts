@@ -14,11 +14,12 @@ import { CartModule } from './cart/cart.module';
 import { PaymentModule } from './payment/payment.module';
 import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 
 
 @Module({
-  imports: [ProductsModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true }), UserModule, AuthModule, CartModule, PaymentModule, AddressModule, OrderModule],
+  imports: [ProductsModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true }), UserModule, AuthModule, CartModule, PaymentModule, AddressModule, OrderModule, WishlistModule],
   controllers: [AppController, UserController, AuthController],
   providers: [AppService, UserService, AuthService],
   

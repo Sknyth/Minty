@@ -23,7 +23,7 @@ export default {
 
             <div class="d-flex justify-content-between align-items-center mt-3 p-3 order-card">
                 <div>
-                    <h4>Order #{{ order.id.slice(0, 8) }}</h4>
+                    <h4>Order #{{ order.id }}</h4>
                     <p>{{ order.created_at.slice(0, 10) }}</p>
                 </div>
             

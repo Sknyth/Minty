@@ -1,14 +1,14 @@
 <script lang="ts">
 import { useAuthStore } from '../stores/authStore'
 import { useProductsStore } from '../stores/productsStore'
-import { useProfileStore } from '../stores/profileStore'
+
 export default {
 	setup() {
-		const profileStore = useProfileStore()
+
 		const authStore = useAuthStore()
 		const productsStore = useProductsStore()
 
-		return { profileStore, authStore, productsStore }
+		return { authStore, productsStore }
 	},
 	data() {
 		return {
@@ -26,14 +26,14 @@ export default {
 			>
 
 			<div class="search-box">
-				<input type="text" placeholder="Search..." v-model="searchQuery" @keyup.enter="productsStore.searchProducts(searchQuery)"/>
-				<button @click="productsStore.searchProducts(searchQuery)">Search</button>
+				<!-- <input type="text" placeholder="Search..." v-model="searchQuery" @keyup.enter="productsStore.searchProducts(searchQuery)"/>
+				<button @click="productsStore.searchProducts(searchQuery)">Search</button> -->
 			</div>
 
 			<div class="social-links">
-				<!-- <RouterLink to="/wishlist">
+				<RouterLink to="/wishlist">
 					<img src="/favorite(heart).svg" alt=""/>
-				</RouterLink> -->
+				</RouterLink>
 
 				<RouterLink v-if="!authStore.user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
 				<RouterLink v-else to="/profile"><img src="/login.svg" alt="" /></RouterLink>

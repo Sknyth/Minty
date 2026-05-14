@@ -17,8 +17,7 @@ export const usePaymentStore = defineStore('payment', {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
 			})
-			const data = await res.json()
-			this.payment = data
+			this.payment = await res.json()
 			this.selectedPaymentId = authStore.user.selectedPaymentId ?? null
 		},
 

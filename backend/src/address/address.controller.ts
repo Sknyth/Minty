@@ -20,4 +20,5 @@ export class AddressController {
 	async deletePayment(@Param('addressId', ParseIntPipe) addressId: number) {
 			return this.address.deleteAddress(addressId);
 	}
+
 }

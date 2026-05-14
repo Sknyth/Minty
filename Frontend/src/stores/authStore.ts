@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { User } from '@/types'
 
 import { useCartStore } from './cartStore'
+import router from '@/router'
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
 		user: null as User | null,
@@ -26,7 +27,9 @@ export const useAuthStore = defineStore('auth', {
 			})
 			if (!req.ok) throw new Error('Failed to create user')
 
-			
+			await this.signIn({email, password})
+
+			router.push('/profile')
 		},
 
 		async signIn({ email, password }: { email: string, password: string }) {
@@ -85,8 +88,6 @@ export const useAuthStore = defineStore('auth', {
 
 		async initializeAuth() {
 			const cartStore = useCartStore();
-			this.access_token = localStorage.getItem('access_token');
-			this.refresh_token = localStorage.getItem('refresh_token');
 			
 			if (!this.access_token && !this.refresh_token) return;
 
@@ -113,8 +114,10 @@ export const useAuthStore = defineStore('auth', {
 			const cartStore = useCartStore()
 			this.user = null
 			this.access_token = null
+			this.refresh_token = null 
 			cartStore.cartItems = []
 			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token') 
 		},
 
 		async updateUser(name: string, surname: string, phone: string) {

@@ -56,4 +56,11 @@ export class UserService {
 			data: { selectedPaymentId:  { set: selectedPaymentId } }
 		})
 	}
+
+  async selectAddress(userId: number ,selectedAddressId: number) {
+		return this.prisma.user.update({
+			where: { id: userId },
+			data: { selectedAddressId:  { set: selectedAddressId } }
+		})
+	}
 }

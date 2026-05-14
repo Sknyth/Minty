@@ -1,4 +1,4 @@
-<!-- <script lang="ts">
+<script lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import WishlistCards from '../components/WishlistCards.vue'
@@ -19,7 +19,7 @@ export default {
 <template>
 	<main>
 		<Header />
-		<div v-if="wishlistStore.wishlistProducts.length === 0" class="container d-flex align-items-center justify-content-between">
+		<div v-if="wishlistStore.wishlist.length === 0" class="container d-flex align-items-center justify-content-between">
 			<div></div>
 			<img
 				class="image-container position-absolute"
@@ -68,9 +68,4 @@ export default {
 .button-box {
 	margin-top: 30px;
 }
-</style> -->
-
-<script lang="ts">
-</script>
-
-<template></template>
+</style>

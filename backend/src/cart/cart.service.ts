@@ -31,4 +31,10 @@ export class CartService {
 		})
 	}
 
+	async removeCart(userId: number) {
+		return this.prisma.cart.deleteMany({
+			where: { userId }
+		})
+	}
+
 }

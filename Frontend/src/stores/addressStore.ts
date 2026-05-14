@@ -17,8 +17,7 @@ export const useAddressStore = defineStore('address', {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
 			})
-			const data = await res.json()
-			this.address = data
+			this.address = await res.json()
 			this.selectedAddressId = authStore.user.selectedAddressId ?? null
 		},
 

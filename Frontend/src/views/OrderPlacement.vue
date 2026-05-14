@@ -7,49 +7,78 @@ import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useOrdersStore } from '../stores/ordersStore'
-import { useProfileStore } from '../stores/profileStore'
+import { useAuthStore } from '../stores/authStore'
+import { usePaymentStore } from '../stores/paymentStore'
+import { useAddressStore } from '../stores/addressStore'
+import type { CartItem, Order } from '../types'
+
 export default {
 	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },
 	setup() {
 		const toast = useToast()
-		const profileStore = useProfileStore()
 		const cartStore = useCartStore()
 		const ordersStore = useOrdersStore()
+		const authStore = useAuthStore()
+		const paymentStore = usePaymentStore()
+		const addressStore = useAddressStore()
 
-		profileStore.fetchProfile()
-		profileStore.fetchPaymentMethods()
-		profileStore.fetchAddresses()
+		authStore.getUser()
+		paymentStore.fetchPayment()
+		addressStore.fetchAddress()
 
-		return { toast, cartStore, profileStore, ordersStore }
+		return { toast, cartStore, authStore, ordersStore, paymentStore, addressStore }
   },
 	computed: {
-		currentPaymentId() {
-			return this.profileStore.selectedPaymentId
+		currentPaymentId(): number | null {
+			return this.paymentStore.selectedPaymentId
 		},
-		currentAddressId() {
-			return this.profileStore.selectedAddressId
-		}
+		currentAddressId(): number | null {
+			return this.addressStore.selectedAddressId
+		},
+		totalWithDelivery(): number {
+      return this.cartStore.cartItems.reduce(
+        (total: number, item: any) => total + (item.product.price * item.quantity), 0) + 12
+    }
 	},
 	methods: {
 		async handleConfirmOrder() { 
 			try {
-				const totalWithDelivery = this.cartStore.cartItems.reduce((total: number, item: { price: number; quantity: number }) => total + (item.price * item.quantity), 0) + 12
+				const authStore = useAuthStore()
+				if (!authStore.user) throw new Error('You are not logged in')	
+
+				const selectedAddress = this.addressStore.address.find(a => a.id === this.currentAddressId)
+				const selectedPayment = this.paymentStore.payment.find(p => p.id === this.currentPaymentId)
+
 				const order = await this.ordersStore.createOrder({ 
-					cartTotal: totalWithDelivery 
-				})
+					customerName: this.authStore.user?.name,
+					customerSurname: this.authStore.user?.surname,
+					customerEmail: this.authStore.user?.email,
+
+					shippingStreet: selectedAddress?.street,
+					shippingCity: selectedAddress?.city,
+					shippingCountry: selectedAddress?.country,
+					shippingHouseNumber: selectedAddress?.house_number,
+					shippingApt: selectedAddress?.apt,
+					shippingPostcode: selectedAddress?.postcode,
+
+					cardNumber: selectedPayment?.number,
+					cardHolderName: selectedPayment?.holder_name,
+					cardCvv: selectedPayment?.cvv,
+					cardExpirationDate: selectedPayment?.expiration_date,
+					cardType: selectedPayment?.type,
+
+					items: this.cartStore.cartItems,
+					total_price: this.totalWithDelivery,
+					status: 'pending',
+
+				} as Order)
 				this.ordersStore.fetchOrders()
-				this.toast.success(`Order #${order.id.slice(0, 8)} created!`)
+				this.toast.success(`Order created!`)
 				
 				this.$router.push('/')
 				
 			} catch (e) {
-				if((e as Error).message === 'insert or update on table "orders" violates foreign key constraint "fk_orders_address_strict"'){
-					this.toast.warning('Please select address')
-					return
-				} else if((e as Error).message === 'insert or update on table "orders" violates foreign key constraint "fk_payment"'){
-					this.toast.warning('Please select payment method')
-					return
-				}
+
 
 				this.toast.error('Error: ' + (e as Error).message)
 				}
@@ -79,7 +108,7 @@ export default {
 					<h3 class="fw-bold">Order summary</h3>
 					<div class="summary-row d-flex justify-content-between">
 						<p>Items</p>
-							<p>${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) }}</p>				
+							<p>${{ cartStore.cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0) }}</p>				
 						</div>
 					<div class="summary-row d-flex justify-content-between">
 						<p>Delivery</p>
@@ -88,7 +117,7 @@ export default {
 					<hr class="color2" />
 					<div class="summary-total d-flex justify-content-between align-items-center">
 						<h4 class="fw-bold">Total</h4>
-						<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0) + 12 }}</span>
+						<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0) + 12 }}</span>
 					</div>
 					<button @click="handleConfirmOrder" class="bg-color2 color1 summary-btn">Confirm order</button>
 				</div>

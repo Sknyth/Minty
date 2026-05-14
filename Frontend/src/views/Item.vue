@@ -4,7 +4,7 @@ import Header from '@/components/Header.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
-// import { useWishlistStore } from '../stores/wishlistStore'
+import { useWishlistStore } from '../stores/wishlistStore'
 
 export default {
   components: {
@@ -14,10 +14,10 @@ export default {
   setup() {
     const toast = useToast()
     const productsStore = useProductsStore()
-    // const wishlistStore = useWishlistStore()
+    const wishlistStore = useWishlistStore()
     const cartStore = useCartStore()
     productsStore.fetchProducts()
-    return { toast, productsStore, cartStore, /* wishlistStore */ }
+    return { toast, productsStore, cartStore,  wishlistStore }
   },
   data() {
     return {

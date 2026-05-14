@@ -1,77 +1,82 @@
-// import { defineStore } from 'pinia'
-// import { supabase } from '../supabase'
-// import { useAuthStore } from './authStore'
-// import type { WishlistItem } from '@/types'
+import { defineStore } from 'pinia'
+import { useAuthStore } from './authStore'
+import type { Wishlist } from '@/types'
 
-// export const useWishlistStore = defineStore('wishlist', {
-//   state: () => ({
-//     wishlistProducts: [] as WishlistItem[],
-//     loading: false,
-//   }),
-//   getters: {
-//     isInWishlist: (state) => (productId: string) => {
-//       return state.wishlistProducts.some((item: WishlistItem) => item.product_id === productId)
-//     }
-//   },
-//   actions: {
-//     async fetchWishlist() {
-//       const authStore = useAuthStore()
-//       if (!authStore.user) throw new Error('You are not logged in')
+export const useWishlistStore = defineStore('wishlist', {
+  state: () => ({
+    wishlist: [] as Wishlist[],
+    loading: false,
+  }),
+  getters: {
+    isInWishlist: (state) => (productId: number) => {
+      return state.wishlist.some((item: Wishlist) => item.productId === productId)
+    }
+  },
+  actions: {
+    async fetchWishlist() {
+      const authStore = useAuthStore()
+      if (!authStore.user) return
 
-//       this.loading = true
+      this.loading = true
 
-//       const { data, error } = await supabase
-//         .from('wishlist')
-//         .select('product_id')
-//         .eq('user_id', authStore.user.id)
+      const res = await fetch(`http://localhost:3000/wishlist/${authStore.user.id}`, {
+				headers: {
+					Authorization: `Bearer ${authStore.access_token}`,
+				},
+			})
 
-//       if (error) throw error
+      this.wishlist = await res.json()
+      this.loading = false
+    },
 
-//       this.wishlistProducts = data as WishlistItem[]
-//       this.loading = false
-//     },
+    async addToWishlist(productId: number) {
+      const authStore = useAuthStore()
+      if (!authStore.user) throw new Error('You are not logged in')
+      this.loading = true
 
-//     async addToWishlist(productId: string) {
-//       const authStore = useAuthStore()
-//       if (!authStore.user) throw new Error('You are not logged in')
-//       this.loading = true
+      const req = await fetch(`http://localhost:3000/wishlist/add/${authStore.user.id}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${authStore.access_token}`,
+				},
+				body: JSON.stringify({
+					productId
+      }),
+			})
+			if (!req.ok) throw new Error('Failed to add to wishlist')
 
-//       const { error } = await supabase
-//         .from('wishlist')
-//         .insert([{ user_id: authStore.user.id, product_id: productId }])
-
-//       if (error) {
-//         this.loading = false
-//         throw error
-//       }
-
-//       await this.fetchWishlist() 
+      await this.fetchWishlist() 
       
-//       this.loading = false
-//     },
+      this.loading = false
+    },
 
 
-//     async deleteFromWishlist(productId: string) {
-//       const authStore = useAuthStore()
-//       if (!authStore.user) throw new Error('You are not logged in')
+    async deleteFromWishlist(productId: number) {
+      const authStore = useAuthStore()
+      if (!authStore.user) throw new Error('You are not logged in')
 
-//       this.loading = true
+      this.loading = true
 
-//       const { error } = await supabase
-//         .from('wishlist')
-//         .delete()
-//         .match({ user_id: authStore.user.id, product_id: productId })
+      const req = await fetch(`http://localhost:3000/wishlist/remove/${authStore.user.id}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${authStore.access_token}`,
+				},
+				body: JSON.stringify({
+					productId
+				})
+			})
+			if (!req.ok){   
+        throw new Error('Failed to remove from wishlist')
+      } 
 
-//       if (error) {
-//         this.loading = false
-//         throw error
-//       }
-
-//       this.wishlistProducts = this.wishlistProducts.filter(
-//         item => item.product_id !== productId
-//       )
+      this.wishlist = this.wishlist.filter(
+        item => item.productId !== productId
+      )
       
-//       this.loading = false
-//     }
-//   }
-// })
+      this.loading = false
+    }
+  }
+})

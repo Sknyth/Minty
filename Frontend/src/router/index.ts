@@ -12,7 +12,7 @@ import Register from '@/views/Register.vue'
 const routes = [
 	{ path: '/', component: HomeView, name: 'HomeView' },
 	{ path: '/cart', component: Cart, name: 'Cart' },
-	// { path: '/wishlist', component: Wishlist, name: 'Wishlist' },
+	{ path: '/wishlist', component: Wishlist, name: 'Wishlist' },
 	{ path: '/item:id', component: Item, name: 'Item' },
 	{ path: '/register', component: Register, name: 'Register', meta: { notAuth: true } },
 	{ path: '/login', component: Login, name: 'Login', meta: { notAuth: true } },

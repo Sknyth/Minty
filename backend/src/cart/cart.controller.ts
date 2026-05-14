@@ -24,5 +24,10 @@ export class CartController {
   async updateQuantity(@Body() {productId, quantity}: {productId: number, quantity: number}) {
     return this.cart.updateQuantity(productId, quantity);
   }
+
+  @Delete('removeCart/:userId')
+  async removeCart(@Param('userId', ParseIntPipe) userId: number) {
+    return this.cart.removeCart(userId)
+  }
 }
 
