@@ -72,6 +72,23 @@ export const useAddressStore = defineStore('address', {
 			if (!req.ok) throw new Error('Failed to select payment')
 
 			this.selectedAddressId = selectedAddressId
-		}
+		},
+
+		async updateAddress(addressId: number, data: Address) {
+			const authStore = useAuthStore()
+			if (!authStore.user) throw new Error('You are not logged in')
+			const req = await fetch(`http://localhost:3000/address/update/${addressId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${authStore.access_token}`,
+				},
+				body: JSON.stringify(
+					data
+				),
+			})
+			if (!req.ok) throw new Error('Failed to update address')
+			this.fetchAddress()
+		},
 	}
 })

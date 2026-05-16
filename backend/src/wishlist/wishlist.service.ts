@@ -17,9 +17,9 @@ export class WishlistService {
 		})
 	}
 
-	async removeFromWishlist(userId: number, productId: number){
-		return this.prisma.wishlist.deleteMany({
-			where: {userId, productId}
-		})
-	}
+	async removeFromWishlist(userId: number, productId: number) {
+    return this.prisma.wishlist.delete({
+        where: { userId_productId: { userId, productId } }
+    })
+}
 }

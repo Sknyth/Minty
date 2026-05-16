@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateOrderDto } from './create-order.dto'
+import { Order } from '@prisma/client'
 
 @Injectable()
 export class OrderService {
@@ -11,6 +12,10 @@ export class OrderService {
       where: { userId }
     })
 	}
+
+  async fetchAllOrders(){
+    return this.prisma.order.findMany()
+  }
 
 	async createOrder(userId: number, data: CreateOrderDto) {
   const { items, ...orderData } = data
@@ -29,6 +34,13 @@ export class OrderService {
       }
     }
   })
-}
+
+ }
+  async updateOrderStatus(orderId: number, newStatus: Order['status']) {
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: newStatus }
+    })
+  }
 }
 

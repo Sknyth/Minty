@@ -1,18 +1,18 @@
 <script lang="ts">
 import { useToast } from "vue-toastification"
 import NavBar from '../components/NavBar.vue'
-import { useProfileStore } from '../stores/profileStore'
-import type { Profile } from '../types/profile'
+import { useUsersStore } from '../stores/userStore'
+import type { User } from '../types'
 
 export default {
   components: { NavBar },
   setup() {
     const toast = useToast()
-		const profileStore = useProfileStore()
+		const userStore = useUsersStore()
 
-		profileStore.fetchProfiles()
+		userStore.fetchUsers()
 
-    return { toast, profileStore }
+    return { toast, userStore }
   },
   data() {
     return {
@@ -21,25 +21,25 @@ export default {
   },
 
   methods: {
-    async onRoleChange(profileId: string, event: Event) {
+    async onRoleChange(profileId: number, event: Event) {
       const target = event.target as HTMLSelectElement;
       
-      const newRole = target.value as Profile['role'];
+      const newRole = target.value as User['role'];
       
       await this.handleRoleChange(profileId, newRole);
     },
-    async handleRoleChange(profileId: string, newRole: Profile['role']) {
+    async handleRoleChange(profileId: number, newRole: User['role']) {
       try {
-        await this.profileStore.updateUserRole(profileId, newRole)
+        await this.userStore.updateUserRole(profileId, newRole)
         this.toast.success(`User role updated to ${newRole}`)
       } catch (error) {
         this.toast.error('Failed to update: ' + (error as Error).message)
-        this.profileStore.fetchProfiles()
+        this.userStore.fetchUsers()
       }
     },
-    async handleDeleteUser(profileId: string) {
+    async handleDeleteUser(userId: number) {
       try {
-        await this.profileStore.deleteUser(profileId)
+        await this.userStore.deleteUser(userId)
         this.toast.success('User deleted successfully')
       } catch (error) {
         this.toast.error('Error: ' + (error as Error).message)
@@ -57,13 +57,13 @@ export default {
       </div>
 
       <div class="header-main col-lg">
-        <input type="text" placeholder="Search..." class="custom-input mb-3" v-model="userSearchQuery" @keyup="profileStore.searchProfiles(userSearchQuery)" />
+        <input type="text" placeholder="Search..." class="custom-input mb-3" v-model="userSearchQuery"  />
       </div>
-
+<!-- @keyup="userStore.searchProfiles(userSearchQuery)" -->
       <div class="header-end d-flex col-lg gap-3">
         <div class="stats-mini d-flex">
           <span class="text-muted">Total records:</span> 
-          <span class="fw-bold color1 ms-1">{{ profileStore.profiles.length }}</span>
+          <span class="fw-bold color1 ms-1">{{ userStore.users.length }}</span>
         </div>
       </div>
     </div>
@@ -82,27 +82,27 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="profile in profileStore.profiles" :key="profile.id" class="table-row">
-							<td class="px-4 py-3 fw-bold">#{{ profile.id.slice(0, 8) }}</td>
+            <tr v-for="user in userStore.users" :key="user.id" class="table-row">
+							<td class="px-4 py-3 fw-bold">#{{ user.id }}</td>
 
 							<td class="px-4 py-3">
                 <div class="d-flex flex-column">
-                  <span class="fw-bold">{{ profile.name }} {{ profile.surname }}</span>
-                  <span class="text-muted small"> {{ profile.email }} </span>
+                  <span class="fw-bold">{{ user.name }} {{ user.surname }}</span>
+                  <span class="text-muted small"> {{ user.email }} </span>
                 </div>
               </td>
               <td class="px-4 py-3 fw-bold text-center">
-                {{ profile.created_at ? new Date(profile.created_at).toLocaleDateString() : '—' }}
+                {{ user.created_at ? new Date(user.created_at).toLocaleDateString() : '—' }}
               </td>
-              <td class="px-4 py-3 text-center fw-bold">
-                {{ profile.last_sign_in_at ? new Date(profile.last_sign_in_at).toLocaleDateString() : '—' }}
+              <td class="px-4 py-3 text-center fw-bold">1
+                <!-- {{ user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : '—' }} -->
               </td>
               <td class="px-3 py-2 text-center">
                 <div class="role-select-container">
                   <select 
-                    :value="profile.role" 
-                    @change="onRoleChange(profile.id, $event)"
-                    :class="['role-select-custom', profile.role.toLowerCase()]"
+                    :value="user.role" 
+                    @change="onRoleChange(user.id, $event)"
+                    :class="['role-select-custom', user.role.toLowerCase()]"
                     class="text-center"
                   >
                     <option class="text-center" value="admin">Admin</option>
@@ -113,12 +113,12 @@ export default {
               </td>
               <td class="px-4 py-3 text-end text-muted small">
                 <button class="btn btn-sm btn-outline-danger" 
-                @click="handleDeleteUser(profile.id)"
-                :disabled="profileStore.loading"
+                @click="handleDeleteUser(user.id)"
+                :disabled="userStore.loading"
                 >Delete</button>
               </td>
             </tr>
-            <tr v-if="profileStore.profiles.length === 0">
+            <tr v-if="userStore.users.length === 0">
               <td colspan="6" class="text-center py-5 text-muted">
                 No users found.
               </td>

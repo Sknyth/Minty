@@ -51,6 +51,6 @@ export const useOrdersStore = defineStore('orders', {
 				},
 			})
 			this.orders = await res.json()
-	}
+		}
 	}
 })

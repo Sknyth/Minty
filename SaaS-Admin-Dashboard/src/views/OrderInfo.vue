@@ -17,29 +17,23 @@ export default {
 	computed: {
 		currentOrder() {
       const id = this.$route.params.id
-      return this.ordersStore.orders.find(order => String(order.id) === String(id))
+      return this.ordersStore.orders.find((order: Order) => String(order.id) === String(id))
     },
 	},
-	async mounted() {
-		if (this.currentOrder) {
-			await this.statStore.fetchAddress(this.currentOrder.address_id)
-			await this.statStore.fetchPayment(this.currentOrder.payment_id)
-		}
-	},
 	methods: {
-		onStatusChange(orderId: string, event: Event) {
+		onStatusChange(orderId: number, event: Event) {
 			const target = event.target as HTMLSelectElement;
 			
 			const newStatus = target.value as Order['status'];
 			
 			this.handleStatusChange(orderId, newStatus);
 		},
-		async handleStatusChange(orderId: string, newStatus: Order['status']) {
+		async handleStatusChange(orderId: number, newStatus: Order['status']) {
       try {
         await this.ordersStore.updateOrderStatus(orderId, newStatus)
-        this.toast.success(`Order updated to ${newStatus}`)
+        this.toast.success(`Order status updated to ${newStatus}`)
       } catch (error) {
-        this.toast.error('Failed to update: ' + (error as Error).message)
+        this.toast.error('Failed to update order status: ' + (error as Error).message)
         this.ordersStore.fetchOrders()
       }
     }
@@ -52,7 +46,7 @@ export default {
 	<div v-if="currentOrder" class="order-container">
 		<div class="order-header d-flex justify-content-between align-items-start">
 			<div>
-				<h2 class="fw-bold mb-2">Order #{{ currentOrder.id.slice(0, 8) }}</h2>
+				<h2 class="fw-bold mb-2">Order #{{ currentOrder.id }}</h2>
 				<p class="text-muted">Created on {{ currentOrder.created_at ? new Date(currentOrder.created_at).toLocaleDateString() : '—' }}</p>
 			</div>
 			<span class="status-badge fw-bold status-box" :class="['status-select-custom', currentOrder.status.toLowerCase()]">{{ currentOrder.status }}</span>
@@ -66,21 +60,21 @@ export default {
 					<h5 class="fw-bold mb-3">Customer Information</h5>
 					<div class="info-row d-flex justify-content-between">
 						<span class="label fw-bold">Name:</span>
-						<span class="value">{{ currentOrder.customer_name }} {{ currentOrder.customer_surname }}</span>
+						<span class="value">{{ currentOrder.customerName }} {{ currentOrder.customerSurname }}</span>
 					</div>
 					<div class="info-row d-flex justify-content-between">
 						<span class="label fw-bold">Email:</span>
-						<span class="value">{{ currentOrder.email }}</span>
+						<span class="value">{{ currentOrder.customerEmail }}</span>
 					</div>
 					<div class="info-row d-flex justify-content-between">
 						<span class="label fw-bold">Address:</span>
 						<span class="value text-end">
-								{{ statStore.address?.street }} {{ statStore.address?.house_number }}
-								<span>, apt. {{ statStore.address?.apt }}</span>
+								{{ currentOrder.shippingStreet }} {{ currentOrder.shippingHouseNumber }}
+								<span>, apt. {{ currentOrder.shippingApt }}</span>
 								<br>
-								{{ statStore.address?.city }}, {{ statStore.address?.postcode }}
+								{{ currentOrder.shippingCity }}, {{ currentOrder.shippingPostcode }}
 								<br>
-								{{ statStore.address?.country }}
+								{{ currentOrder.shippingCountry }}
 						</span>
 					</div>
 				</div>
@@ -91,11 +85,11 @@ export default {
 					<h5 class="fw-bold mb-3">Order Details</h5>
 					<div class="info-row d-flex justify-content-between">
 						<span class="label fw-bold">Order ID:</span>
-						<span class="value">#{{ currentOrder.id.slice(0, 8) }}</span>
+						<span class="value">#{{ currentOrder.id }}</span>
 					</div>
 					<div class="info-row d-flex justify-content-between">
 						<span class="label fw-bold">Payment Method:</span>
-						<span class="value">{{ statStore.payment?.type }}</span>
+						<span class="value">{{ currentOrder.cardType }}</span>
 					</div>
 					<div class="info-row d-flex justify-content-between">
 						<span class="label fw-bold">Status:</span>
@@ -135,16 +129,16 @@ export default {
 						<tr v-for="item in currentOrder.items" :key="item.id">
 							<td>
 								<div class="product-item d-flex align-items-center gap-3">
-									<img :src="item.image_url ?? undefined" alt="Product" class="product-img">
+									<img :src="item.product.image_url ?? undefined" alt="Product" class="product-img">
 									<div>
-										<div class="fw-bold">{{ item.name }}</div>
+										<div class="fw-bold">{{ item.product.name }}</div>
 									</div>
 								</div>
 							</td>
 							<td>{{ item.size }}</td>
 							<td>{{ item.quantity }}</td>
-							<td>${{ item.price }}</td>
-							<td class="fw-bold">${{ item.price * item.quantity }}</td>
+							<td>${{ item.product.price }}</td>
+							<td class="fw-bold">${{ item.product.price * item.quantity }}</td>
 						</tr>
 					</tbody>
 				</table>

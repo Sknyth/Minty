@@ -61,25 +61,24 @@ export default {
             }
         },
 
-        // async updateAddress(){
-        //     try {
-        //         await this.addressStore.updateAddress({
-        //             id: this.editId as string, 
-        //             country: this.country,
-        //             city: this.city,
-        //             street: this.street,
-        //             house_number: this.house_number,
-        //             apt: this.apt,
-        //             postcode: this.postcode,
-        //         } as Address)
-        //         this.toggleAddAddress = true
-        //         this.toggleEdit = false
-        //         this.resetAddressFields()
-        //         this.toast.success("Address updated successfully!")
-        //     } catch(e){
-        //         this.toast.error("Error: " + (e as Error).message)
-        //     }
-        // },
+        async updateAddress(){
+            try {
+                await this.addressStore.updateAddress(this.editId!, {
+                    country: this.country,
+                    city: this.city,
+                    street: this.street,
+                    house_number: this.house_number,
+                    apt: this.apt,
+                    postcode: this.postcode,
+                } as Address)
+                this.toggleAddAddress = true
+                this.toggleEdit = false
+                this.resetAddressFields()
+                this.toast.success("Address updated successfully!")
+            } catch(e){
+                this.toast.error("Error: " + (e as Error).message)
+            }
+        },
 
         async deleteAddress(id: number){ 
             try {
@@ -192,9 +191,9 @@ export default {
                     Save
                 </button>
 
-                <!-- <button v-else @click="updateAddress" class="button-color1" id="btn-save">
+                <button v-else @click="updateAddress" class="button-color1" id="btn-save">
                     Save changes
-                </button> -->
+                </button>
 
                 <button @click="backAddress" class="button-color1" id="btn-save">
                     Back

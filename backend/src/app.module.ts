@@ -15,13 +15,15 @@ import { PaymentModule } from './payment/payment.module';
 import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { AuthGuard } from './auth/auth.guard'
+import { APP_GUARD } from '@nestjs/core/constants'
 
 
 
 @Module({
   imports: [ProductsModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true }), UserModule, AuthModule, CartModule, PaymentModule, AddressModule, OrderModule, WishlistModule],
   controllers: [AppController, UserController, AuthController],
-  providers: [AppService, UserService, AuthService],
+  providers: [AppService, UserService, AuthService, { provide: APP_GUARD, useClass: AuthGuard },],
   
 })
 export class AppModule {}

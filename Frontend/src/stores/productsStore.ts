@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Product, Criteria } from '@/types'
+import { useAuthStore } from './authStore'
 
 export const useProductsStore = defineStore('products', {
 	state: () => ({
@@ -13,6 +14,7 @@ export const useProductsStore = defineStore('products', {
 			this.products = await res.json()
 			this.loading = false
 		},
+		
 		// async searchProducts(query: string) {
 		// 	this.loading = true
 		// 	if (!query) return await this.fetchProducts()

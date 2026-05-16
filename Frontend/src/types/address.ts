@@ -1,6 +1,6 @@
 export interface Address {
 	id: number
-	user_id: string
+	user_id: number
 	country: string
 	city: string
 	street: string

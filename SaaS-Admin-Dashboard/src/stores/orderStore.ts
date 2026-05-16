@@ -1,6 +1,6 @@
-import supabase from '../supabase'
 import { defineStore } from 'pinia'
 import type { Order } from '../types'
+import { useAuthStore } from './authStore'
 
 export const useOrdersStore = defineStore('Orders', {
   state: () => ({
@@ -9,42 +9,49 @@ export const useOrdersStore = defineStore('Orders', {
   }),
 	actions: {
     async fetchOrders() {
-      this.loading = true
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      this.orders = data
+			const authStore = useAuthStore()
+			if (!authStore.user) return
+			this.loading = true
+			const res = await fetch(`http://localhost:3000/order/allOrders`, {
+				headers: {
+					Authorization: `Bearer ${authStore.access_token}`,
+				},
+			})
+      if (!res.ok) return
+			this.orders = await res.json()
       this.loading = false
-      return data
-    },
+		},
 
-    async searchOrders(query: string) {
+    // async searchOrders(query: string) {
+    //   this.loading = true
+
+    //   if (!query) {
+    //     return await this.fetchOrders()
+    //   }
+    //   const { data, error } = await supabase
+    //     .from('orders')
+    //     .select('*')
+    //     .textSearch('fts', query, {
+		// 			config: 'english',
+		// 			type: 'websearch'
+		// 		})
+    //   if (error) throw error
+    //   this.orders = data
+    //   this.loading = false
+    // },
+
+    async updateOrderStatus(orderId: number, newStatus: Order['status']) {
       this.loading = true
-
-      if (!query) {
-        return await this.fetchOrders()
-      }
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .textSearch('fts', query, {
-					config: 'english',
-					type: 'websearch'
-				})
-      if (error) throw error
-      this.orders = data
+      const res = await fetch(`http://localhost:3000/order/updateStatus/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${useAuthStore().access_token}`,
+        },
+        body: JSON.stringify({ newStatus }),
+      })
+      if (!res.ok) return
       this.loading = false
-    },
-
-    async updateOrderStatus(orderId: string, newStatus: Order['status']) {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId)
-
-      if (error) throw error
 
       const order = this.orders.find(o => o.id === orderId)
       if (order) order.status = newStatus

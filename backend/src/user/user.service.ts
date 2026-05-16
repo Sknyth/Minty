@@ -41,7 +41,7 @@ export class UserService {
     })
   }
 
-  async updateUser(userId: number, name: string, surname: string, phone: string){
+  async updateUser(userId: number, name: string, surname: string, phone: string): Promise<Omit<User, 'password'>> {
     return this.prisma.user.update({
       where: {
         id: userId
@@ -50,17 +50,30 @@ export class UserService {
     })
   }
 
-  async selectPayment(userId: number, selectedPaymentId: number | null) {
+  async selectPayment(userId: number, selectedPaymentId: number | null): Promise<Omit<User, 'password'>> {
 		return this.prisma.user.update({
 			where: { id: userId },
 			data: { selectedPaymentId:  { set: selectedPaymentId } }
 		})
 	}
 
-  async selectAddress(userId: number ,selectedAddressId: number) {
+  async selectAddress(userId: number ,selectedAddressId: number): Promise<Omit<User, 'password'>> {
 		return this.prisma.user.update({
 			where: { id: userId },
 			data: { selectedAddressId:  { set: selectedAddressId } }
 		})
 	}
+
+  async updateRole(userId: number, newRole: Role) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { role: newRole }
+    })
+  }
+
+  async deleteUser(userId: number) {
+    return this.prisma.user.delete({
+      where: { id: userId }
+    })
+  }
 }

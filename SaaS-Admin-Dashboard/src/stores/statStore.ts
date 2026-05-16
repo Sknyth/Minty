@@ -1,6 +1,7 @@
 import supabase from '../supabase'
 import { defineStore } from 'pinia'
 import type { PaymentMethod, Address } from '../types'
+import { useAuthStore } from './authStore'
 
 export const useStatStore = defineStore('stats', {
   state: () => ({
@@ -66,17 +67,18 @@ export const useStatStore = defineStore('stats', {
       this.loading = false
     },
 
-    async fetchAddress(addressID: string) {
+    async fetchAddress(addressID: number) {
       this.loading = true
 
-      const { data, error } = await supabase
-        .from('addresses')
-        .select('*')
-        .eq('id', addressID)
+      const res = await fetch(`http://localhost:3000/address/byId/${addressID}`, {
+        headers: {
+          Authorization: `Bearer ${useAuthStore().access_token}`,
+        },
+      })
+      if (!res.ok) return
+      const data = await res.json()
 
-      if(error) throw error
-
-      this.address = data[0]
+      this.address = data
       
       this.loading = false
     },

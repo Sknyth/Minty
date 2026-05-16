@@ -1,9 +1,8 @@
 export interface Product {
-	id: string
+	id: number
 	name: string
 	price: number
 	description: string
-	sizes: string[]
+	sizes: number[] 
 	image_url: string | null
-	showFull: boolean
 }

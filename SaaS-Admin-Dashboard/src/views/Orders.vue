@@ -21,14 +21,14 @@ export default {
   },
 
   methods: {
-    onStatusChange(orderId: string, event: Event) {
+    onStatusChange(orderId: number, event: Event) {
       const target = event.target as HTMLSelectElement;
       
       const newStatus = target.value as Order['status'];
       
       this.handleStatusChange(orderId, newStatus);
     },
-    async handleStatusChange(orderId: string, newStatus: Order['status']) {
+    async handleStatusChange(orderId: number, newStatus: Order['status']) {
       try {
         await this.ordersStore.updateOrderStatus(orderId, newStatus)
         this.toast.success(`Order updated to ${newStatus}`)
@@ -49,9 +49,9 @@ export default {
       </div>
 
       <div class="header-main col-lg">
-        <input type="text" placeholder="Search..." class="custom-input mb-3" v-model="orderSearchQuery" @keyup="ordersStore.searchOrders(orderSearchQuery)" />
+        <input type="text" placeholder="Search..." class="custom-input mb-3" v-model="orderSearchQuery"  />
       </div>
-
+<!-- @keyup="ordersStore.searchOrders(orderSearchQuery)" -->
       <div class="header-end d-flex col-lg gap-3">
         <div class="stats-mini d-flex">
           <span class="text-muted">Total records:</span> 
@@ -80,11 +80,12 @@ export default {
             class="table-row"
             style="cursor: pointer"
             @click="$router.push({ name: 'OrderInfo', params: { id: order.id } })">
-              <td class="px-4 py-3 fw-bold">#{{ order.id.slice(0, 8) }}</td>
+              <!-- <td class="px-4 py-3 fw-bold">#{{ order.id.slice(0, 8) }}</td> -->
+              <td class="px-4 py-3 fw-bold">#{{ order.id }}</td>
               <td class="px-4 py-3">
                 <div class="d-flex flex-column">
-                  <span class="fw-bold">{{ order.customer_name }} {{ order.customer_surname }}</span>
-                  <span class="text-muted small">{{ order.email }}</span>
+                  <span class="fw-bold">{{ order.customerName }} {{ order.customerSurname }}</span>
+                  <span class="text-muted small">{{ order.customerEmail }}</span>
                 </div>
               </td>
               <td class="px-4 py-3 text-center fw-bold color1">
@@ -93,10 +94,10 @@ export default {
               <td class="px-3 py-2 text-center">
                 <div>
                   <select 
-                    :value="order.status" 
-                    @change="onStatusChange(order.id, $event)"
-                    @click.stop
-                    :class="['status-select-custom', order.status.toLowerCase()]"
+                  :value="order.status" 
+                  @click.stop
+                  :class="['status-select-custom', order.status.toLowerCase()]"
+                  @change="onStatusChange(order.id, $event)"
                     class="text-center">
                     <option class="text-center" value="pending">Pending</option>
                     <option class="text-center" value="delivered">Delivered</option>

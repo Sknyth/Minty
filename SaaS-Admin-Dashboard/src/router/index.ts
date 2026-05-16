@@ -1,6 +1,6 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
 
-import supabase from '../supabase'
+import { useAuthStore } from '../stores/authStore'
 
 import Dashboard from '../views/Dashboard.vue'
 import Login from '../views/Login.vue'
@@ -24,8 +24,13 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, _, next) => {
-  const { data: { session } } = await supabase.auth.getSession()
-  const isAuth = !!session
+  const authStore = useAuthStore()
+  
+  if (!authStore.isAuth) {
+      await authStore.initializeAuth()
+    }
+
+  const isAuth = authStore.isAuth
 
   if (!to.meta?.notAuth && !isAuth) {
     return next('/login')

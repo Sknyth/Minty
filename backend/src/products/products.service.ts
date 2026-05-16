@@ -23,4 +23,38 @@ export class ProductsService {
 	async deleteProducts() {
 		await this.prisma.product.deleteMany()
 	}
+
+	async deleteProductById(id: number): Promise<Product> {
+		return this.prisma.product.delete({ where: { id } })
+	}
+
+	async updateProduct(id: number, productData: Partial<CreateProductDto>): Promise<Product> {
+		return this.prisma.product.update({ where: { id }, data: productData })
+	}
+	
+	async searchProducts(query: string): Promise<Product[]> {
+		return this.prisma.product.findMany({
+			where: {
+				name: {
+					contains: query,
+					mode: 'insensitive',
+				},
+			},
+		})
+	}
+
+	async sortProducts(criteria: string): Promise<Product[]> {
+		let orderBy: { [key: string]: 'asc' | 'desc' } = { id: 'asc' }
+
+		if (criteria === 'price-low') {
+			orderBy = { price: 'asc' }
+		} else if (criteria === 'price-high') {
+			orderBy = { price: 'desc' }
+		} else if (criteria === 'name') {
+			orderBy = { name: 'asc' }
+		}
+
+		return this.prisma.product.findMany({ orderBy })
+	}
+
 }

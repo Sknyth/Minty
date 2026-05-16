@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { Prisma } from '@prisma/client'
 import { AddressService } from './address.service'
 
@@ -6,9 +6,19 @@ import { AddressService } from './address.service'
 export class AddressController {
 	constructor(private address: AddressService) {}
 
+	@Patch('update/:addressId')
+	async updateAddress(@Param('addressId', ParseIntPipe) addressId: number, @Body() data: Prisma.AddressUncheckedUpdateInput) {
+		return this.address.updateAddress(addressId, data);
+	}
+
 	@Post('add/:userId')
-	async createPayment(@Param('userId', ParseIntPipe) userId: number ,@Body() data: Prisma.AddressUncheckedCreateInput) {
+	async createAddress(@Param('userId', ParseIntPipe) userId: number ,@Body() data: Prisma.AddressUncheckedCreateInput) {
 		return this.address.createAddress(userId, data);
+	}
+
+	@Delete('/delete/:addressId')
+	async deleteAddress(@Param('addressId', ParseIntPipe) addressId: number) {
+			return this.address.deleteAddress(addressId);
 	}
 
 	@Get(':userId')
@@ -16,9 +26,5 @@ export class AddressController {
 		return this.address.fetchAddress(userId);
 	}
 
-	@Delete('/delete/:addressId')
-	async deletePayment(@Param('addressId', ParseIntPipe) addressId: number) {
-			return this.address.deleteAddress(addressId);
-	}
 
 }

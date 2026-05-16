@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Post, Body, Patch, ParseIntPipe } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client'
+import { Controller, Get, Param, Post, Body, Patch, ParseIntPipe, Delete } from '@nestjs/common';
+import { Prisma, Role, User } from '@prisma/client'
 import { UserService } from './user.service'
 import { Public } from 'src/auth/public.decorator'
+
 
 @Controller('user')
 export class UserController {
@@ -13,14 +14,24 @@ export class UserController {
 		return this.userService.createUser(data);
 	}
 
-	@Get(':email')
-	async getUserByEmail(@Param('email') email: string): Promise<User | null> {
-		return this.userService.getUserByEmail(email);
-	}
-
-	@Get()
+	@Get('allUsers')
 	async getAllUsers(): Promise<User[]> {
 		return this.userService.getAllUsers();
+	}
+
+	@Delete('delete/:userId')
+	async deleteUser(@Param('userId', ParseIntPipe) userId: number) {
+		return this.userService.deleteUser(userId);
+	}
+
+	@Patch('updateRefreshToken/:userId')
+	async updateRefreshToken(@Param('userId', ParseIntPipe) userId: number, @Body() body: { hashedRefreshToken: string }) {
+		return this.userService.updateRefreshToken(userId, body.hashedRefreshToken);
+	}
+
+	@Patch('updateRole/:userId')
+	async updateRole(@Param('userId', ParseIntPipe) userId: number, @Body() body: { role: Role }) {
+		return this.userService.updateRole(userId, body.role);
 	}
 
 	@Patch('update/:id')
@@ -36,5 +47,10 @@ export class UserController {
 	@Patch('selectAddress/:userId')
 	async selectAddress(@Param('userId', ParseIntPipe) userId: number, @Body() body: { selectedAddressId: number}){
 		return this.userService.selectAddress(userId, body.selectedAddressId);
+	}
+
+	@Get(':email')
+	async getUserByEmail(@Param('email') email: string): Promise<User | null> {
+		return this.userService.getUserByEmail(email);
 	}
 }

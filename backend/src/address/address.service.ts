@@ -18,6 +18,13 @@ export class AddressService {
 		})
 	}
 
+	async updateAddress(addressId: number, addressData: Prisma.AddressUncheckedUpdateInput){
+		return this.prisma.address.update({
+			where: { id: addressId },
+			data: addressData
+		})
+	}
+
 	async deleteAddress(addressId: number){
 		return this.prisma.address.delete({
 			where: { id: addressId }

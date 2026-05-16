@@ -1,77 +1,123 @@
-import supabase from '../supabase'
 import { defineStore } from 'pinia'
 import router from '../router'
-import type { User } from '@supabase/supabase-js'
-import type { Profile } from '../types'
+import type { User } from '../types'
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
 		user: null as User | null,
 		users: [] as User[],
-		profile: null as Profile | null,
+		// profile: null as Profile | null,
 		isAuth: false,
 		loading: false,
+		access_token: localStorage.getItem('access_token') || null,
+		refresh_token: localStorage.getItem('refresh_token') || null
 	}),
 	actions: {
-		async signIn({ email, password }: { email: string; password: string }) {
-			const { data, error } = await supabase.auth.signInWithPassword({
-				email,
-				password,
+			async signIn({ email, password }: { email: string, password: string }) {
+			const req = await fetch('http://localhost:3000/auth/signin', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, password })
 			})
-			if (error) throw error
+			if (!req.ok) throw new Error('Failed to sign in')
+			const { access_token, refresh_token } = await req.json()
 
-			this.user = data.user
-			this.isAuth = !!this.user
-			if (!this.user) this.profile = null
+			this.access_token = access_token
+			this.refresh_token = refresh_token
+			localStorage.setItem('access_token', access_token)
+			localStorage.setItem('refresh_token', refresh_token)
 
 			await this.getUser()
-
+			router.push('/')
 		},
+
 		async signOut() {
-			const { error } = await supabase.auth.signOut()
-			if (error) throw error
 			this.user = null
-			router.push('/login')
+			this.access_token = null
+			this.refresh_token = null
+			this.isAuth = false 
+			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token') 
 		},
+
 		async getUser() {
-			const { data: { session } } = await supabase.auth.getSession()
+  		if (!this.access_token) return;
+			const res = await fetch('http://localhost:3000/auth/profile', {
+				headers: { Authorization: `Bearer ${this.access_token}` },
+			});
+			if (!res.ok) return;
+			this.user = await res.json();
 
-			if (!session) {
-				this.user = null
-				this.profile = null
-				return
-			}
+			// if (data?.role === 'admin') {
+			// 	this.profile = data
+				// router.push('/')
+			// } else {
+			// 	await this.signOut()
+			// 	throw new Error('You are not an administrator')
+			// }
 
-			const user = session.user
-			this.user = user
-
-			const { data }: { data: Profile | null } = await supabase
-				.from('profiles')
-				.select('role')
-				.eq('id', this.user.id)
-				.single()
-
-			if (data?.role === 'admin') {
-				this.profile = data
-				router.push('/')
-			} else {
-				await this.signOut()
-				throw new Error('You are not an administrator')
-			}
-
-			if (data) {
-				this.profile = data
-			}
+			// if (data) {
+			// 	this.profile = data
+			// }
+			this.isAuth = true
 		},
 
-		async fetchUsers() {
-			this.loading = true
-			const { data, error } = await supabase
-				.from('profiles')
-				.select('*')
-			if (error) throw error
-			this.users = data
-			this.loading = false
+		// async fetchUsers() {
+		// 	this.loading = true
+		// 	const { data, error } = await supabase
+		// 		.from('profiles')
+		// 		.select('*')
+		// 	if (error) throw error
+		// 	this.users = data
+		// 	this.loading = false
+		// },
+
+		async refreshToken() {
+			const refresh_token = localStorage.getItem('refresh_token');
+			if (!refresh_token) {
+				this.signOut();
+				return;
+			}
+
+			const res = await fetch('http://localhost:3000/auth/refresh', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ refresh_token }),
+			});
+
+			if (!res.ok) {
+				this.signOut();
+				return;
+			}
+
+			const data = await res.json();
+			if (!data.access_token) {
+				this.signOut();
+				return;
+			}
+
+			this.access_token = data.access_token;
+			localStorage.setItem('access_token', data.access_token);
+		},
+
+		async initializeAuth() {
+			if (!this.access_token && !this.refresh_token) return;
+
+			if (this.access_token) {
+				await this.getUser()
+			}
+
+			if (!this.user && this.refresh_token) {
+				await this.refreshToken()
+				if (this.access_token) {
+					await this.getUser()
+				}
+			}
+
+			if (!this.user) {
+				this.signOut()
+				return;
+			}
 		},
 	}
 })

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common'
 import { ProductsService } from './products.service'
 import { Product } from '@prisma/client'
 import { CreateProductDto } from './product.dto'
@@ -15,8 +15,7 @@ export class ProductsController {
 		return this.productService.fetchProducts();
 	}
 
-	@Public()
-	@Post()
+	@Post('create')
 	createProduct(@Body() productData: CreateProductDto): Promise<Product> {
 		return this.productService.createProduct(productData);
 	}
@@ -24,5 +23,15 @@ export class ProductsController {
 	@Delete()
 	deleteProducts() {
 		return this.productService.deleteProducts();
+	}
+
+	@Patch('update/:id')
+	updateProduct(@Body() productData: Partial<CreateProductDto>, @Param('id', ParseIntPipe) id: number): Promise<Product> {
+		return this.productService.updateProduct(id, productData);
+	}
+
+	@Delete('delete/:id')
+	deleteProductById(@Param('id', ParseIntPipe) id: number): Promise<Product> {
+		return this.productService.deleteProductById(id);
 	}
 }
