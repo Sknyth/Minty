@@ -1,10 +1,11 @@
-<script>
-import Footer from '@/components/Footer.vue'
-import Header from '@/components/Header.vue'
+<script lang="ts">
+import Footer from '../components/Footer.vue'
+import Header from '../components/Header.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
+import type { CartItemInput, Product } from '../types'
 
 export default {
   components: {
@@ -21,17 +22,17 @@ export default {
   },
   data() {
     return {
-      selectedSize: null,
+      selectedSize: null as number | null,
     }
   },
   computed: {
-    currentItem() {
-      const id = this.$route.params.id
-      return this.productsStore.products.find(item => String(item.id) === String(id))
+    currentItem(): Product {
+      const id = Number(this.$route.params.id)
+      return this.productsStore.products.find((item: Product) => item.id === id)!
     },
-    // isInWishlistComputed() {
-    //   return this.wishlistStore.isInWishlist(this.currentItem.id)
-    // }
+    isInWishlistComputed() {
+      return this.wishlistStore.isInWishlist(this.currentItem.id)
+    }
   },
   methods: {
     async addToCart() {
@@ -44,16 +45,16 @@ export default {
           product_id: this.currentItem.id,
           size: this.selectedSize,
           quantity: 1
-        })
+        } as CartItemInput)
         this.toast.success("Product added!")
       } catch(e){
-        this.toast.error("Error: " + e.message)
+        this.toast.error("Error: " + (e as Error).message)
       }
     },
-    selectSize(size) {
+    selectSize(size: number) {
       this.selectedSize = size
     },
-    async toggleWishlist(productID) {
+    async toggleWishlist(productID: number) {
       try {
         if (this.wishlistStore.isInWishlist(productID)) {
           await this.wishlistStore.deleteFromWishlist(productID)
@@ -63,11 +64,7 @@ export default {
           this.toast.success('Product added to your wishlist!') 
         }
       } catch(e) {
-        if(e.message === 'duplicate key value violates unique constraint "wishlist_user_id_product_id_key"'){
-          this.toast.error("Error: Already in wishlist")
-          return
-        }
-        this.toast.error("Error: " + e.message)
+        this.toast.error("Error: " + (e as Error).message)
       }
     },
   },
@@ -92,13 +89,13 @@ export default {
               
               <div class="carousel-inner h-100">
                 <div class="carousel-item active h-100">
-                  <img :src="currentItem.image_url" class="main-img" alt="">
+                  <img :src="currentItem.image_url ?? undefined" class="main-img" alt="">
                 </div>
                 <div class="carousel-item h-100">
-                  <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Black">
+                  <img :src="currentItem.image_url ?? undefined" class="main-img" alt="Nike Air Force Black">
                 </div>
                 <div class="carousel-item h-100">
-                  <img :src="currentItem.image_url" class="main-img" alt="Nike Air Force Cream">
+                  <img :src="currentItem.image_url ?? undefined" class="main-img" alt="Nike Air Force Cream">
                 </div>
               </div>
 
@@ -125,7 +122,7 @@ export default {
               <div class="mb-4">
                 <p class="fw-bold mb-3">Color: <span class="fw-normal color3">Original White</span></p>
                 <div class="d-flex gap-2">
-                  <div class="swatch active"><img :src="currentItem.image_url" alt=""></div>
+                  <div class="swatch active"><img :src="currentItem.image_url ?? undefined" alt=""></div>
                   <!-- <div class="swatch"><img :src="currentItem.image_url" alt=""></div>
                   <div class="swatch"><img :src="currentItem.image_url" alt=""></div> -->
                 </div>
@@ -151,9 +148,9 @@ export default {
                 <button @click="addToCart" class="button-color1 py-3 fs-5 shadow-sm rounded-pill">
                   Add to Cart
                 </button>
-                <!-- <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
+                <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
                   {{ isInWishlistComputed ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
-                </button> -->
+                </button>
               </div>
             </div>
           </div>

@@ -44,9 +44,9 @@ export default {
       <div class="header-main col-lg">
         <input type="text" placeholder="Search..." class="custom-input mb-3" 
 				v-model="productSearchQuery" 
+        @keyup="productsStore.searchProducts(productSearchQuery)"
 				/>
       </div>
-<!-- @keyup="productsStore.searchProducts(productSearchQuery)" -->
       <div class="header-end d-flex col-lg gap-3">
         <div>
           <ModalAddProduct />
@@ -92,15 +92,15 @@ export default {
                 {{ product.sizes.join(', ') }}
               </td>
               <td class="px-3 py-2 text-start" style="max-width: 300px;">
-                <!-- <span v-if="!product.showFull">
+                <span v-if="!product.showFull">
                   {{ product.description.slice(0, 50) }}...
                   <a href="#" @click.prevent="product.showFull = true" class="small color1 fw-bold">more</a>
                 </span>
                 <span v-else>
                   {{ product.description }}
                   <a href="#" @click.prevent="product.showFull = false" class="small color1 fw-bold"> hide</a>
-                </span> -->
-                1
+                </span>
+                
               </td>
               <td class="px-4 py-3 small">
                 <div class="modalEditProduct">

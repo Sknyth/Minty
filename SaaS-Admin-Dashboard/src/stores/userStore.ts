@@ -53,20 +53,18 @@ export const useUsersStore = defineStore('users', {
       this.loading = false
     },
     
-  //   async searchProfiles(query: string) {
-  //     this.loading = true
-  //     if (!query) return await this.fetchUsers()
+    async searchUsers(query: string) {
+      this.loading = true
+      if (!query) return await this.fetchUsers()
   
-  //     const { data, error } = await supabase
-  //       .from('profiles')
-  //       .select('*')
-  //       .textSearch('fts', query, {
-  //         config: 'english',
-  //         type: 'websearch'
-  //       })
-  //     if (error) throw error
-  //     this.profiles = data
-  //     this.loading = false
-	//   },
+      const res = await fetch(`http://localhost:3000/user/search?query=${encodeURIComponent(query)}`, {
+        method: 'GET',
+				headers: {
+					Authorization: `Bearer ${useAuthStore().access_token}`,
+				},
+      })
+      this.users = await res.json()
+      this.loading = false
+	  },
   },
 })

@@ -33,12 +33,16 @@ export class ProductsService {
 	}
 	
 	async searchProducts(query: string): Promise<Product[]> {
+		const id = parseInt(query);
+		const sizes = parseInt(query);
+
 		return this.prisma.product.findMany({
 			where: {
-				name: {
-					contains: query,
-					mode: 'insensitive',
-				},
+				OR: [
+					...(isNaN(id) ? [] : [{ id }]),
+					{name: { contains: query,mode: 'insensitive', }},
+					...(isNaN(sizes) ? [] : [{ sizes: { has: sizes } }])
+				]
 			},
 		})
 	}
@@ -52,6 +56,8 @@ export class ProductsService {
 			orderBy = { price: 'desc' }
 		} else if (criteria === 'name') {
 			orderBy = { name: 'asc' }
+		} else if (criteria === 'standard') {
+			orderBy = { id: 'asc' }
 		}
 
 		return this.prisma.product.findMany({ orderBy })

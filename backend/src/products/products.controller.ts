@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common'
 import { ProductsService } from './products.service'
 import { Product } from '@prisma/client'
 import { CreateProductDto } from './product.dto'
@@ -8,6 +8,12 @@ import { Public } from 'src/auth/public.decorator'
 @Controller()
 export class ProductsController {
 	constructor(private readonly productService: ProductsService) {}
+
+	@Public()
+	@Get('search')
+	searchProducts(@Query('query') query: string): Promise<Product[]> {
+		return this.productService.searchProducts(query);
+	}
 
 	@Public()
 	@Get()
@@ -33,5 +39,12 @@ export class ProductsController {
 	@Delete('delete/:id')
 	deleteProductById(@Param('id', ParseIntPipe) id: number): Promise<Product> {
 		return this.productService.deleteProductById(id);
+	}
+
+
+	@Public()
+	@Get('sort')
+	sortProducts(@Query('criteria') criteria: string): Promise<Product[]> {
+		return this.productService.sortProducts(criteria);
 	}
 }

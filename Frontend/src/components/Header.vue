@@ -26,8 +26,8 @@ export default {
 			>
 
 			<div class="search-box">
-				<!-- <input type="text" placeholder="Search..." v-model="searchQuery" @keyup.enter="productsStore.searchProducts(searchQuery)"/>
-				<button @click="productsStore.searchProducts(searchQuery)">Search</button> -->
+				<input type="text" placeholder="Search..." v-model="searchQuery" @keyup="productsStore.searchProducts(searchQuery)"/>
+				<!-- <button @click="productsStore.searchProducts(searchQuery)">Search</button> -->
 			</div>
 
 			<div class="social-links">
@@ -54,9 +54,10 @@ export default {
 	height: 40px;
 	padding: 4px 8px;
 	border: 2px solid var(--color2);
-	border-radius: 5px 0 0 5px;
+	border-radius: 5px;
 	outline: none;
 }
+	/*border-radius: 5px 0 0 5px;*/
 .search-box button {
 	background-color: var(--color2);
 	color: var(--color1);

@@ -62,16 +62,6 @@ export const useAuthStore = defineStore('auth', {
 			this.isAuth = true
 		},
 
-		// async fetchUsers() {
-		// 	this.loading = true
-		// 	const { data, error } = await supabase
-		// 		.from('profiles')
-		// 		.select('*')
-		// 	if (error) throw error
-		// 	this.users = data
-		// 	this.loading = false
-		// },
-
 		async refreshToken() {
 			const refresh_token = localStorage.getItem('refresh_token');
 			if (!refresh_token) {

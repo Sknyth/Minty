@@ -49,7 +49,7 @@ export default {
 				const selectedAddress = this.addressStore.address.find(a => a.id === this.currentAddressId)
 				const selectedPayment = this.paymentStore.payment.find(p => p.id === this.currentPaymentId)
 
-				const order = await this.ordersStore.createOrder({ 
+				await this.ordersStore.createOrder({ 
 					customerName: this.authStore.user?.name,
 					customerSurname: this.authStore.user?.surname,
 					customerEmail: this.authStore.user?.email,

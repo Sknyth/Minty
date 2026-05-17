@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Patch, ParseIntPipe, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Patch, ParseIntPipe, Delete, Query } from '@nestjs/common';
 import { Prisma, Role, User } from '@prisma/client'
 import { UserService } from './user.service'
 import { Public } from 'src/auth/public.decorator'
@@ -12,6 +12,11 @@ export class UserController {
 	@Post()
 	async createUser(@Body() data: Prisma.UserCreateInput): Promise<Omit<User, 'password'>> {
 		return this.userService.createUser(data);
+	}
+
+	@Get('search')
+	async searchUsers(@Query('query') query: string) {
+		return this.userService.searchUsers(query)
 	}
 
 	@Get('allUsers')

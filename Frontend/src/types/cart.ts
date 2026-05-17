@@ -3,7 +3,7 @@ import type { Product } from './product'
 export interface CartItem {
   id: number
   userId: number
-  productId: number
+  product_id: number
   size: number | null
   quantity: number
   product: Product

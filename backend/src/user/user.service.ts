@@ -76,4 +76,23 @@ export class UserService {
       where: { id: userId }
     })
   }
+
+  async searchUsers(query: string): Promise<User[]> {
+    const id = parseInt(query);
+
+    const validRole = ['user', 'admin']
+    const matchRole = validRole.includes(query) ? query as Role : undefined
+
+    return this.prisma.user.findMany({
+      where: {
+        OR: [
+          ...(isNaN(id) ? [] : [{ id }]),
+          {name: { contains: query, mode: 'insensitive' }},
+          {surname: { contains: query, mode: 'insensitive' }},
+          {email: { contains: query, mode: 'insensitive' }},
+          ...(matchRole ? [{role: matchRole}] : [])
+        ]
+      }
+    })
+  }
 }

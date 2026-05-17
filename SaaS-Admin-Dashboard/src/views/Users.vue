@@ -57,9 +57,10 @@ export default {
       </div>
 
       <div class="header-main col-lg">
-        <input type="text" placeholder="Search..." class="custom-input mb-3" v-model="userSearchQuery"  />
+        
+        <input type="text" placeholder="Search..." class="custom-input mb-3" @keyup="userStore.searchUsers(userSearchQuery)"
+        v-model="userSearchQuery"  />
       </div>
-<!-- @keyup="userStore.searchProfiles(userSearchQuery)" -->
       <div class="header-end d-flex col-lg gap-3">
         <div class="stats-mini d-flex">
           <span class="text-muted">Total records:</span> 

@@ -49,9 +49,9 @@ export default {
       </div>
 
       <div class="header-main col-lg">
-        <input type="text" placeholder="Search..." class="custom-input mb-3" v-model="orderSearchQuery"  />
+        <input type="text" placeholder="Search..." class="custom-input mb-3" @keyup="ordersStore.searchOrders(orderSearchQuery)"  v-model="orderSearchQuery"  />
+        
       </div>
-<!-- @keyup="ordersStore.searchOrders(orderSearchQuery)" -->
       <div class="header-end d-flex col-lg gap-3">
         <div class="stats-mini d-flex">
           <span class="text-muted">Total records:</span> 

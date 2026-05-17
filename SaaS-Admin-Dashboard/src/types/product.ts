@@ -5,4 +5,5 @@ export interface Product {
 	description: string
 	sizes: number[] 
 	image_url: string | null
+	showFull?: boolean
 }

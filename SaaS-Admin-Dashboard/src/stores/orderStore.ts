@@ -22,23 +22,28 @@ export const useOrdersStore = defineStore('Orders', {
       this.loading = false
 		},
 
-    // async searchOrders(query: string) {
-    //   this.loading = true
+    async searchOrders(query: string) {
+      this.loading = true
 
-    //   if (!query) {
-    //     return await this.fetchOrders()
-    //   }
-    //   const { data, error } = await supabase
-    //     .from('orders')
-    //     .select('*')
-    //     .textSearch('fts', query, {
-		// 			config: 'english',
-		// 			type: 'websearch'
-		// 		})
-    //   if (error) throw error
-    //   this.orders = data
-    //   this.loading = false
-    // },
+      if (!query) {
+        return await this.fetchOrders()
+      }
+      
+      const res = await fetch(`http://localhost:3000/order/search?query=${encodeURIComponent(query)}`, {
+        method: 'GET',
+				headers: {
+					Authorization: `Bearer ${useAuthStore().access_token}`,
+				},
+      }
+        
+    )
+
+      if(!res.ok) return
+
+
+      this.orders = await res.json()
+      this.loading = false
+    },
 
     async updateOrderStatus(orderId: number, newStatus: Order['status']) {
       this.loading = true
