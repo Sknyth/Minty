@@ -8,7 +8,6 @@ import ProfilePayments from '../components/ProfilePayments.vue'
 import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import ProfileSettings from '../components/ProfileSettings.vue'
 import { useAuthStore } from '../stores/authStore'
-import { useProfileStore } from '../stores/profileStore'
 export default {
   components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
   setup() {
