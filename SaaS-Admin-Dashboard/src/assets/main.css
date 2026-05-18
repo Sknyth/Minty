@@ -1,0 +1,100 @@
+@import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+a {
+	text-decoration: none;
+	color: inherit;
+	
+}
+
+.logo {
+	font-size: 40px;
+	font-weight: 700;
+}
+
+.empty-btn {
+	border: 0;
+	background: none;
+	padding: 0;
+}
+
+.button-color1 {
+	background-color: var(--color2);
+	color: var(--color1);
+	border: none;
+	border-radius: 10px;
+	padding: 10px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: 0.3s all;
+	text-decoration: none;
+}
+
+.button-color1:hover {
+	background-color: var(--color1);
+	color: var(--color2);
+}
+
+.button-color2 {
+	background-color: var(--color2);
+	color: var(--color1);
+	border: none;
+	border-radius: 10px;
+	padding: 10px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: 0.3s all;
+	text-decoration: none;
+}
+
+.button-color2:hover {
+	opacity: 0.8;
+}
+
+.button-color3 {
+	background-color: var(--color1);
+	color: var(--color2);
+	border: none;
+	border-radius: 10px;
+	padding: 10px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: 0.3s all;
+	text-decoration: none;
+}
+
+.button-color3:hover {
+	opacity: 0.9;
+}
+
+.status-select-custom {
+  appearance: none !important;
+  padding: 8px 8px;
+  font-weight: 700;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all 0.2s ease;
+}
+.status-select-custom.delivered {
+  background-color: #D4EDDA;
+  color: #155724;
+}
+.status-select-custom.pending {
+  background-color: #FFF3CD;
+  color: #856404;
+}
+.status-select-custom.cancelled {
+  background-color: #F8D7DA;
+  color: #721C24;
+}
+.status-select-custom.delivered:hover, .status-select-custom.delivered:focus {
+  box-shadow: 0 0 0 2px var(--color1);
+}
+.status-select-custom.pending:hover, .status-select-custom.pending:focus {
+  box-shadow: 0 0 0 2px var(--color2);
+}
+.status-select-custom.cancelled:hover, .status-select-custom.cancelled:focus {
+  box-shadow: 0 0 0 2px #721C24;
+}

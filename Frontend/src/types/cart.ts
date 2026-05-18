@@ -1,14 +1,13 @@
+import type { Product } from './product'
+
 export interface CartItem {
-	id: string
-	user_id: string
-	image_url: string | null
-	name: string
-	price: number
-	description: string
-	size: string
-	quantity: number
+  id: number
+  userId: number
+  product_id: number
+  size: number | null
+  quantity: number
+  product: Product
 }
 
 export type CartItemUpdate = Pick<CartItem, 'id' | 'quantity'>
-
-export type CartItemInput = Omit<CartItem, 'id' | 'user_id' | 'quantity'> & { quantity?: number }
+export type CartItemInput = { product_id: number; size?: number; quantity?: number }

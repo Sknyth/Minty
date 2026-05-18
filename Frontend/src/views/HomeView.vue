@@ -15,7 +15,7 @@ export default {
 	},
 	data() {
 		return {
-			sortOption: 'price-low' as Criteria
+			sortOption: 'standard' as Criteria
 		}
 	},
 	methods: {
