@@ -70,7 +70,7 @@ export default {
     </div>
     
     <div class="panel shadow-sm p-0 overflow-hidden">
-      <div class="table-responsive">
+      <div class="table-responsive table-scroll">
         <table class="custom-table w-full">
           <thead>
             <tr>
@@ -83,7 +83,7 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in userStore.users" :key="user.id" class="table-row">
+            <tr v-for="user in [...userStore.users].sort((a,b) => b.id - a.id)" :key="user.id" class="table-row">
 							<td class="px-4 py-3 fw-bold">#{{ user.id }}</td>
 
 							<td class="px-4 py-3">
@@ -134,6 +134,11 @@ export default {
 <style scoped>
 .header-section {
   justify-content: space-between;
+}
+
+.table-scroll {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
 }
 
 .header-end {

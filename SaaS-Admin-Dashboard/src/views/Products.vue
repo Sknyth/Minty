@@ -74,7 +74,7 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="product in productsStore.products" :key="product.id" class="table-row">
+            <tr v-for="product in [...productsStore.products].sort((a,b) => b.id - a.id)" :key="product.id" class="table-row">
               <td class="px-4 py-3">
                 <img :src="product.image_url ?? undefined" alt="Product Image" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
               </td>

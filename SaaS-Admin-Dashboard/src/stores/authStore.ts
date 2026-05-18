@@ -5,8 +5,6 @@ import type { User } from '../types'
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
 		user: null as User | null,
-		users: [] as User[],
-		// profile: null as Profile | null,
 		isAuth: false,
 		loading: false,
 		access_token: localStorage.getItem('access_token') || null,
@@ -38,6 +36,7 @@ export const useAuthStore = defineStore('auth', {
 			this.isAuth = false 
 			localStorage.removeItem('access_token')
 			localStorage.removeItem('refresh_token') 
+			router.push('/login')
 		},
 
 		async getUser() {
@@ -45,21 +44,17 @@ export const useAuthStore = defineStore('auth', {
 			const res = await fetch('http://localhost:3000/auth/profile', {
 				headers: { Authorization: `Bearer ${this.access_token}` },
 			});
-			if (!res.ok) return;
-			this.user = await res.json();
+			if (!res.ok) return
+			const data: User = await res.json()
 
-			// if (data?.role === 'admin') {
-			// 	this.profile = data
-				// router.push('/')
-			// } else {
-			// 	await this.signOut()
-			// 	throw new Error('You are not an administrator')
-			// }
+			if (data?.role !== 'admin') {
+				await this.signOut()
+				throw new Error('You are not an administrator')
+			}
 
-			// if (data) {
-			// 	this.profile = data
-			// }
+			this.user = data
 			this.isAuth = true
+			router.push('/')
 		},
 
 		async refreshToken() {

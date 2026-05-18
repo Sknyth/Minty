@@ -1,10 +1,10 @@
-<script>
-import { useStatStore } from '../stores/statStore'
+<script lang="ts">
+import { useProductsStore } from '../stores/productStore'
 export default {
   setup(){
-    const statStore = useStatStore()
-    statStore.fetchEarnings()
-    return { statStore }
+    const productsStore = useProductsStore()
+    productsStore.fetchProducts()
+    return { productsStore }
   }
 }
 </script>
@@ -16,16 +16,16 @@ export default {
     <div class="card-content">
       <div class="d-flex align-items-start justify-content-between mb-auto">
         <div class="icon-shape bg-glass">
-          <i class="bi bi-wallet2"></i> 
+          <i class="bi bi-diagram-2"></i> 
         </div>
         <div class="trend-badge">
-          +12% <i class="bi bi-arrow-up-short"></i>
+          +7% <i class="bi bi-arrow-up-short"></i>
         </div>
       </div>
 
       <div class="mt-4">
-        <p class="label-text mb-1">Total Earnings</p>
-        <h1 v-if="!statStore.loading" class="amount-text">${{ statStore.totalEarnings }}</h1>
+        <p class="label-text mb-1">Total Products</p>
+        <h1 v-if="!productsStore.loading" class="amount-text">{{ productsStore.products.length }}</h1>
         <h1 v-else class="amount-text">Loading...</h1>
       </div>
     </div>

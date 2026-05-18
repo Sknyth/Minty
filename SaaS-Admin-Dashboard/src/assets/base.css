@@ -7,7 +7,7 @@
 }
 
 html {
-	position: relative;
+
 	min-height: 100%;
 }
 
@@ -19,15 +19,18 @@ html {
 
 /* base styles */
 body {
-	min-height: 100vh;
+	height: 100%;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: 'Jost', sans-serif;
-	padding-bottom: 165px;
 }
 button {
 	cursor: pointer;
+}
+
+#app {
+  height: 100%;
 }
 
 /* Shared panel style */

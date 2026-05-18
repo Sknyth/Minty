@@ -103,10 +103,10 @@ export default {
 
 <style scoped>
 .box-inner {
-  height: 200px;
-  width: 450px;
-  border-radius: 18px;
-  padding: 24px;
+  height: 160px;
+  width: 100%;
+  border-radius: 14px;
+  padding: 18px;
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, var(--color2) 0%, #f5d191 100%);
@@ -136,53 +136,53 @@ export default {
 .chart-wrapper {
   position: absolute;
   right: -10px;
-  bottom: -15px;
-  width: 220px;
-  height: 100px;
+  bottom: -10px;
+  width: 160px;
+  height: 75px;
   z-index: 1;
 }
 
 .icon-shape {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.4);
-  font-size: 22px;
+  font-size: 18px;
 }
 
 .trend-badge-green {
-  font-size: 13px;
+  font-size: 12px;
   background: rgba(45, 138, 114, 0.15);
   color: var(--color1);
-  padding: 4px 12px;
+  padding: 3px 8px;
   border-radius: 20px;
   font-weight: 600;
 }
 
 .label-text {
-  font-size: 16px;
+  font-size: 13px;
   opacity: 0.7;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
 .amount-text {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
 }
 
 .decor-circle {
   position: absolute;
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  top: -50px;
-  right: -40px;
+  top: -40px;
+  right: -30px;
   z-index: 1;
 }
 </style>

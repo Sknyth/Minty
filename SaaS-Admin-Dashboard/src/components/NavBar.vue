@@ -97,7 +97,7 @@ export default {
 .main-wrapper {
   margin-left: 300px;
   background-color: #f8f9fa;
-  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -140,7 +140,8 @@ export default {
 
 .content-area {
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 @media (max-width: 1199px) {

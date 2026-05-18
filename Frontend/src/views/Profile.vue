@@ -12,11 +12,7 @@ export default {
   components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
   setup() {
     const toast = useToast()
-
-    // const profileStore = useProfileStore()
-    // profileStore.fetchProfile()
-    // profileStore.fetchPaymentMethods()
-    // profileStore.fetchAddresses()
+    
     const authStore = useAuthStore()
 
     return { toast, authStore }

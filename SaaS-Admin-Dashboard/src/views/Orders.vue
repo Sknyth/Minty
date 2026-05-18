@@ -76,11 +76,10 @@ export default {
           </thead>
           <tbody>
             <tr 
-            v-for="order in ordersStore.orders" :key="order.id" 
+            v-for="order in [...ordersStore.orders].sort((a,b) => b.id - a.id)" :key="order.id" 
             class="table-row"
             style="cursor: pointer"
             @click="$router.push({ name: 'OrderInfo', params: { id: order.id } })">
-              <!-- <td class="px-4 py-3 fw-bold">#{{ order.id.slice(0, 8) }}</td> -->
               <td class="px-4 py-3 fw-bold">#{{ order.id }}</td>
               <td class="px-4 py-3">
                 <div class="d-flex flex-column">
@@ -125,6 +124,11 @@ export default {
 <style scoped>
 .header-section {
   justify-content: space-between;
+}
+
+.table-responsive {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
 }
 
 .header-end {
