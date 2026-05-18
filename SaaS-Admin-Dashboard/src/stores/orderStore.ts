@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Order } from '../types'
 import { useAuthStore } from './authStore'
+import { API_URL } from '../api/config'
 
 export const useOrdersStore = defineStore('Orders', {
   state: () => ({
@@ -12,7 +13,7 @@ export const useOrdersStore = defineStore('Orders', {
 			const authStore = useAuthStore()
 			if (!authStore.user) return
 			this.loading = true
-			const res = await fetch(`http://localhost:3000/order/allOrders`, {
+			const res = await fetch(`${API_URL}/order/allOrders`, {
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
@@ -29,17 +30,14 @@ export const useOrdersStore = defineStore('Orders', {
         return await this.fetchOrders()
       }
       
-      const res = await fetch(`http://localhost:3000/order/search?query=${encodeURIComponent(query)}`, {
+      const res = await fetch(`${API_URL}/order/search?query=${encodeURIComponent(query)}`, {
         method: 'GET',
 				headers: {
 					Authorization: `Bearer ${useAuthStore().access_token}`,
 				},
-      }
-        
-    )
+      })
 
       if(!res.ok) return
-
 
       this.orders = await res.json()
       this.loading = false
@@ -47,7 +45,7 @@ export const useOrdersStore = defineStore('Orders', {
 
     async updateOrderStatus(orderId: number, newStatus: Order['status']) {
       this.loading = true
-      const res = await fetch(`http://localhost:3000/order/updateStatus/${orderId}`, {
+      const res = await fetch(`${API_URL}/order/updateStatus/${orderId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +58,6 @@ export const useOrdersStore = defineStore('Orders', {
 
       const order = this.orders.find(o => o.id === orderId)
       if (order) order.status = newStatus
-
     },
 	}
 })

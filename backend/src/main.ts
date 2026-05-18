@@ -5,7 +5,13 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
 
-    app.enableCors();
+    app.enableCors({
+      origin: [
+        'https://minty-frontend.vercel.app',
+        'https://minty-admin.vercel.app',
+      ]
+      
+    });
 
     const port = process.env.PORT ?? 3000;
     await app.listen(port);

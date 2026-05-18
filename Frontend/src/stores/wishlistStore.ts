@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './authStore'
 import type { Wishlist } from '@/types'
+import { API_URL } from '@/api/config'
 
 export const useWishlistStore = defineStore('wishlist', {
   state: () => ({
@@ -19,7 +20,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
       this.loading = true
 
-      const res = await fetch(`http://localhost:3000/wishlist/${authStore.user.id}`, {
+      const res = await fetch(`${API_URL}/wishlist/${authStore.user.id}`, {
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
@@ -34,7 +35,7 @@ export const useWishlistStore = defineStore('wishlist', {
       if (!authStore.user) throw new Error('You are not logged in')
       this.loading = true
 
-      const req = await fetch(`http://localhost:3000/wishlist/add/${authStore.user.id}`, {
+      const req = await fetch(`${API_URL}/wishlist/add/${authStore.user.id}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -51,14 +52,13 @@ export const useWishlistStore = defineStore('wishlist', {
       this.loading = false
     },
 
-
     async deleteFromWishlist(productId: number) {
       const authStore = useAuthStore()
       if (!authStore.user) throw new Error('You are not logged in')
 
       this.loading = true
 
-      const req = await fetch(`http://localhost:3000/wishlist/remove/${authStore.user.id}`, {
+      const req = await fetch(`${API_URL}/wishlist/remove/${authStore.user.id}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',

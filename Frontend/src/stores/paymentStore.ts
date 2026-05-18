@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import { useAuthStore } from '@/stores/authStore'
 import type { PaymentMethod } from '@/types'
+import { API_URL } from '@/api/config'
 
 export const usePaymentStore = defineStore('payment', {
 	state: () => ({
@@ -12,7 +13,7 @@ export const usePaymentStore = defineStore('payment', {
 		async fetchPayment() {
 			const authStore = useAuthStore()
 			if (!authStore.user) return
-			const res = await fetch(`http://localhost:3000/payment/${authStore.user.id}`, {
+			const res = await fetch(`${API_URL}/payment/${authStore.user.id}`, {
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
@@ -24,25 +25,22 @@ export const usePaymentStore = defineStore('payment', {
 		async addPayment(data: PaymentMethod) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')	
-			const req = await fetch(`http://localhost:3000/payment/add/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/payment/add/${authStore.user.id}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
-				body: JSON.stringify(
-					data
-				),
+				body: JSON.stringify(data),
 			})
 			if (!req.ok) throw new Error('Failed to add to cart')
 			this.fetchPayment()
 		},
 
-		async deletePayment(paymentId: number){
+		async deletePayment(paymentId: number) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-
-			const req = await fetch(`http://localhost:3000/payment/delete/${paymentId}`, {
+			const req = await fetch(`${API_URL}/payment/delete/${paymentId}`, {
 				method: 'DELETE',
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
@@ -50,27 +48,23 @@ export const usePaymentStore = defineStore('payment', {
 			})
 			if (!req.ok) throw new Error('Failed to remove from cart')
 			this.payment = this.payment.filter(payment => payment.id !== paymentId)
-
 			if (this.selectedPaymentId === paymentId) {
-        await this.selectPayment(null)
-    	}
+				await this.selectPayment(null)
+			}
 		},
 
 		async selectPayment(selectedPaymentId: number | null) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/user/selectPayment/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/user/selectPayment/${authStore.user.id}`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
-				body: JSON.stringify({
-					selectedPaymentId
-				})
+				body: JSON.stringify({ selectedPaymentId })
 			})
 			if (!req.ok) throw new Error('Failed to select payment')
-
 			this.selectedPaymentId = selectedPaymentId
 		}
 	}

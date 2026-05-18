@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import router from '../router'
 import type { User } from '../types'
+import { API_URL } from '../api/config'
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
@@ -11,8 +12,8 @@ export const useAuthStore = defineStore('auth', {
 		refresh_token: localStorage.getItem('refresh_token') || null
 	}),
 	actions: {
-			async signIn({ email, password }: { email: string, password: string }) {
-			const req = await fetch('http://localhost:3000/auth/signin', {
+		async signIn({ email, password }: { email: string, password: string }) {
+			const req = await fetch(`${API_URL}/auth/signin`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email, password })
@@ -40,8 +41,8 @@ export const useAuthStore = defineStore('auth', {
 		},
 
 		async getUser() {
-  		if (!this.access_token) return;
-			const res = await fetch('http://localhost:3000/auth/profile', {
+			if (!this.access_token) return;
+			const res = await fetch(`${API_URL}/auth/profile`, {
 				headers: { Authorization: `Bearer ${this.access_token}` },
 			});
 			if (!res.ok) return
@@ -64,7 +65,7 @@ export const useAuthStore = defineStore('auth', {
 				return;
 			}
 
-			const res = await fetch('http://localhost:3000/auth/refresh', {
+			const res = await fetch(`${API_URL}/auth/refresh`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ refresh_token }),

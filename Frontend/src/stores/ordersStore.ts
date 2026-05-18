@@ -4,6 +4,7 @@ import { useCartStore } from './cartStore'
 import type { Order } from '@/types'
 import { useAddressStore } from './addressStore'
 import { usePaymentStore } from './paymentStore'
+import { API_URL } from '@/api/config'
 
 export const useOrdersStore = defineStore('orders', {
 	state: () => ({
@@ -21,15 +22,13 @@ export const useOrdersStore = defineStore('orders', {
 				throw new Error("Select address and payment method")
 			}
 
-			const req = await fetch(`http://localhost:3000/order/create/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/order/create/${authStore.user.id}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
-				body: JSON.stringify(
-					data
-			),
+				body: JSON.stringify(data),
 			})
 			if (!req.ok) throw new Error('Failed to add to cart')
 				
@@ -37,15 +36,13 @@ export const useOrdersStore = defineStore('orders', {
 
 			cartStore.cartItems = []
 			cartStore.cartTotal = 0
-
-			// return data as Order
 		},
 
 		async fetchOrders() {
 			const authStore = useAuthStore()
 			if (!authStore.user) return
 			
-			const res = await fetch(`http://localhost:3000/order/${authStore.user.id}`, {
+			const res = await fetch(`${API_URL}/order/${authStore.user.id}`, {
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},

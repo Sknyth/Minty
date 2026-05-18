@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import { useAuthStore } from '@/stores/authStore'
 import type { Address } from '@/types'
+import { API_URL } from '@/api/config'
 
 export const useAddressStore = defineStore('address', {
 	state: () => ({
@@ -12,7 +13,7 @@ export const useAddressStore = defineStore('address', {
 		async fetchAddress() {
 			const authStore = useAuthStore()
 			if (!authStore.user) return
-			const res = await fetch(`http://localhost:3000/address/${authStore.user.id}`, {
+			const res = await fetch(`${API_URL}/address/${authStore.user.id}`, {
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
@@ -24,25 +25,22 @@ export const useAddressStore = defineStore('address', {
 		async addAddress(data: Address) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')	
-			const req = await fetch(`http://localhost:3000/address/add/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/address/add/${authStore.user.id}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
-				body: JSON.stringify(
-					data
-				),
+				body: JSON.stringify(data),
 			})
 			if (!req.ok) throw new Error('Failed to add to cart')
 			this.fetchAddress()
 		},
 
-		async deleteAddress(addressId: number){
+		async deleteAddress(addressId: number) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-
-			const req = await fetch(`http://localhost:3000/address/delete/${addressId}`, {
+			const req = await fetch(`${API_URL}/address/delete/${addressId}`, {
 				method: 'DELETE',
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
@@ -50,42 +48,36 @@ export const useAddressStore = defineStore('address', {
 			})
 			if (!req.ok) throw new Error('Failed to remove from cart')
 			this.address = this.address.filter(address => address.id !== addressId)
-
 			if (this.selectedAddressId === addressId) {
-        await this.selectAddress(null)
-    	}
+				await this.selectAddress(null)
+			}
 		},
 
 		async selectAddress(selectedAddressId: number | null) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/user/selectAddress/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/user/selectAddress/${authStore.user.id}`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
-				body: JSON.stringify({
-					selectedAddressId
-				})
+				body: JSON.stringify({ selectedAddressId })
 			})
 			if (!req.ok) throw new Error('Failed to select payment')
-
 			this.selectedAddressId = selectedAddressId
 		},
 
 		async updateAddress(addressId: number, data: Address) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/address/update/${addressId}`, {
+			const req = await fetch(`${API_URL}/address/update/${addressId}`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
-				body: JSON.stringify(
-					data
-				),
+				body: JSON.stringify(data),
 			})
 			if (!req.ok) throw new Error('Failed to update address')
 			this.fetchAddress()

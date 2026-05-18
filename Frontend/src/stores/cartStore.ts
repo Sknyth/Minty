@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import { useAuthStore } from './authStore'
 import type { CartItem, CartItemInput, CartItemUpdate } from '@/types'
+import { API_URL } from '@/api/config'
 
 export const useCartStore = defineStore('cart', {
 	state: () => ({
@@ -11,14 +12,14 @@ export const useCartStore = defineStore('cart', {
 	}),
 	getters: {
     isInCart: (state) => (product_id: number, size: number | undefined) => {
-			return state.cartItems.find((i: CartItem) => i.productId === product_id && i.size === size)
+			return state.cartItems.find((i: CartItem) => i.product_id === product_id && i.size === size)
 		}
   },
 	actions: {
 		async fetchCart() {
 			const authStore = useAuthStore()
 			if (!authStore.user) return
-			const res = await fetch(`http://localhost:3000/cart/${authStore.user.id}`, {
+			const res = await fetch(`${API_URL}/cart/${authStore.user.id}`, {
 					headers: {
 							Authorization: `Bearer ${authStore.access_token}`,
 					},
@@ -30,7 +31,7 @@ export const useCartStore = defineStore('cart', {
 		async addToCart({ size, quantity, product_id }: CartItemInput) {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/cart/add/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/cart/add/${authStore.user.id}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -48,7 +49,7 @@ export const useCartStore = defineStore('cart', {
 
 		async removeFromCart(id: number) {
 			const authStore = useAuthStore()
-			const req = await fetch(`http://localhost:3000/cart/remove`, {
+			const req = await fetch(`${API_URL}/cart/remove`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ export const useCartStore = defineStore('cart', {
 		async removeCart() {
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/cart/removeCart/${authStore.user.id}`, {
+			const req = await fetch(`${API_URL}/cart/removeCart/${authStore.user.id}`, {
 				method: 'DELETE',
 				headers: {
 					Authorization: `Bearer ${authStore.access_token}`,
@@ -77,7 +78,7 @@ export const useCartStore = defineStore('cart', {
 
 		async updateQuantity({ id, quantity }: CartItemUpdate) {
 			const authStore = useAuthStore()
-			const req = await fetch(`http://localhost:3000/cart/updateQuantity`, {
+			const req = await fetch(`${API_URL}/cart/updateQuantity`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json',

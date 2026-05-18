@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Product } from '../types'
 import { useAuthStore } from './authStore'
+import { API_URL } from '../api/config'
 
 export const useProductsStore = defineStore('products', {
 	state: () => ({
@@ -10,7 +11,7 @@ export const useProductsStore = defineStore('products', {
 	actions: {
 		async fetchProducts() {
 			this.loading = true
-			const res = await fetch('http://localhost:3000')
+			const res = await fetch(`${API_URL}`)
 			this.products = await res.json()
 			this.loading = false
 		},
@@ -19,7 +20,7 @@ export const useProductsStore = defineStore('products', {
 			this.loading = true
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/delete/${productId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authStore.access_token}` } })
+			const req = await fetch(`${API_URL}/delete/${productId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authStore.access_token}` } })
 			if (!req.ok) throw new Error('Failed to delete product')
 			this.products = this.products.filter(product => product.id !== productId)
 			this.loading = false
@@ -29,12 +30,12 @@ export const useProductsStore = defineStore('products', {
 			this.loading = true
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/update/${productId}`, { 
+			const req = await fetch(`${API_URL}/update/${productId}`, { 
 				method: 'PATCH',
 				headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${useAuthStore().access_token}`,
-        },
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${useAuthStore().access_token}`,
+				},
 				body: JSON.stringify(updatedData)
 			})
 			if (!req.ok) throw new Error('Failed to update product')
@@ -50,7 +51,7 @@ export const useProductsStore = defineStore('products', {
 			this.loading = true
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`http://localhost:3000/create`, {
+			const req = await fetch(`${API_URL}/create`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -63,6 +64,7 @@ export const useProductsStore = defineStore('products', {
 			this.products.push(createdProduct)
 			this.loading = false
 		},
+
 		async searchProducts(query: string) {
 			this.loading = true
 			if (!query) {
@@ -70,7 +72,7 @@ export const useProductsStore = defineStore('products', {
 				return
 			}
 
-			const res = await fetch(`http://localhost:3000/search?query=${encodeURIComponent(query)}`)
+			const res = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`)
 
 			if (!res.ok) return
 
