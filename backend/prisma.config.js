@@ -5,8 +5,10 @@ const { defineConfig } = require('prisma/config')
 module.exports = defineConfig({
   schema: 'prisma/schema.prisma',
   migrate: {
-    adapter(env) {
-      const pool = new Pool({ connectionString: env.DATABASE_URL })
+    adapter() {
+      const pool = new Pool({ 
+        connectionString: process.env.DATABASE_URL 
+      })
       return new PrismaPg(pool)
     },
   },
