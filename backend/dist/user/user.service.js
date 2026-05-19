@@ -46,7 +46,7 @@ exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
-const prisma_service_1 = require("../prisma/prisma.service");
+const prisma_service_1 = require("src/prisma/prisma.service");
 let UserService = class UserService {
     prisma;
     constructor(prisma) {

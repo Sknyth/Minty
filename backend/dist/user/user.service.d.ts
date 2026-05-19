@@ -1,5 +1,5 @@
 import { Prisma, Role, User } from '@prisma/client';
-import { PrismaService } from "../prisma/prisma.service";
+import { PrismaService } from 'src/prisma/prisma.service';
 export declare class UserService {
     private prisma;
     constructor(prisma: PrismaService);

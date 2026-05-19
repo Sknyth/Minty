@@ -1,4 +1,4 @@
-import { PrismaService } from "../prisma/prisma.service";
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto } from './create-order.dto';
 import { Order } from '@prisma/client';
 export declare class OrderService {

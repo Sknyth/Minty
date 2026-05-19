@@ -10,7 +10,7 @@ exports.WishlistModule = void 0;
 const common_1 = require("@nestjs/common");
 const wishlist_service_1 = require("./wishlist.service");
 const wishlist_controller_1 = require("./wishlist.controller");
-const prisma_module_1 = require("../prisma/prisma.module");
+const prisma_module_1 = require("src/prisma/prisma.module");
 let WishlistModule = class WishlistModule {
 };
 exports.WishlistModule = WishlistModule;
