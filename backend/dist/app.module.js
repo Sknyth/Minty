@@ -26,6 +26,7 @@ const order_module_1 = require("./order/order.module");
 const wishlist_module_1 = require("./wishlist/wishlist.module");
 const auth_guard_1 = require("./auth/auth.guard");
 const constants_1 = require("@nestjs/core/constants");
+const cloudinary_service_1 = require("./cloudinary/cloudinary.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,7 +34,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [products_module_1.ProductsModule, prisma_module_1.PrismaModule, config_1.ConfigModule.forRoot({ isGlobal: true }), user_module_1.UserModule, auth_module_1.AuthModule, cart_module_1.CartModule, payment_module_1.PaymentModule, address_module_1.AddressModule, order_module_1.OrderModule, wishlist_module_1.WishlistModule],
         controllers: [app_controller_1.AppController, user_controller_1.UserController, auth_controller_1.AuthController],
-        providers: [app_service_1.AppService, user_service_1.UserService, auth_service_1.AuthService, { provide: constants_1.APP_GUARD, useClass: auth_guard_1.AuthGuard },],
+        providers: [app_service_1.AppService, user_service_1.UserService, auth_service_1.AuthService, { provide: constants_1.APP_GUARD, useClass: auth_guard_1.AuthGuard }, cloudinary_service_1.CloudinaryService,],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

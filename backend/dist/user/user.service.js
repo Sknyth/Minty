@@ -46,7 +46,7 @@ exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
-const prisma_service_1 = require("src/prisma/prisma.service");
+const prisma_service_1 = require("../prisma/prisma.service");
 let UserService = class UserService {
     prisma;
     constructor(prisma) {
@@ -126,6 +126,23 @@ let UserService = class UserService {
                     { email: { contains: query, mode: 'insensitive' } },
                     ...(matchRole ? [{ role: matchRole }] : [])
                 ]
+            }
+        });
+    }
+    async changePass(userId, oldPass, newPass) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.BadRequestException('User not found');
+        const isValid = await bcrypt.compare(oldPass, user.password);
+        if (!isValid)
+            throw new common_1.BadRequestException('Old password is incorrect');
+        if (oldPass === newPass)
+            throw new common_1.BadRequestException('The new password must be different from the old password');
+        const hashedPassword = await bcrypt.hash(newPass, 10);
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                password: hashedPassword
             }
         });
     }

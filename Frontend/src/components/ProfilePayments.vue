@@ -10,7 +10,6 @@ export default {
         const toast = useToast()
 
         const paymentStore = usePaymentStore()
-        // this.paymentStore.fetchPayment()
 
         return { toast, paymentStore }
 
@@ -101,12 +100,12 @@ export default {
 <template>
     <div>
         <h2>{{ componentName }}</h2>
-        <!-- <div class="no-methods text-center" >
-            v-if="paymentStore.payment.length === 0 && toggleAddMethod"
+        <div class="no-methods text-center" v-if="paymentStore.payment.length === 0 && toggleAddMethod">
+            
             <p>You don't have payment methods</p>
-        </div> -->
-        <div v-if="toggleAddMethod">
-            <!-- v-else-if="toggleAddMethod ?? profileStore.paymentMethods.length != 0" -->
+        </div>
+        <div v-else-if="toggleAddMethod ?? paymentStore.payment.length != 0">
+            
             <div class="row gap-3 justify-content-start">
                 <div
                  v-for="method in paymentStore.payment" 

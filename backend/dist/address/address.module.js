@@ -10,7 +10,7 @@ exports.AddressModule = void 0;
 const common_1 = require("@nestjs/common");
 const address_controller_1 = require("./address.controller");
 const address_service_1 = require("./address.service");
-const prisma_module_1 = require("src/prisma/prisma.module");
+const prisma_module_1 = require("../prisma/prisma.module");
 let AddressModule = class AddressModule {
 };
 exports.AddressModule = AddressModule;

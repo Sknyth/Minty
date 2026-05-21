@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { Prisma, Role, User } from '@prisma/client'
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -94,5 +94,28 @@ export class UserService {
         ]
       }
     })
+  }
+
+  async changePass(userId: number, oldPass: string, newPass: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException('User not found');
+
+    const isValid = await bcrypt.compare(oldPass, user.password)
+    if (!isValid) throw new BadRequestException('Old password is incorrect');
+
+    if (oldPass === newPass) 
+      throw new BadRequestException(
+        'The new password must be different from the old password'
+      )
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword
+      }
+    });
+
   }
 }

@@ -27,16 +27,16 @@ export default {
 				sizes: this.product.sizes || []
 			} as Product,
 			sizesInput: this.product.sizes.join(', ') || '',
-			file: null
+			file: null as File | null
 		}
 	},
 	methods: {
 		async handleSaveProduct() {
-				this.editingProduct.sizes = this.sizesInput
-					.split(',')
-					.map((s: string) => Number(s.trim()))
-					.filter((s: number) => !isNaN(s) && s !== 0)
-
+			this.editingProduct.sizes = this.sizesInput
+				.split(',')
+				.map((s: string) => Number(s.trim()))
+				.filter((s: number) => !isNaN(s) && s !== 0)
+			
 			try {
 				const updatedData: Partial<Product> = {
 					name: this.editingProduct.name,
@@ -45,12 +45,27 @@ export default {
 					image_url: this.editingProduct.image_url,
 					sizes: this.editingProduct.sizes
 				}
-				await this.productsStore.updateProduct(this.editingProduct.id, updatedData)
+
+				if (this.file) {
+					const formData = new FormData()
+					formData.append('name', updatedData.name ?? '')
+					formData.append('price', String(updatedData.price ?? 0))
+					formData.append('description', updatedData.description ?? '')
+					formData.append('sizes', JSON.stringify(this.editingProduct.sizes))
+					formData.append('image', this.file)
+					await this.productsStore.updateProduct(this.editingProduct.id, formData)
+				} else {
+					await this.productsStore.updateProduct(this.editingProduct.id, updatedData)
+				}
 				this.file = null
 				this.toast.success('Product updated successfully')
 			} catch (error) {
 				this.toast.error('Error: ' + (error as Error).message)
 			}
+		},
+		async handleFileChange(e: Event) {
+			const input = e.target as HTMLInputElement
+			this.file = input?.files?.[0] ?? null
 		}
 	}
 }
@@ -87,7 +102,7 @@ export default {
 
 						<div class="mb-3">
 							<label class="form-label fw-bold text-start d-block">Image file</label>
-							<!-- <input type="file" :disabled="editingProduct.image_url != ''" class="form-control" @change="e => file = e.target?.files[0]" /> -->
+							<input type="file" :disabled="editingProduct.image_url != ''" class="form-control" @change="handleFileChange" />
 						</div>
 
 						<div class="mb-3">

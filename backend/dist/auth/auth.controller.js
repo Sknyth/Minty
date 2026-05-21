@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_guard_1 = require("./auth.guard");
 const public_decorator_1 = require("./public.decorator");
-const user_service_1 = require("src/user/user.service");
+const user_service_1 = require("../user/user.service");
 let AuthController = class AuthController {
     authService;
     userService;

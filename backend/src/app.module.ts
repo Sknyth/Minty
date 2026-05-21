@@ -17,13 +17,14 @@ import { OrderModule } from './order/order.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { AuthGuard } from './auth/auth.guard'
 import { APP_GUARD } from '@nestjs/core/constants'
+import { CloudinaryService } from './cloudinary/cloudinary.service';
 
 
 
 @Module({
   imports: [ProductsModule, PrismaModule, ConfigModule.forRoot({ isGlobal: true }), UserModule, AuthModule, CartModule, PaymentModule, AddressModule, OrderModule, WishlistModule],
   controllers: [AppController, UserController, AuthController],
-  providers: [AppService, UserService, AuthService, { provide: APP_GUARD, useClass: AuthGuard },],
+  providers: [AppService, UserService, AuthService, { provide: APP_GUARD, useClass: AuthGuard }, CloudinaryService,],
   
 })
 export class AppModule {}

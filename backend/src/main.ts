@@ -9,6 +9,8 @@ async function bootstrap() {
       origin: [
         'https://minty-frontend.vercel.app',
         'https://minty-admin.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:5174',
       ]
       
     });
