@@ -16,11 +16,16 @@ exports.ProductsController = void 0;
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
 const product_dto_1 = require("./product.dto");
-const public_decorator_1 = require("src/auth/public.decorator");
+const public_decorator_1 = require("../auth/public.decorator");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
 let ProductsController = class ProductsController {
     productService;
-    constructor(productService) {
+    cloudinaryService;
+    constructor(productService, cloudinaryService) {
         this.productService = productService;
+        this.cloudinaryService = cloudinaryService;
     }
     searchProducts(query) {
         return this.productService.searchProducts(query);
@@ -28,14 +33,27 @@ let ProductsController = class ProductsController {
     fetchProducts() {
         return this.productService.fetchProducts();
     }
-    createProduct(productData) {
-        return this.productService.createProduct(productData);
+    async createProduct(productData, file) {
+        const image_url = file ? await this.cloudinaryService.uploadImage(file) : productData.image_url;
+        const sizes = Array.isArray(productData.sizes) ? productData.sizes : JSON.parse(String(productData.sizes));
+        return this.productService.createProduct({
+            ...productData,
+            price: Number(productData.price),
+            sizes,
+            image_url
+        });
+    }
+    async updateProduct(productData, id, file) {
+        const image_url = file ? await this.cloudinaryService.uploadImage(file) : productData.image_url;
+        const sizes = Array.isArray(productData.sizes) ? productData.sizes : JSON.parse(String(productData.sizes));
+        return this.productService.updateProduct(id, {
+            ...productData, price: Number(productData.price),
+            sizes,
+            image_url
+        });
     }
     deleteProducts() {
         return this.productService.deleteProducts();
-    }
-    updateProduct(productData, id) {
-        return this.productService.updateProduct(id, productData);
     }
     deleteProductById(id) {
         return this.productService.deleteProductById(id);
@@ -62,25 +80,29 @@ __decorate([
 ], ProductsController.prototype, "fetchProducts", null);
 __decorate([
     (0, common_1.Post)('create'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('image', { storage: (0, multer_1.memoryStorage)() })),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [product_dto_1.CreateProductDto]),
+    __metadata("design:paramtypes", [product_dto_1.CreateProductDto, Object]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "createProduct", null);
+__decorate([
+    (0, common_1.Patch)('update/:id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('image', { storage: (0, multer_1.memoryStorage)() })),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, Object]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "updateProduct", null);
 __decorate([
     (0, common_1.Delete)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "deleteProducts", null);
-__decorate([
-    (0, common_1.Patch)('update/:id'),
-    __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number]),
-    __metadata("design:returntype", Promise)
-], ProductsController.prototype, "updateProduct", null);
 __decorate([
     (0, common_1.Delete)('delete/:id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
@@ -98,6 +120,7 @@ __decorate([
 ], ProductsController.prototype, "sortProducts", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [products_service_1.ProductsService])
+    __metadata("design:paramtypes", [products_service_1.ProductsService,
+        cloudinary_service_1.CloudinaryService])
 ], ProductsController);
 //# sourceMappingURL=products.controller.js.map

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { useToast } from "vue-toastification"
 import { useProductsStore } from '../stores/productStore'
-import type { Product } from '../types'
+
 
 export default {
 	setup() {
@@ -25,14 +25,24 @@ export default {
 	methods: {
 		async handleSaveProduct() {
 			try {
-				const newData: Omit<Product, 'id'> = {
-					name: this.newProduct.name,
-					price: this.newProduct.price ?? 0,
-					description: this.newProduct.description,
-					image_url: this.newProduct.image_url,
-					sizes: this.sizesInput.split(',').map(s => Number(s.trim())).filter(n => !isNaN(n))
+				const sizes: number[] = this.sizesInput.split(',').map((s: string) => Number(s.trim())).filter((n: number) => !isNaN(n))
+
+				if (this.file) {
+					const formData = new FormData()
+					formData.append('name', this.newProduct.name)
+					formData.append('price', String(this.newProduct.price ?? 0))
+					formData.append('description', this.newProduct.description)
+					formData.append('sizes', JSON.stringify(sizes))
+					formData.append('image', this.file)
+					await this.productsStore.addProduct(formData)
+				} else {
+					await this.productsStore.addProduct({ 
+						...this.newProduct, 
+						price: this.newProduct.price ?? 0,
+						sizes 
+					})
 				}
-				await this.productsStore.addProduct(newData)
+
 				this.resetForm()
 				this.toast.success('Product added successfully')
 			} catch (error) {
@@ -43,6 +53,10 @@ export default {
 			this.newProduct = { name: '', price: undefined, description: '', image_url: '', sizes: [] }
 			this.sizesInput = ''
 			this.file = null
+		},
+		handleFileChange(e: Event) {
+			const input = e.target as HTMLInputElement
+			this.file = input?.files?.[0] ?? null
 		}
 	}
 }
@@ -79,7 +93,7 @@ export default {
 
 						<div class="mb-3">
 							<label class="form-label fw-bold text-start d-block">Image file</label>
-							<!-- <input type="file" :disabled="newProduct.image_url != ''" class="form-control" @change="e => file = (e.target as HTMLInputElement)?.files?.[0] ?? null" /> -->
+							<input type="file" :disabled="newProduct.image_url != ''" class="form-control" @change="handleFileChange" />
 						</div>
 
 						<div class="mb-3">

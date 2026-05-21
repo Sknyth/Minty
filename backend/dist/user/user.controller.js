@@ -16,7 +16,7 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const user_service_1 = require("./user.service");
-const public_decorator_1 = require("src/auth/public.decorator");
+const public_decorator_1 = require("../auth/public.decorator");
 let UserController = class UserController {
     userService;
     constructor(userService) {

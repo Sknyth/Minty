@@ -26,17 +26,20 @@ export const useProductsStore = defineStore('products', {
 			this.loading = false
 		},
 
-		async updateProduct(productId: number, updatedData: Partial<Product>) {
+		async updateProduct(productId: number, updatedData: Partial<Product> | FormData) {
 			this.loading = true
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
+
+			const isFormData = updatedData instanceof FormData
+			
 			const req = await fetch(`${API_URL}/update/${productId}`, { 
 				method: 'PATCH',
 				headers: {
-					'Content-Type': 'application/json',
+					...(isFormData ? {} : { 'Content-Type': 'application/json' }),
 					Authorization: `Bearer ${useAuthStore().access_token}`,
 				},
-				body: JSON.stringify(updatedData)
+				body: isFormData? updatedData : JSON.stringify(updatedData)
 			})
 			if (!req.ok) throw new Error('Failed to update product')
 			const updatedProduct = await req.json()
@@ -47,18 +50,21 @@ export const useProductsStore = defineStore('products', {
 			this.loading = false
 		},
 
-		async addProduct(newProduct: Omit<Product, 'id'>) {
+		async addProduct(newProduct: Omit<Product, 'id'> | FormData) {
 			this.loading = true
 			const authStore = useAuthStore()
 			if (!authStore.user) throw new Error('You are not logged in')
+			
+			const isFormData = newProduct instanceof FormData
+
 			const req = await fetch(`${API_URL}/create`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-				body: JSON.stringify(newProduct)
-			})
+        method: 'POST',
+        headers: {
+            ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+            Authorization: `Bearer ${authStore.access_token}`,
+        },
+        body: isFormData ? newProduct : JSON.stringify(newProduct)
+    })
 			if (!req.ok) throw new Error('Failed to create product')
 			const createdProduct = await req.json()
 			this.products.push(createdProduct)

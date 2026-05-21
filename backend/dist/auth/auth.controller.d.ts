@@ -1,7 +1,7 @@
 import { AuthService } from './auth.service';
 import { Request as ExpressRequest } from 'express';
 import type { JwtPayload } from './types';
-import { UserService } from 'src/user/user.service';
+import { UserService } from "../user/user.service";
 export declare class AuthController {
     private readonly authService;
     private readonly userService;

@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../prisma/prisma.module");
 const products_controller_1 = require("./products.controller");
 const products_service_1 = require("./products.service");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
@@ -18,7 +19,7 @@ exports.ProductsModule = ProductsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_module_1.PrismaModule],
         controllers: [products_controller_1.ProductsController],
-        providers: [products_service_1.ProductsService],
+        providers: [products_service_1.ProductsService, cloudinary_service_1.CloudinaryService],
     })
 ], ProductsModule);
 //# sourceMappingURL=products.module.js.map
