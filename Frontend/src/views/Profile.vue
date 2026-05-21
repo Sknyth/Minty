@@ -8,19 +8,14 @@ import ProfilePayments from '../components/ProfilePayments.vue'
 import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import ProfileSettings from '../components/ProfileSettings.vue'
 import { useAuthStore } from '../stores/authStore'
-import { useProfileStore } from '../stores/profileStore'
 export default {
   components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
   setup() {
     const toast = useToast()
-
-    const profileStore = useProfileStore()
-    profileStore.fetchProfile()
-    profileStore.fetchPaymentMethods()
-    profileStore.fetchAddresses()
+    
     const authStore = useAuthStore()
 
-    return { toast, profileStore, authStore }
+    return { toast, authStore }
   },
   data() {
     return {
@@ -56,12 +51,12 @@ export default {
   <div>
     <Header />
       <div class="container">
-        <div v-if="profileStore.profile">
+        <div v-if="authStore.user">
           
           <div class="profile-card">
-            <h2>{{ profileStore.profile.name }}</h2>
-            <p>{{ authStore.user?.email }}</p>
-            <p>Created: {{ profileStore.profile.created_at.slice(0, 10) }}</p>
+            <h2>{{ authStore.user.name }}</h2>
+            <p>{{ authStore.user.email }}</p>
+            <p>Created: {{ authStore.user.created_at.slice(0, 10) }}</p>
           </div>
 
           <div class="choice-option">
@@ -86,7 +81,7 @@ export default {
         </div>
         <div v-else class="loading-state text-center p-5">
           <div class="spinner-border"></div>
-          <p>Loading products data...</p>
+          <p>Loading profile data...</p>
         </div>
       </div> 
     <Footer />

@@ -1,115 +1,125 @@
 import { defineStore } from 'pinia'
-import { supabase } from '../supabase'
-import type { User } from '@supabase/supabase-js'
-import type { Profile } from '@/types'
-import { useProfileStore } from './profileStore'
+import type { User } from '@/types'
 import { useCartStore } from './cartStore'
+import router from '@/router'
+import { API_URL } from '@/api/config'
+
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
 		user: null as User | null,
-		profile: null as Profile | null,
+		access_token: localStorage.getItem('access_token') || null,
+		refresh_token: localStorage.getItem('refresh_token') || null,
 	}),
 	getters: {
-		isAuth: (state) => !!state.user,
+		isAuth: (state) => !!state.access_token,
 	},
 	actions: {
 		async signUp({ email, password, name }: { email: string, password: string, name: string }) {
-			const { data, error } = await supabase.auth.signUp({
-				email,
-				password,
-				options: {
-					data: {
-						name,
-					},
-				},
+			const req = await fetch(`${API_URL}/user`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					email,
+					password,
+					name,
+					surname: '',
+					phone: '',
+				})
 			})
-
-			if (error) throw error
-
-			this.user = data.user
+			if (!req.ok) throw new Error('Failed to create user')
+			await this.signIn({ email, password })
+			router.push('/profile')
 		},
 
 		async signIn({ email, password }: { email: string, password: string }) {
-			const profileStore = useProfileStore()
-			const cartStore = useCartStore()
-
-			const { data, error } = await supabase.auth.signInWithPassword({
-				email,
-				password,
+			const req = await fetch(`${API_URL}/auth/signin`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, password })
 			})
-			if (error) throw error
-
-			this.user = data.user
-			if (!this.user) this.profile = null
-
-			await Promise.all([
-				profileStore.fetchProfile(),
-				cartStore.fetchCart(),
-				profileStore.fetchAddresses(),
-				profileStore.fetchPaymentMethods()
-			])
+			if (!req.ok) throw new Error('Failed to sign in')
+			const { access_token, refresh_token } = await req.json()
+			this.access_token = access_token
+			this.refresh_token = refresh_token
+			localStorage.setItem('access_token', access_token)
+			localStorage.setItem('refresh_token', refresh_token)
+			await this.getUser()
 		},
 
 		async getUser() {
-			const { data: { session } } = await supabase.auth.getSession()
-
-			if (!session) {
-				this.user = null
-				this.profile = null
-				return
-			}
-
-			const user = session.user
-			this.user = user
-
-			const { data: profile } = await supabase
-				.from('profiles')
-				.select('*')
-				.eq('id', user.id)
-				.single()
-
-			if (profile) {
-				this.profile = profile
-			}
+			if (!this.access_token) return;
+			const res = await fetch(`${API_URL}/auth/profile`, {
+				headers: { Authorization: `Bearer ${this.access_token}` },
+			});
+			if (!res.ok) return;
+			this.user = await res.json();
 		},
 
-		async updateEmail( email: string ) {
-			const { error } = await supabase.auth.updateUser({
-				email: email
-			})
-			if (error) throw error
-		},
-
-		async updatePassword(password: string) {
-			const { data, error } = await supabase.auth.updateUser({
-				password: password
-			})
-			if (error) throw error
-			this.user = data.user
+		async refreshToken() {
+			const refresh_token = localStorage.getItem('refresh_token');
+			if (!refresh_token) {
+				this.signOut();
+				return;
+			}
+			const res = await fetch(`${API_URL}/auth/refresh`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ refresh_token }),
+			});
+			if (!res.ok) {
+				this.signOut();
+				return;
+			}
+			const data = await res.json();
+			if (!data.access_token) {
+				this.signOut();
+				return;
+			}
+			this.access_token = data.access_token;
+			localStorage.setItem('access_token', data.access_token);
 		},
 
 		async initializeAuth() {
-			const profileStore = useProfileStore()
-			const cartStore = useCartStore()
-			const { data: { session } } = await supabase.auth.getSession()
-			if (session) {
-				this.user = session.user
-				await Promise.all([
-					profileStore.fetchProfile(),
-					cartStore.fetchCart(),
-					profileStore.fetchAddresses(),
-					profileStore.fetchPaymentMethods()
-				])
+			const cartStore = useCartStore();
+			if (!this.access_token && !this.refresh_token) return;
+			if (this.access_token) {
+				await this.getUser()
 			}
+			if (!this.user && this.refresh_token) {
+				await this.refreshToken()
+				if (this.access_token) {
+					await this.getUser()
+				}
+			}
+			if (!this.user) {
+				this.signOut()
+				return;
+			}
+			await cartStore.fetchCart()
 		},
 
 		async signOut() {
 			const cartStore = useCartStore()
-			const { error } = await supabase.auth.signOut()
-			if (error) throw error
 			this.user = null
-			this.profile = null
+			this.access_token = null
+			this.refresh_token = null 
 			cartStore.cartItems = []
+			localStorage.removeItem('access_token')
+			localStorage.removeItem('refresh_token') 
+		},
+
+		async updateUser(name: string, surname: string, phone: string) {
+			if (!this.user) return
+			const req = await fetch(`${API_URL}/user/update/${this.user.id}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${this.access_token}`,
+				},
+				body: JSON.stringify({ name, surname, phone })
+			})
+			if (!req.ok) throw new Error('Failed to update profile')
+			await this.getUser()
 		}
 	}
 })

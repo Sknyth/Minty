@@ -18,20 +18,21 @@ export default {
 			totalQuantity() {
 				return this.cartStore.cartItems.reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 1), 0)
 			},
-			totalPrice() {
-				return this.cartStore.cartItems.reduce((total: number, item: { price: number, quantity: number }) => total + (item.price * (item.quantity || 1)), 0)
-			}
+			totalPrice(): number {
+				return this.cartStore.cartItems.reduce((sum: number, item: { product: { price: number }, quantity: number }) => 
+					sum + (item.product.price * (item.quantity || 1)), 0)
+			},
   },
 	
 	methods: {
 		goToCheckout() {
-    if (this.cartStore.cartItems.length > 0) {
-      this.cartStore.orderAccess = true
-      this.$router.push('/orderPlacement')
-    } else {
-      this.toast.error("Cart is empty")
-    }
-  }
+			if (this.cartStore.cartItems.length > 0) {
+				this.cartStore.orderAccess = true
+				this.$router.push('/orderPlacement')
+			} else {
+				this.toast.error("Cart is empty")
+			}
+		}
 	}
 }
 </script>

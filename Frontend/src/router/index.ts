@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { supabase } from '../supabase.js'
-
 import Cart from '@/views/Cart.vue'
 import Wishlist from '@/views/Wishlist.vue'
 import HomeView from '@/views/HomeView.vue'
@@ -26,9 +24,8 @@ const router = createRouter({
 	routes,
 })
 
-router.beforeEach(async (to, from, next) => {
-	const { data: { session } } = await supabase.auth.getSession()
-	const isAuth = !!session
+router.beforeEach((to, from, next) => {
+	const isAuth = !!localStorage.getItem('access_token')
 
 	if (to.meta.requiresAuth && !isAuth) {
 		return next('/login')

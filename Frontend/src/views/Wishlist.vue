@@ -19,7 +19,7 @@ export default {
 <template>
 	<main>
 		<Header />
-		<div v-if="wishlistStore.wishlistProducts.length === 0" class="container d-flex align-items-center justify-content-between">
+		<div v-if="wishlistStore.wishlist.length === 0" class="container d-flex align-items-center justify-content-between">
 			<div></div>
 			<img
 				class="image-container position-absolute"
