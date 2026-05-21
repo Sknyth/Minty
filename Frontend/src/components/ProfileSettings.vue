@@ -26,7 +26,7 @@ export default {
                 return
             }   
             try {
-            await this.authStore.updatePassword(this.passwords.new)
+            await this.authStore.changePass(this.passwords.old ,this.passwords.new)
             
             this.toast.success("Password changed successfully!")
             this.passwords = { old: '', new: '', confirm: '' }
@@ -45,7 +45,6 @@ export default {
         <h2>Security Settings</h2>
         <div v-if="ToggleChange" class="personal-information mt-3">
         
-
         <form @submit.prevent="updatePassword" class="d-flex gap-4 form-change-info justify-content-between row">
         
             <div class="d-flex flex-column gap-2 col info-box">
@@ -78,7 +77,6 @@ export default {
             
         </form>
 
-        
         </div>
     
         <div class="d-flex pass-change-box" v-if="!ToggleChange">

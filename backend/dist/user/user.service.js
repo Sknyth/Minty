@@ -129,6 +129,23 @@ let UserService = class UserService {
             }
         });
     }
+    async changePass(userId, oldPass, newPass) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.BadRequestException('User not found');
+        const isValid = await bcrypt.compare(oldPass, user.password);
+        if (!isValid)
+            throw new common_1.BadRequestException('Old password is incorrect');
+        if (oldPass === newPass)
+            throw new common_1.BadRequestException('The new password must be different from the old password');
+        const hashedPassword = await bcrypt.hash(newPass, 10);
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                password: hashedPassword
+            }
+        });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

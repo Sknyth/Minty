@@ -54,6 +54,11 @@ export class UserController {
 		return this.userService.selectAddress(userId, body.selectedAddressId);
 	}
 
+	@Patch('changePass/:userId')
+	async changePass(@Param('userId', ParseIntPipe) userId: number, @Body() body: { oldPass: string, newPass: string}) {
+		return this.userService.changePass(userId, body.oldPass, body.newPass);
+	}
+
 	@Get(':email')
 	async getUserByEmail(@Param('email') email: string): Promise<User | null> {
 		return this.userService.getUserByEmail(email);

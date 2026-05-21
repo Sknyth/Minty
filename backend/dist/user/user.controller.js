@@ -49,6 +49,9 @@ let UserController = class UserController {
     async selectAddress(userId, body) {
         return this.userService.selectAddress(userId, body.selectedAddressId);
     }
+    async changePass(userId, body) {
+        return this.userService.changePass(userId, body.oldPass, body.newPass);
+    }
     async getUserByEmail(email) {
         return this.userService.getUserByEmail(email);
     }
@@ -122,6 +125,14 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "selectAddress", null);
+__decorate([
+    (0, common_1.Patch)('changePass/:userId'),
+    __param(0, (0, common_1.Param)('userId', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "changePass", null);
 __decorate([
     (0, common_1.Get)(':email'),
     __param(0, (0, common_1.Param)('email')),

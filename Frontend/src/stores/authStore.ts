@@ -120,6 +120,24 @@ export const useAuthStore = defineStore('auth', {
 			})
 			if (!req.ok) throw new Error('Failed to update profile')
 			await this.getUser()
+		},
+
+		async changePass(oldPass: string, newPass: string) {
+			if (!this.user) return
+			const req = await fetch(`${API_URL}/user/changePass/${this.user.id}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${this.access_token}`,
+				},
+				body: JSON.stringify({ oldPass, newPass })
+			})
+			const data = await req.json()
+
+			if (!req.ok) throw new Error(data.message)
+				
+			await this.signOut()
+			router.push('/login')
 		}
-	}
+	},
 })

@@ -50,4 +50,17 @@ export declare class UserService {
         selectedPaymentId: number | null;
     }>;
     searchUsers(query: string): Promise<User[]>;
+    changePass(userId: number, oldPass: string, newPass: string): Promise<{
+        name: string;
+        id: number;
+        created_at: Date;
+        email: string;
+        password: string;
+        surname: string | null;
+        phone: string | null;
+        role: import(".prisma/client").$Enums.Role;
+        hashedRefreshToken: string | null;
+        selectedAddressId: number | null;
+        selectedPaymentId: number | null;
+    }>;
 }

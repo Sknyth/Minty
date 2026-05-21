@@ -108,5 +108,21 @@ export declare class UserController {
         selectedAddressId: number | null;
         selectedPaymentId: number | null;
     }, "password">>;
+    changePass(userId: number, body: {
+        oldPass: string;
+        newPass: string;
+    }): Promise<{
+        name: string;
+        id: number;
+        created_at: Date;
+        email: string;
+        password: string;
+        surname: string | null;
+        phone: string | null;
+        role: import(".prisma/client").$Enums.Role;
+        hashedRefreshToken: string | null;
+        selectedAddressId: number | null;
+        selectedPaymentId: number | null;
+    }>;
     getUserByEmail(email: string): Promise<User | null>;
 }

@@ -49,8 +49,6 @@ export class ProductsController {
 
 		const sizes = Array.isArray(productData.sizes) ? productData.sizes : JSON.parse(String(productData.sizes)) as number[]
 
-
-
 		return this.productService.updateProduct(id, {
 			...productData,price: Number(productData.price),
 			sizes,
