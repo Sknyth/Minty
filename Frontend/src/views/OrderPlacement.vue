@@ -10,7 +10,7 @@ import { useOrdersStore } from '../stores/ordersStore'
 import { useAuthStore } from '../stores/authStore'
 import { usePaymentStore } from '../stores/paymentStore'
 import { useAddressStore } from '../stores/addressStore'
-import type { CartItem, Order } from '../types'
+import type { Order } from '../types'
 
 export default {
 	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },

@@ -15,8 +15,6 @@ export default {
       const cartStore = useCartStore()
       const productsStore = useProductsStore()
       const authStore = useAuthStore()
-      productsStore.fetchProducts()
-      wishlistStore.fetchWishlist()
 
       return { toast, productsStore, cartStore, authStore, wishlistStore }
   },

@@ -9,7 +9,6 @@ export default {
 	components: { Header, Footer, CardList },
 	setup() {
 		const productStore = useProductsStore()
-		productStore.fetchProducts()
 
 		return { productStore }
 	},
@@ -22,14 +21,18 @@ export default {
 		async sortProducts() {
 			await this.productStore.sortProducts(this.sortOption)
 		}
-	}
+	},
 }
 </script>
 
 <template>
 	<main>
 		<Header />
-		<div class="container mt-4">
+		<div v-if="productStore.loading" class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading product data...</p>
+    </div>
+		<div v-else class="container mt-4">
 			<div class="d-flex justify-content-end"> 
 				<div class="custom-sort position-relative align-items-center d-inline-flex">
 					<span class="label position-absolute pe-none text-secondary">Sort by:</span>

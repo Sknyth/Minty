@@ -8,18 +8,23 @@ export default {
 	components: { Header, Footer, WishlistCards },
 	setup() {
 		const wishlistStore = useWishlistStore()
-		wishlistStore.fetchWishlist()
 
 		return { wishlistStore }
+	},
+	async mounted() {
+		await this.wishlistStore.fetchWishlist()
 	}
-
 }
 </script>
 
 <template>
 	<main>
 		<Header />
-		<div v-if="wishlistStore.wishlist.length === 0" class="container d-flex align-items-center justify-content-between">
+		<div v-if="wishlistStore.loading" class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading wishlist data...</p>
+    </div>
+		<div v-else-if="wishlistStore.wishlist.length === 0" class="container d-flex align-items-center justify-content-between">
 			<div></div>
 			<img
 				class="image-container position-absolute"

@@ -17,7 +17,7 @@ export default {
     const productsStore = useProductsStore()
     const wishlistStore = useWishlistStore()
     const cartStore = useCartStore()
-    productsStore.fetchProducts()
+
     return { toast, productsStore, cartStore,  wishlistStore }
   },
   data() {
@@ -74,8 +74,13 @@ export default {
 <template>
   <div>
     <Header />
+
+    <div v-if="productsStore.loading" class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading item data...</p>
+    </div>
     
-    <main v-if="currentItem" class="product-wrapper">
+    <main v-else-if="currentItem" class="product-wrapper">
       <div class="container p-0">
         <div class="row g-0">
           

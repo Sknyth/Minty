@@ -7,19 +7,32 @@ export const usePaymentStore = defineStore('payment', {
 	state: () => ({
 		payment: [] as PaymentMethod[],
 		selectedPaymentId: null as number | null,
+		loading: true,
+		error: false
 	}),
 
 	actions: {
 		async fetchPayment() {
-			const authStore = useAuthStore()
-			if (!authStore.user) return
-			const res = await fetch(`${API_URL}/payment/${authStore.user.id}`, {
-				headers: {
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-			})
-			this.payment = await res.json()
-			this.selectedPaymentId = authStore.user.selectedPaymentId ?? null
+			this.loading = true
+			this.error = false
+			try {
+				const authStore = useAuthStore()
+				if (!authStore.user) return
+				const res = await fetch(`${API_URL}/payment/${authStore.user.id}`, {
+					headers: {
+						Authorization: `Bearer ${authStore.access_token}`,
+					},
+				})
+				if(!res.ok) {
+					this.error = true
+					return
+				}
+				this.payment = await res.json()
+				this.selectedPaymentId = authStore.user.selectedPaymentId ?? null
+
+			} finally {
+				this.loading = false
+			}
 		},
 
 		async addPayment(data: PaymentMethod) {

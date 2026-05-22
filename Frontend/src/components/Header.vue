@@ -57,7 +57,7 @@ export default {
 	border-radius: 5px;
 	outline: none;
 }
-	/*border-radius: 5px 0 0 5px;*/
+
 .search-box button {
 	background-color: var(--color2);
 	color: var(--color1);

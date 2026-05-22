@@ -2,7 +2,6 @@
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
 
-import type { User } from '../types'
 export default {
   props: {
     componentName: String,
@@ -38,13 +37,6 @@ export default {
         
       }
     },
-    // async fetchProfile(){
-    //   try {
-    //     await this.profileStore.fetchProfile()
-    //   } catch (e) {
-    //     this.toast.error("Error: " + (e as Error).message)
-    //   }
-    // },
   }
 };
 
@@ -53,7 +45,16 @@ export default {
 <template>
   <div>
     <h2>{{ componentName }}</h2>
-    <div v-if="authStore.user" class="personal-information">
+    <div v-if="authStore.loading" class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading personal data...</p>
+    </div>
+
+    <div v-else-if="authStore.error">
+      <p class="text-center">Something went wrong 😕</p>
+    </div>
+
+    <div v-else-if="authStore.user" class="personal-information">
       
       <form @submit.prevent="updateProfile" class="d-flex gap-4 form-change-info justify-content-between row">
         <div class="d-flex flex-column gap-2 col info-box">
