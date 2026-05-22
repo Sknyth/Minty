@@ -8,7 +8,6 @@ export default {
         const toast = useToast()
 
         const cartStore = useCartStore()
-        cartStore.fetchCart()
 
         return { toast, cartStore }
 
@@ -21,11 +20,7 @@ export default {
                     quantity: item.quantity + 1 
                 })
             } catch(e){
-            if((e as Error).message === 'User not authenticated'){
-                this.toast.error("Error: " + 'You are not logged in')
-                return
-            }
-            this.toast.error("Error: " + (e as Error).message)
+                this.toast.error("Error: " + (e as Error).message)
             }
         },
 

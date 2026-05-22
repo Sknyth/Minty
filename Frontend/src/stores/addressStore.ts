@@ -7,19 +7,31 @@ export const useAddressStore = defineStore('address', {
 	state: () => ({
 		address: [] as Address[],
 		selectedAddressId: null as number | null,
+		loading: true,
+		error: false
 	}),
 
 	actions: {
 		async fetchAddress() {
-			const authStore = useAuthStore()
-			if (!authStore.user) return
-			const res = await fetch(`${API_URL}/address/${authStore.user.id}`, {
-				headers: {
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-			})
-			this.address = await res.json()
-			this.selectedAddressId = authStore.user.selectedAddressId ?? null
+			this.loading = true
+			this.error = false
+			try {
+				const authStore = useAuthStore()
+				if (!authStore.user) return
+				const res = await fetch(`${API_URL}/address/${authStore.user.id}`, {
+					headers: {
+						Authorization: `Bearer ${authStore.access_token}`,
+					},
+				})
+				if(!res.ok){
+					this.error = true
+					return
+				} 
+				this.address = await res.json()
+				this.selectedAddressId = authStore.user.selectedAddressId ?? null
+			} finally {
+				this.loading = false
+			}
 		},
 
 		async addAddress(data: Address) {
@@ -33,8 +45,8 @@ export const useAddressStore = defineStore('address', {
 				},
 				body: JSON.stringify(data),
 			})
-			if (!req.ok) throw new Error('Failed to add to cart')
-			this.fetchAddress()
+			if (!req.ok) throw new Error('Failed to add address')
+			await this.fetchAddress()
 		},
 
 		async deleteAddress(addressId: number) {
@@ -46,7 +58,7 @@ export const useAddressStore = defineStore('address', {
 					Authorization: `Bearer ${authStore.access_token}`,
 				},
 			})
-			if (!req.ok) throw new Error('Failed to remove from cart')
+			if (!req.ok) throw new Error('Failed to delete address')
 			this.address = this.address.filter(address => address.id !== addressId)
 			if (this.selectedAddressId === addressId) {
 				await this.selectAddress(null)
@@ -64,7 +76,7 @@ export const useAddressStore = defineStore('address', {
 				},
 				body: JSON.stringify({ selectedAddressId })
 			})
-			if (!req.ok) throw new Error('Failed to select payment')
+			if (!req.ok) throw new Error('Failed to select address')
 			this.selectedAddressId = selectedAddressId
 		},
 
@@ -80,7 +92,7 @@ export const useAddressStore = defineStore('address', {
 				body: JSON.stringify(data),
 			})
 			if (!req.ok) throw new Error('Failed to update address')
-			this.fetchAddress()
+			await this.fetchAddress()
 		},
 	}
 })

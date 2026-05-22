@@ -10,7 +10,6 @@ export default {
 	setup() {
 				const toast = useToast()
 				const cartStore = useCartStore()
-				cartStore.fetchCart()
 
 				return { toast, cartStore }
 		},
@@ -33,14 +32,18 @@ export default {
 				this.toast.error("Cart is empty")
 			}
 		}
-	}
+	},
 }
 </script>
 
 <template>
 	<main>
 		<Header />
-		<div v-if="cartStore.cartItems.length === 0">
+		<div v-if="cartStore.loading" class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading cart data...</p>
+    </div>
+		<div v-else-if="cartStore.cartItems.length === 0">
 			<div class="container d-flex align-items-center justify-content-between">
 				<div></div>
 				<img
@@ -68,7 +71,7 @@ export default {
 				</div>
 			</div>
 		</div>
-		<div v-else-if="cartStore.cartItems" class="container align-items-center">
+		<div v-else class="container align-items-center">
         <div class="top-name d-flex justify-content-between">
             <h1 class="fw-bold">Cart</h1>
             <!-- <p v-if="cartStore.totalQuantity === 1"> {{ totalQuantity }} product</p> -->
@@ -96,7 +99,7 @@ export default {
 					<span class=" fw-bold">${{ totalPrice + 12 }}</span>
 				</h3>
 
-				<RouterLink to="/orderPlacement" class="bg-color2 color1 btn-order d-flex justify-content-center align-items-center">Place an order</RouterLink>
+				<RouterLink @click="goToCheckout" to="/orderPlacement" class="bg-color2 color1 btn-order d-flex justify-content-center align-items-center">Place an order</RouterLink>
 
 
 				<div class="d-flex align-items-center text-white">

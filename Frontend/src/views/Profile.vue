@@ -19,7 +19,6 @@ export default {
   },
   data() {
     return {
-      loading: true,
       selectedOption: 'Profile',
     };
   },
@@ -78,6 +77,9 @@ export default {
 
           <button class="btn btn-danger mt-4 mb-4 w-100" id="btn-logout" @click="logout">Logout</button>
 
+        </div>
+        <div v-else-if="authStore.error">
+          <p class="text-center">Something went wrong 😕</p>
         </div>
         <div v-else class="loading-state text-center p-5">
           <div class="spinner-border"></div>

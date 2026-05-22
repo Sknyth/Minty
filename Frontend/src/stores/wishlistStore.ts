@@ -7,6 +7,7 @@ export const useWishlistStore = defineStore('wishlist', {
   state: () => ({
     wishlist: [] as Wishlist[],
     loading: false,
+    error: false
   }),
   getters: {
     isInWishlist: (state) => (productId: number) => {
@@ -15,25 +16,34 @@ export const useWishlistStore = defineStore('wishlist', {
   },
   actions: {
     async fetchWishlist() {
-      const authStore = useAuthStore()
-      if (!authStore.user) return
-
       this.loading = true
+      this.error = false
 
-      const res = await fetch(`${API_URL}/wishlist/${authStore.user.id}`, {
-				headers: {
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-			})
+      try {
+        const authStore = useAuthStore()
+        if (!authStore.user) return
+  
+        const res = await fetch(`${API_URL}/wishlist/${authStore.user.id}`, {
+          headers: {
+            Authorization: `Bearer ${authStore.access_token}`,
+          },
+        })
+  
+        if(!res.ok) {
+          this.error = true
+          return
+        }
 
-      this.wishlist = await res.json()
-      this.loading = false
+        this.wishlist = await res.json()
+
+      } finally {
+        this.loading = false
+      }
     },
 
     async addToWishlist(productId: number) {
       const authStore = useAuthStore()
       if (!authStore.user) throw new Error('You are not logged in')
-      this.loading = true
 
       const req = await fetch(`${API_URL}/wishlist/add/${authStore.user.id}`, {
 				method: 'POST',
@@ -49,14 +59,11 @@ export const useWishlistStore = defineStore('wishlist', {
 
       await this.fetchWishlist() 
       
-      this.loading = false
     },
 
     async deleteFromWishlist(productId: number) {
       const authStore = useAuthStore()
       if (!authStore.user) throw new Error('You are not logged in')
-
-      this.loading = true
 
       const req = await fetch(`${API_URL}/wishlist/remove/${authStore.user.id}`, {
 				method: 'DELETE',
@@ -75,8 +82,6 @@ export const useWishlistStore = defineStore('wishlist', {
       this.wishlist = this.wishlist.filter(
         item => item.productId !== productId
       )
-      
-      this.loading = false
     }
   }
 })

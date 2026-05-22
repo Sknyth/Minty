@@ -9,6 +9,8 @@ import { API_URL } from '@/api/config'
 export const useOrdersStore = defineStore('orders', {
 	state: () => ({
 		orders: [] as Order[],
+		loading: true,
+		error: false
 	}),
 	actions: {
 		async createOrder(data: Order) {
@@ -39,15 +41,25 @@ export const useOrdersStore = defineStore('orders', {
 		},
 
 		async fetchOrders() {
-			const authStore = useAuthStore()
-			if (!authStore.user) return
-			
-			const res = await fetch(`${API_URL}/order/${authStore.user.id}`, {
-				headers: {
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-			})
-			this.orders = await res.json()
+    this.loading = true
+    this.error = false
+    try {
+      const authStore = useAuthStore()
+      if (!authStore.user) return
+
+      const res = await fetch(`${API_URL}/order/${authStore.user.id}`, {
+        headers: { Authorization: `Bearer ${authStore.access_token}` },
+  	  })
+
+      if (!res.ok) {
+          this.error = true
+          return
+      }
+
+      this.orders = await res.json()
+    } finally {
+        this.loading = false
+    	}
 		}
 	}
 })

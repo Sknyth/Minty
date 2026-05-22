@@ -9,6 +9,8 @@ export const useCartStore = defineStore('cart', {
 		cartTotal: 0,
 		quantity: 1 ,
 		orderAccess: false,
+		loading: false,
+		error: false
 	}),
 	getters: {
     isInCart: (state) => (product_id: number, size: number | undefined) => {
@@ -17,15 +19,25 @@ export const useCartStore = defineStore('cart', {
   },
 	actions: {
 		async fetchCart() {
-			const authStore = useAuthStore()
-			if (!authStore.user) return
-			const res = await fetch(`${API_URL}/cart/${authStore.user.id}`, {
+			this.loading = true
+			this.error = false
+			try {
+				const authStore = useAuthStore()
+				if (!authStore.user) return
+				const res = await fetch(`${API_URL}/cart/${authStore.user.id}`, {
 					headers: {
-							Authorization: `Bearer ${authStore.access_token}`,
+						Authorization: `Bearer ${authStore.access_token}`,
 					},
-			})
-			const data = await res.json()
-			this.cartItems = Array.isArray(data) ? data : []
+				})
+				if(!res.ok) {
+					this.error = true
+					return
+				}
+				const data = await res.json()
+				this.cartItems = Array.isArray(data) ? data : []
+			} finally {
+				this.loading = false
+			}
 		},
 
 		async addToCart({ size, quantity, product_id }: CartItemInput) {
@@ -44,7 +56,7 @@ export const useCartStore = defineStore('cart', {
 				}),
 			})
 			if (!req.ok) throw new Error('Failed to add to cart')
-			this.fetchCart()
+			await this.fetchCart()
 		},
 
 		async removeFromCart(id: number) {

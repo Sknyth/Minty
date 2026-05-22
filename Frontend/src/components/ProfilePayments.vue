@@ -100,10 +100,20 @@ export default {
 <template>
     <div>
         <h2>{{ componentName }}</h2>
-        <div class="no-methods text-center" v-if="paymentStore.payment.length === 0 && toggleAddMethod">
-            
-            <p>You don't have payment methods</p>
+
+        <div v-if="paymentStore.loading" class="loading-state text-center p-5">
+          <div class="spinner-border"></div>
+          <p>Loading payments data...</p>
         </div>
+
+        <div v-else-if="paymentStore.error">
+            <p class="text-center">Something went wrong 😕</p>
+        </div>
+
+        <div v-else-if="!paymentStore.payment.length">
+            <p class="text-center">You don't have orders</p>
+        </div>
+
         <div v-else-if="toggleAddMethod ?? paymentStore.payment.length != 0">
             
             <div class="row gap-3 justify-content-start">

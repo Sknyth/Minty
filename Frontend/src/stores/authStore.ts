@@ -3,12 +3,16 @@ import type { User } from '@/types'
 import { useCartStore } from './cartStore'
 import router from '@/router'
 import { API_URL } from '@/api/config'
+import { useWishlistStore } from './wishlistStore'
+import { useProductsStore } from './productsStore'
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
 		user: null as User | null,
 		access_token: localStorage.getItem('access_token') || null,
 		refresh_token: localStorage.getItem('refresh_token') || null,
+		loading: true,
+		error: false
 	}),
 	getters: {
 		isAuth: (state) => !!state.access_token,
@@ -47,12 +51,21 @@ export const useAuthStore = defineStore('auth', {
 		},
 
 		async getUser() {
-			if (!this.access_token) return;
-			const res = await fetch(`${API_URL}/auth/profile`, {
-				headers: { Authorization: `Bearer ${this.access_token}` },
-			});
-			if (!res.ok) return;
-			this.user = await res.json();
+			this.loading = true
+			this.error = false
+			try{
+				if (!this.access_token) return;
+				const res = await fetch(`${API_URL}/auth/profile`, {
+					headers: { Authorization: `Bearer ${this.access_token}` },
+				});
+				if (!res.ok) {
+					this.error = true
+					return
+				}
+				this.user = await res.json()
+			} finally {
+				this.loading = false
+			}
 		},
 
 		async refreshToken() {
@@ -80,7 +93,9 @@ export const useAuthStore = defineStore('auth', {
 		},
 
 		async initializeAuth() {
-			const cartStore = useCartStore();
+			const cartStore = useCartStore()
+			const wishlistStore = useWishlistStore()
+			const productStore = useProductsStore()
 			if (!this.access_token && !this.refresh_token) return;
 			if (this.access_token) {
 				await this.getUser()
@@ -95,6 +110,8 @@ export const useAuthStore = defineStore('auth', {
 				this.signOut()
 				return;
 			}
+			await productStore.fetchProducts()
+			await wishlistStore.fetchWishlist()
 			await cartStore.fetchCart()
 		},
 

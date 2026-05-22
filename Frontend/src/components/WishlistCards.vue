@@ -4,7 +4,7 @@ import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import Card from './Card.vue'
-import type { CartItem, CartItemInput, Product } from '../types'
+import type { CartItemInput, Product } from '../types'
 
 export default {
   components: { Card },
@@ -13,8 +13,6 @@ export default {
       const wishlistStore = useWishlistStore()
       const cartStore = useCartStore()
       const productsStore = useProductsStore()
-      productsStore.fetchProducts()
-      wishlistStore.fetchWishlist()
 
       return { toast, productsStore, cartStore, wishlistStore }
   },
@@ -73,7 +71,11 @@ export default {
 
 <template>
 	<div class="container-xxl mt-4">
-		<div class="products-layout">
+    <div v-if="wishlistStore.loading" class="loading-state text-center p-5">
+      <div class="spinner-border"></div>
+      <p>Loading wishlist data...</p>
+    </div>
+		<div v-else class="products-layout">
 				<Card
 					v-for="product in favoriteProducts"
 					:key="product.id"

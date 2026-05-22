@@ -15,8 +15,17 @@ export default {
     <div>
         <h2>Order history</h2>
 
-        <div class="no-orders text-center" v-if="ordersStore.orders.length == 0" >
-            <p>You don't have orders</p>
+        <div v-if="ordersStore.loading" class="loading-state text-center p-5">
+          <div class="spinner-border"></div>
+          <p>Loading orders data...</p>
+        </div>
+
+        <div v-else-if="ordersStore.error">
+            <p class="text-center">Something went wrong 😕</p>
+        </div>
+
+        <div v-else-if="!ordersStore.orders.length">
+            <p class="text-center">You don't have orders</p>
         </div>
 
         <div v-else v-for="order in ordersStore.orders" :key="order.id">

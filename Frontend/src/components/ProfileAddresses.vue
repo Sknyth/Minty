@@ -1,7 +1,7 @@
 <script lang="ts">
 import { useToast } from "vue-toastification"
 import { useAddressStore } from '../stores/addressStore'
-import type { AddressInput, Address } from '../types'
+import type { Address } from '../types'
 
 export default {
     props: {
@@ -11,6 +11,7 @@ export default {
         const toast = useToast()
 
         const addressStore = useAddressStore()
+        addressStore.fetchAddress()
         
         return { toast, addressStore }
     },
@@ -83,10 +84,6 @@ export default {
         async deleteAddress(id: number){ 
             try {
                 await this.addressStore.deleteAddress(id)
-                
-                if (this.currentAddressId === id) {
-                    await this.addressStore.selectAddress(null)
-                }
                 this.toast.success("Address deleted successfully!")
             } catch (e) {
                 this.toast.error("Error: " + (e as Error).message)
@@ -94,7 +91,7 @@ export default {
         },
 
         editAddress(address: Address){
-            this.editId = this.addressStore.address.find((a: Address) => a.id === address.id)?.id || null
+            this.editId = address.id
             this.country = address.country
             this.city = address.city
             this.street = address.street
@@ -121,9 +118,6 @@ export default {
             this.toggleEdit = false
         },
     },
-    async mounted() {
-        await this.addressStore.fetchAddress()
-    }
 }
 </script>
 
@@ -131,11 +125,20 @@ export default {
     <div>
         <h2>{{ componentName }}</h2>
 
-        <div v-if="addressStore.address.length === 0 && toggleAddAddress">
+        <div v-if="addressStore.loading" class="loading-state text-center p-5">
+          <div class="spinner-border"></div>
+          <p>Loading addresses data...</p>
+        </div>
+
+        <div v-else-if="addressStore.error">
+            <p class="text-center">Something went wrong 😕</p>
+        </div>
+
+        <div v-else-if="!addressStore.address.length && toggleAddAddress">
             <p class="text-center">You don't have addresses</p>
         </div>
 
-        <div class="row" v-else-if="toggleAddAddress ?? addressStore.address.length != 0">
+        <div class="row" v-else-if="toggleAddAddress && addressStore.address.length != 0">
             <div 
                 v-for="address in addressStore.address" 
                 :key="address.id" 
@@ -150,9 +153,9 @@ export default {
                 </div>
                 
                 <div>
-                    <button @click.stop="editAddress(address)" id="btn-edit">Edit</button>
+                    <button @click.stop="editAddress(address)" class="btn-edit">Edit</button>
 
-                    <button @click.stop="deleteAddress(address.id)" id="btn-delete">Delete</button>
+                    <button @click.stop="deleteAddress(address.id)" class="btn-delete">Delete</button>
                 </div>
             </div>
         </div>
@@ -187,15 +190,15 @@ export default {
 
 
             <div v-if="!toggleAddAddress" class="gap-3 d-flex justify-content-end mt-4">
-                <button v-if="!toggleEdit" @click="addAddress" class="button-color1" id="btn-save">
+                <button v-if="!toggleEdit" @click="addAddress" class="button-color1 btn-save">
                     Save
                 </button>
 
-                <button v-else @click="updateAddress" class="button-color1" id="btn-save">
+                <button v-else @click="updateAddress" class="button-color1 btn-save">
                     Save changes
                 </button>
 
-                <button @click="backAddress" class="button-color1" id="btn-save">
+                <button @click="backAddress" class="button-color1 btn-save">
                     Back
                 </button>
             </div>
@@ -224,7 +227,7 @@ export default {
     background-color: #f0f7ff;
     box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 }
-#btn-edit {
+.btn-edit {
     color: #1584FF;
     border: none;
     padding: 5px 10px;
@@ -232,17 +235,17 @@ export default {
     margin-right: 10px;
     transition: background-color 0.3s ease;
 }
-#btn-edit:hover {
+.btn-edit:hover {
     background-color: rgba(21, 132, 255, 0.1);
 }
-#btn-delete {
+.btn-delete {
     color: #dc3545;
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
     transition: background-color 0.3s ease;
 }
-#btn-delete:hover {
+.btn-delete:hover {
     background-color: rgba(220, 53, 69, 0.1);
 }
 .add-address input {
@@ -250,7 +253,7 @@ export default {
     margin: 0;
     min-height: 42px;
 }
-#btn-save {
+.btn-save {
     width: 120px;
 }
 </style>
