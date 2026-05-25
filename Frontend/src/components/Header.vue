@@ -1,21 +1,14 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from 'vue'
 import { useAuthStore } from '../stores/authStore'
 import { useProductsStore } from '../stores/productsStore'
 
-export default {
-	setup() {
 
-		const authStore = useAuthStore()
-		const productsStore = useProductsStore()
+const authStore = useAuthStore()
+const productsStore = useProductsStore()
 
-		return { authStore, productsStore }
-	},
-	data() {
-		return {
-			searchQuery: '',
-		}
-	},
-}
+const searchQuery = ref('')		
+
 </script>
 
 <template>
@@ -27,7 +20,6 @@ export default {
 
 			<div class="search-box">
 				<input type="text" placeholder="Search..." v-model="searchQuery" @keyup="productsStore.searchProducts(searchQuery)"/>
-				<!-- <button @click="productsStore.searchProducts(searchQuery)">Search</button> -->
 			</div>
 
 			<div class="social-links">

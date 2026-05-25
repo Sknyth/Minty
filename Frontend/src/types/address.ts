@@ -4,9 +4,9 @@ export interface Address {
 	country: string
 	city: string
 	street: string
-	house_number: string | null
-	apt: string | null
-	postcode: string | null
+	house_number: string
+	apt: string
+	postcode: string
 }
 
 export type AddressInput = Omit<Address, 'id' | 'user_id'>

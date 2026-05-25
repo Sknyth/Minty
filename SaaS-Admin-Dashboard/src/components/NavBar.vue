@@ -1,28 +1,19 @@
-```vue
-<script>
-import { useToast } from "vue-toastification"
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import { useAuthStore } from '../stores/authStore'
 
-export default {
-  setup() {
-    const toast = useToast()
-    const authStore = useAuthStore()
-    return { toast, authStore }
-  },
-  data() {
-    return {
-      isSidebarOpen: false
-    }
-  },
-  methods: {
-    logout() {
-      try{
-        this.authStore.signOut()
-        this.toast.success("Successful exit!")
-      } catch(e){
-        this.toast.error("Error: " + e.message)
-      }
-    }
+const toast = useToast()
+const authStore = useAuthStore()
+
+const isSidebarOpen = ref(false)
+
+const logout = () => {
+  try {
+    authStore.signOut()
+    toast.success('Successful exit!')
+  } catch (e) {
+    toast.error('Error: ' + (e as Error).message)
   }
 }
 </script>
@@ -62,20 +53,20 @@ export default {
       <main class="main-wrapper flex-grow-1">
         <header class="header-nav d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-white">
           <div class="d-flex gap-3">
-            <button class="btn btn-outline-dark d-xl-none " @click="isSidebarOpen = !isSidebarOpen">
-              <i class="bi bi-list fs-3 "></i>
+            <button class="btn btn-outline-dark d-xl-none" @click="isSidebarOpen = !isSidebarOpen">
+              <i class="bi bi-list fs-3"></i>
             </button>
             <button class="btn btn-danger" id="btn-logout" @click="logout">Logout</button>
           </div>
 
           <h2 class="h4 m-0 fw-bold">Admin Panel</h2>
-          
+
           <div class="user-profile d-flex align-items-center gap-3">
             <span class="color3">Administrator</span>
             <div class="avatar bg-color1">A</div>
           </div>
         </header>
-        
+
         <div v-if="isSidebarOpen" class="sidebar-overlay d-xl-none" @click="isSidebarOpen = !isSidebarOpen"></div>
 
         <div class="p-4 content-area">
@@ -162,7 +153,7 @@ export default {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 999;
   }
 }

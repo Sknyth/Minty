@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ProfileAddresses from '../components/ProfileAddresses.vue'
@@ -10,80 +10,66 @@ import { useOrdersStore } from '../stores/ordersStore'
 import { useAuthStore } from '../stores/authStore'
 import { usePaymentStore } from '../stores/paymentStore'
 import { useAddressStore } from '../stores/addressStore'
-import type { Order } from '../types'
+import type { CartItem, Order } from '../types'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-	components: { Header, Footer, ProfilePersInfo, ProfileAddresses, ProfilePayments },
-	setup() {
-		const toast = useToast()
-		const cartStore = useCartStore()
-		const ordersStore = useOrdersStore()
-		const authStore = useAuthStore()
-		const paymentStore = usePaymentStore()
-		const addressStore = useAddressStore()
+const toast = useToast()
+const cartStore = useCartStore()
+const ordersStore = useOrdersStore()
+const authStore = useAuthStore()
+const paymentStore = usePaymentStore()
+const addressStore = useAddressStore()
+const router = useRouter()
 
-		authStore.getUser()
-		paymentStore.fetchPayment()
-		addressStore.fetchAddress()
+authStore.getUser()
+paymentStore.fetchPayment()
+addressStore.fetchAddress()
 
-		return { toast, cartStore, authStore, ordersStore, paymentStore, addressStore }
-  },
-	computed: {
-		currentPaymentId(): number | null {
-			return this.paymentStore.selectedPaymentId
-		},
-		currentAddressId(): number | null {
-			return this.addressStore.selectedAddressId
-		},
-		totalWithDelivery(): number {
-      return this.cartStore.cartItems.reduce(
-        (total: number, item: any) => total + (item.product.price * item.quantity), 0) + 12
-    }
-	},
-	methods: {
-		async handleConfirmOrder() { 
-			try {
-				const authStore = useAuthStore()
-				if (!authStore.user) throw new Error('You are not logged in')	
+const currentPaymentId = computed((): number | null => paymentStore.selectedPaymentId)
+const currentAddressId = computed((): number | null => addressStore.selectedAddressId)
 
-				const selectedAddress = this.addressStore.address.find(a => a.id === this.currentAddressId)
-				const selectedPayment = this.paymentStore.payment.find(p => p.id === this.currentPaymentId)
+const totalWithDelivery = computed((): number =>
+  cartStore.cartItems.reduce(
+    (total: number, item: CartItem) => total + (item.product.price * item.quantity), 0) + 12
+)
 
-				await this.ordersStore.createOrder({ 
-					customerName: this.authStore.user?.name,
-					customerSurname: this.authStore.user?.surname,
-					customerEmail: this.authStore.user?.email,
+const handleConfirmOrder = async () => {
+  try {
+    if (!authStore.user) throw new Error('You are not logged in')
 
-					shippingStreet: selectedAddress?.street,
-					shippingCity: selectedAddress?.city,
-					shippingCountry: selectedAddress?.country,
-					shippingHouseNumber: selectedAddress?.house_number,
-					shippingApt: selectedAddress?.apt,
-					shippingPostcode: selectedAddress?.postcode,
+    const selectedAddress = addressStore.address.find(a => a.id === currentAddressId.value)
+    const selectedPayment = paymentStore.payment.find(p => p.id === currentPaymentId.value)
 
-					cardNumber: selectedPayment?.number,
-					cardHolderName: selectedPayment?.holder_name,
-					cardCvv: selectedPayment?.cvv,
-					cardExpirationDate: selectedPayment?.expiration_date,
-					cardType: selectedPayment?.type,
+    await ordersStore.createOrder({
+      customerName: authStore.user?.name,
+      customerSurname: authStore.user?.surname,
+      customerEmail: authStore.user?.email,
 
-					items: this.cartStore.cartItems,
-					total_price: this.totalWithDelivery,
-					status: 'pending',
+      shippingStreet: selectedAddress?.street,
+      shippingCity: selectedAddress?.city,
+      shippingCountry: selectedAddress?.country,
+      shippingHouseNumber: selectedAddress?.house_number,
+      shippingApt: selectedAddress?.apt,
+      shippingPostcode: selectedAddress?.postcode,
 
-				} as Order)
-				this.ordersStore.fetchOrders()
-				this.toast.success(`Order created!`)
-				
-				this.$router.push('/')
-				
-			} catch (e) {
+      cardNumber: selectedPayment?.number,
+      cardHolderName: selectedPayment?.holder_name,
+      cardCvv: selectedPayment?.cvv,
+      cardExpirationDate: selectedPayment?.expiration_date,
+      cardType: selectedPayment?.type,
 
+      items: cartStore.cartItems,
+      total_price: totalWithDelivery.value,
+      status: 'pending',
+    } as Order)
 
-				this.toast.error('Error: ' + (e as Error).message)
-				}
-			}
-	},
+    ordersStore.fetchOrders()
+    toast.success('Order created!')
+    router.push('/')
+  } catch (e) {
+    toast.error('Error: ' + (e as Error).message)
+  }
 }
 </script>
 

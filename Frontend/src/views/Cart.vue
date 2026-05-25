@@ -1,38 +1,32 @@
-<script lang="ts">
+<script setup lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ItemsInCart from '../components/ItemsInCart.vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-	components: { Header, Footer, ItemsInCart },
-	setup() {
-				const toast = useToast()
-				const cartStore = useCartStore()
+const toast = useToast()
+const cartStore = useCartStore()
+const router = useRouter()
 
-				return { toast, cartStore }
-		},
-	computed: {
-			totalQuantity() {
-				return this.cartStore.cartItems.reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 1), 0)
-			},
-			totalPrice(): number {
-				return this.cartStore.cartItems.reduce((sum: number, item: { product: { price: number }, quantity: number }) => 
-					sum + (item.product.price * (item.quantity || 1)), 0)
-			},
-  },
-	
-	methods: {
-		goToCheckout() {
-			if (this.cartStore.cartItems.length > 0) {
-				this.cartStore.orderAccess = true
-				this.$router.push('/orderPlacement')
-			} else {
-				this.toast.error("Cart is empty")
-			}
-		}
-	},
+const totalQuantity = computed(() =>
+  cartStore.cartItems.reduce((sum: number, item: { quantity: number }) => sum + (item.quantity || 1), 0)
+)
+
+const totalPrice = computed((): number =>
+  cartStore.cartItems.reduce((sum: number, item: { product: { price: number }, quantity: number }) =>
+    sum + (item.product.price * (item.quantity || 1)), 0)
+)
+
+const goToCheckout = () => {
+  if (cartStore.cartItems.length > 0) {
+    cartStore.orderAccess = true
+    router.push('/orderPlacement')
+  } else {
+    toast.error("Cart is empty")
+  }
 }
 </script>
 

@@ -1,54 +1,47 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import type { CartItem } from '../types'
 
-export default {
-    setup() {
-        const toast = useToast()
 
-        const cartStore = useCartStore()
+const toast = useToast()
 
-        return { toast, cartStore }
+const cartStore = useCartStore()
 
-    },
-    methods: {
-        async updateQuantity(item: CartItem) {
-            try{
-                await this.cartStore.updateQuantity({ 
-                    id: item.id, 
-                    quantity: item.quantity + 1 
-                })
-            } catch(e){
-                this.toast.error("Error: " + (e as Error).message)
-            }
-        },
+const updateQuantity = async (item: CartItem) => {
+    try{
+        await cartStore.updateQuantity({ 
+            id: item.id, 
+            quantity: item.quantity + 1 
+        })
+    } catch(e){
+        toast.error("Error: " + (e as Error).message)
+    }
+}
 
-        async decreaseQuantity(item: CartItem) {
-            if (item.quantity > 1) {
-                try {
-                    await this.cartStore.updateQuantity({ 
-                        id: item.id, 
-                        quantity: item.quantity - 1 
-                    })
-                } catch(e) {
-                    this.toast.error((e as Error).message);
-                }
-            } else {
-                await this.removeFromCart(item.id);
-            }
-        },
+const decreaseQuantity = async (item: CartItem) => {
+    if (item.quantity > 1) {
+        try {
+            await cartStore.updateQuantity({ 
+                id: item.id, 
+                quantity: item.quantity - 1 
+            })
+        } catch(e) {
+            toast.error((e as Error).message);
+        }
+    } else {
+        await removeFromCart(item.id);
+    }
+}
 
-        async removeFromCart(id: number) {
-            if (!id) return
-            try{
-                await this.cartStore.removeFromCart(id)
-                this.toast.success("Product removed!");
-            } catch(e) {
-                this.toast.error("Error: " + (e as Error).message);
-            }
-        },
-    },
+const removeFromCart = async (id: number) => {
+    if (!id) return
+    try {
+        await cartStore.removeFromCart(id)
+        toast.success("Product removed!");
+    } catch(e) {
+        toast.error("Error: " + (e as Error).message);
+    }
 }
 </script>
 

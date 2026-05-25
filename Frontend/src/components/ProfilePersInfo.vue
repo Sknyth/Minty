@@ -1,45 +1,37 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
+import { onMounted, ref } from 'vue'
 
-export default {
-  props: {
-    componentName: String,
-  },
-  setup() {
-    const toast = useToast()
+const props = defineProps({
+  componentName: String,
+})
 
-    const authStore = useAuthStore()
+const toast = useToast()
 
-    return { toast, authStore }
-  },
-  data() {
-    return {
-      ToggleChange: false,
-    }
-  },
-  async mounted() {
-    await this.authStore.getUser()
-  },
-  methods: {
-    async updateProfile() {
-      try {
-        if(!this.authStore.user) return
-        await this.authStore.updateUser(
-          this.authStore.user?.name ?? '',
-          this.authStore.user?.surname ?? '',
-          this.authStore.user?.phone ?? ''
-        )
-        this.toast.success("Data saved successfully!")
-        this.ToggleChange = false
-      } catch (e) {
-        this.toast.error("Error: " + (e as Error).message)
-        
-      }
-    },
+const authStore = useAuthStore()
+
+onMounted(async () => {
+  await authStore.getUser()
+})
+
+const ToggleChange = ref(false)
+
+const updateProfile = async () => {
+  try {
+    if(!authStore.user) return
+    await authStore.updateUser(
+      authStore.user?.name ?? '',
+      authStore.user?.surname ?? '',
+      authStore.user?.phone ?? ''
+    )
+    toast.success("Data saved successfully!")
+    ToggleChange.value = false
+  } catch (e) {
+    toast.error("Error: " + (e as Error).message)
+    
   }
-};
-
+}
 </script>
 
 <template>

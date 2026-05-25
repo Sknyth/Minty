@@ -1,111 +1,123 @@
-import {defineStore} from 'pinia'
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { useAuthStore } from './authStore'
 import type { CartItem, CartItemInput, CartItemUpdate } from '@/types'
 import { API_URL } from '@/api/config'
 
-export const useCartStore = defineStore('cart', {
-	state: () => ({
-		cartItems: [] as CartItem[],
-		cartTotal: 0,
-		quantity: 1 ,
-		orderAccess: false,
-		loading: false,
-		error: false
-	}),
-	getters: {
-    isInCart: (state) => (product_id: number, size: number | undefined) => {
-			return state.cartItems.find((i: CartItem) => i.product_id === product_id && i.size === size)
+export const useCartStore = defineStore('cart', () => {
+	const cartItems = ref<CartItem[]>([])
+	const cartTotal = ref(0)
+	const quantity = ref(1)
+	const orderAccess = ref(false)
+	const loading = ref(false)
+	const error = ref(false)
+
+	const isInCart = computed(() => (product_id: number, size: number | undefined) => {
+		return cartItems.value.find((i: CartItem) => i.product_id === product_id && i.size === size)
+	})
+
+	const fetchCart = async () => {
+		loading.value = true
+		error.value = false
+		try {
+			const authStore = useAuthStore()
+			if (!authStore.user) return
+			const res = await fetch(`${API_URL}/cart/${authStore.user.id}`, {
+				headers: {
+					Authorization: `Bearer ${authStore.access_token}`,
+				},
+			})
+			if (!res.ok) {
+				error.value = true
+				return
+			}
+			const data = await res.json()
+			cartItems.value = Array.isArray(data) ? data : []
+		} finally {
+			loading.value = false
 		}
-  },
-	actions: {
-		async fetchCart() {
-			this.loading = true
-			this.error = false
-			try {
-				const authStore = useAuthStore()
-				if (!authStore.user) return
-				const res = await fetch(`${API_URL}/cart/${authStore.user.id}`, {
-					headers: {
-						Authorization: `Bearer ${authStore.access_token}`,
-					},
-				})
-				if(!res.ok) {
-					this.error = true
-					return
-				}
-				const data = await res.json()
-				this.cartItems = Array.isArray(data) ? data : []
-			} finally {
-				this.loading = false
-			}
-		},
+	}
 
-		async addToCart({ size, quantity, product_id }: CartItemInput) {
-			const authStore = useAuthStore()
-			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`${API_URL}/cart/add/${authStore.user.id}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-				body: JSON.stringify({
-					productId: product_id,
-					size,
-					quantity,
-				}),
-			})
-			if (!req.ok) throw new Error('Failed to add to cart')
-			await this.fetchCart()
-		},
+	const addToCart = async ({ size, quantity, product_id }: CartItemInput) => {
+		const authStore = useAuthStore()
+		if (!authStore.user) throw new Error('You are not logged in')
+		const req = await fetch(`${API_URL}/cart/add/${authStore.user.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${authStore.access_token}`,
+			},
+			body: JSON.stringify({
+				productId: product_id,
+				size,
+				quantity,
+			}),
+		})
+		if (!req.ok) throw new Error('Failed to add to cart')
+		await fetchCart()
+	}
 
-		async removeFromCart(id: number) {
-			const authStore = useAuthStore()
-			const req = await fetch(`${API_URL}/cart/remove`, {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-				body: JSON.stringify({
-					productId: id
-				})
-			})
-			if (!req.ok) throw new Error('Failed to remove from cart')
-			this.cartItems = this.cartItems.filter(item => item.id !== id)
-		},
+	const removeFromCart = async (id: number) => {
+		const authStore = useAuthStore()
+		const req = await fetch(`${API_URL}/cart/remove`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${authStore.access_token}`,
+			},
+			body: JSON.stringify({
+				productId: id,
+			}),
+		})
+		if (!req.ok) throw new Error('Failed to remove from cart')
+		cartItems.value = cartItems.value.filter(item => item.id !== id)
+	}
 
-		async removeCart() {
-			const authStore = useAuthStore()
-			if (!authStore.user) throw new Error('You are not logged in')
-			const req = await fetch(`${API_URL}/cart/removeCart/${authStore.user.id}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${authStore.access_token}`,
-				}
-			})
-			if (!req.ok) throw new Error('Failed to clear cart')
-			this.cartItems = []
-		},
+	const removeCart = async () => {
+		const authStore = useAuthStore()
+		if (!authStore.user) throw new Error('You are not logged in')
+		const req = await fetch(`${API_URL}/cart/removeCart/${authStore.user.id}`, {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${authStore.access_token}`,
+			},
+		})
+		if (!req.ok) throw new Error('Failed to clear cart')
+		cartItems.value = []
+	}
 
-		async updateQuantity({ id, quantity }: CartItemUpdate) {
-			const authStore = useAuthStore()
-			const req = await fetch(`${API_URL}/cart/updateQuantity`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-				body: JSON.stringify({
-					productId: id,
-					quantity
-				})
-			})
-			if (!req.ok) throw new Error('Failed to update quantity')
-			const item = this.cartItems.find(i => i.id === id)
-			if (item) {
-				item.quantity = quantity
-			}
-		},
+	const updateQuantity = async ({ id, quantity }: CartItemUpdate) => {
+		const authStore = useAuthStore()
+		const req = await fetch(`${API_URL}/cart/updateQuantity`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${authStore.access_token}`,
+			},
+			body: JSON.stringify({
+				productId: id,
+				quantity,
+			}),
+		})
+		if (!req.ok) throw new Error('Failed to update quantity')
+		const item = cartItems.value.find(i => i.id === id)
+		if (item) {
+			item.quantity = quantity
+		}
+	}
+
+	return {
+		cartItems,
+		cartTotal,
+		quantity,
+		orderAccess,
+		loading,
+		error,
+		isInCart,
+		fetchCart,
+		addToCart,
+		removeFromCart,
+		removeCart,
+		updateQuantity,
 	}
 })

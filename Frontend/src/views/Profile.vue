@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
@@ -8,40 +8,31 @@ import ProfilePayments from '../components/ProfilePayments.vue'
 import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import ProfileSettings from '../components/ProfileSettings.vue'
 import { useAuthStore } from '../stores/authStore'
-export default {
-  components: { Header, Footer, ProfilePersInfo, ProfileOrders, ProfileAddresses, ProfilePayments, ProfileSettings },
-  setup() {
-    const toast = useToast()
-    
-    const authStore = useAuthStore()
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-    return { toast, authStore }
-  },
-  data() {
-    return {
-      selectedOption: 'Profile',
-    };
-  },
-  methods: {
-    logout() {
-      try{
-        this.authStore.signOut()
-        this.$router.push('/login')
-        this.toast.success("Successful exit!")
-      } catch(e){
-        this.toast.error("Error: " + (e as Error).message)
-      }
-      
+const toast = useToast()
+const authStore = useAuthStore()
+const router = useRouter()
 
-    },
-    changeOption(event: Event) {
-      const target = event.currentTarget as HTMLElement
-      const buttons = target.parentNode?.querySelectorAll('button')
-      buttons?.forEach((btn: Element) => btn.classList.remove('btn-chosen'))
-      target.classList.add('btn-chosen')
-      this.selectedOption = target.textContent || ''
-    },
+const selectedOption = ref('Profile')
+
+const logout = () => {
+  try {
+    authStore.signOut()
+    router.push('/login')
+    toast.success("Successful exit!")
+  } catch (e) {
+    toast.error("Error: " + (e as Error).message)
   }
+}
+
+const changeOption = (event: Event) => {
+  const target = event.currentTarget as HTMLElement
+  const buttons = target.parentNode?.querySelectorAll('button')
+  buttons?.forEach((btn: Element) => btn.classList.remove('btn-chosen'))
+  target.classList.add('btn-chosen')
+  selectedOption.value = target.textContent || ''
 }
 </script>
 

@@ -1,85 +1,81 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from 'vue'
 import type { PropType } from 'vue'
-import { useToast } from "vue-toastification"
+import { useToast } from 'vue-toastification'
 import { useProductsStore } from '../stores/productStore'
 import type { Product } from '../types'
-export default {
-	props: {
-		product: {
-			type: Object as PropType<Product>,
-			required: true
-		},
-	},
-	setup() {
-		const toast = useToast()
-		const productsStore = useProductsStore()
-		return { toast, productsStore }
 
-	},
-	data() {
-		return {
-			editingProduct: {
-				id: this.product.id || '',
-				name: this.product.name || '',
-				price: this.product.price || '',
-				description: this.product.description || '',
-				image_url: this.product.image_url || '',
-				sizes: this.product.sizes || []
-			} as Product,
-			sizesInput: this.product.sizes.join(', ') || '',
-			file: null as File | null
-		}
-	},
-	methods: {
-		async handleSaveProduct() {
-			this.editingProduct.sizes = this.sizesInput
-				.split(',')
-				.map((s: string) => Number(s.trim()))
-				.filter((s: number) => !isNaN(s) && s !== 0)
-			
-			try {
-				const updatedData: Partial<Product> = {
-					name: this.editingProduct.name,
-					price: this.editingProduct.price,
-					description: this.editingProduct.description,
-					image_url: this.editingProduct.image_url,
-					sizes: this.editingProduct.sizes
-				}
-
-				if (this.file) {
-					const formData = new FormData()
-					formData.append('name', updatedData.name ?? '')
-					formData.append('price', String(updatedData.price ?? 0))
-					formData.append('description', updatedData.description ?? '')
-					formData.append('sizes', JSON.stringify(this.editingProduct.sizes))
-					formData.append('image', this.file)
-					await this.productsStore.updateProduct(this.editingProduct.id, formData)
-				} else {
-					await this.productsStore.updateProduct(this.editingProduct.id, updatedData)
-				}
-				this.file = null
-				this.toast.success('Product updated successfully')
-			} catch (error) {
-				this.toast.error('Error: ' + (error as Error).message)
-			}
-		},
-		async handleFileChange(e: Event) {
-			const input = e.target as HTMLInputElement
-			this.file = input?.files?.[0] ?? null
-		}
+const props = defineProps({
+	product: {
+		type: Object as PropType<Product>,
+		required: true
 	}
+})
+
+const toast = useToast()
+const productsStore = useProductsStore()
+
+const editingProduct = ref<Product>({
+	id: props.product.id || '',
+	name: props.product.name || '',
+	price: props.product.price || '',
+	description: props.product.description || '',
+	image_url: props.product.image_url || '',
+	sizes: props.product.sizes || []
+} as Product)
+
+const sizesInput = ref(props.product.sizes.join(', ') || '')
+const file = ref<File | null>(null)
+
+const handleSaveProduct = async () => {
+	editingProduct.value.sizes = sizesInput.value
+		.split(',')
+		.map((s: string) => Number(s.trim()))
+		.filter((s: number) => !isNaN(s) && s !== 0)
+
+	try {
+		const updatedData: Partial<Product> = {
+			name: editingProduct.value.name,
+			price: editingProduct.value.price,
+			description: editingProduct.value.description,
+			image_url: editingProduct.value.image_url,
+			sizes: editingProduct.value.sizes
+		}
+
+		if (file.value) {
+			const formData = new FormData()
+			formData.append('name', updatedData.name ?? '')
+			formData.append('price', String(updatedData.price ?? 0))
+			formData.append('description', updatedData.description ?? '')
+			formData.append('sizes', JSON.stringify(editingProduct.value.sizes))
+			formData.append('image', file.value)
+			await productsStore.updateProduct(editingProduct.value.id, formData)
+		} else {
+			await productsStore.updateProduct(editingProduct.value.id, updatedData)
+		}
+
+		file.value = null
+		toast.success('Product updated successfully')
+	} catch (error) {
+		toast.error('Error: ' + (error as Error).message)
+	}
+}
+
+const handleFileChange = (e: Event) => {
+	const input = e.target as HTMLInputElement
+	file.value = input?.files?.[0] ?? null
 }
 </script>
 
 <template>
-		<div>
+	<div>
 		<button type="button" class="btn btn-sm btn-outline-primary me-2 btn-open" data-bs-toggle="modal" :data-bs-target="`#editModal-${product.id}`">
 			Edit
 		</button>
 
 		<div class="modal fade" :id="`editModal-${product.id}`" tabindex="-1" :aria-labelledby="`editModalLabel-${product.id}`" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-				<div class="modal-content">	
+				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title fw-bold" id="editModalLabel">Edit Product</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -126,10 +122,10 @@ export default {
 </template>
 
 <style scoped>
-.btn-close, .btn-open{
+.btn-close, .btn-open {
 	--bs-btn-close-focus-shadow: none;
 }
-.button-color3{
+.button-color3 {
 	padding: 9px;
 }
 </style>

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import EarningChart from '../components/EarningsChart.vue'
 import OrdersChart from '../components/OrdersChart.vue'
 import NavBar from '../components/NavBar.vue'
@@ -6,16 +6,11 @@ import ProductsChart from '../components/ProductsChart.vue'
 import { useUsersStore } from '../stores/userStore'
 import { useOrdersStore } from '../stores/orderStore'
 
-export default {
-  components: { EarningChart, OrdersChart, NavBar, ProductsChart },
-  setup() {
-    const userStore = useUsersStore()
-    const ordersStore = useOrdersStore()
-    ordersStore.fetchOrders()
-    userStore.fetchUsers()
-    return { userStore, ordersStore }
-  }
-}
+const userStore = useUsersStore()
+const ordersStore = useOrdersStore()
+ordersStore.fetchOrders()
+userStore.fetchUsers()
+
 </script>
 
 <template>

@@ -1,34 +1,24 @@
-<script lang="ts">
-import { useToast } from "vue-toastification"
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import ModalAddProduct from '../components/ModalAddProduct.vue'
 import ModalEditProduct from '../components/ModalEditProduct.vue'
 import NavBar from '../components/NavBar.vue'
 import { useProductsStore } from '../stores/productStore'
 
-export default {
-  components: { NavBar, ModalEditProduct, ModalAddProduct },
-  setup() {
-    const toast = useToast()
-    const productsStore = useProductsStore()
-    
-    productsStore.fetchProducts()
+const toast = useToast()
+const productsStore = useProductsStore()
 
-    return { toast, productsStore }
-  },
-  data() {
-    return {
-      productSearchQuery: '',
-    }
-  },
-  methods: {
-    async handleDeleteProduct(productId: number) {
-      try {
-        await this.productsStore.deleteProduct(productId)
-        this.toast.success('Product deleted successfully')
-      } catch (error) {
-        this.toast.error('Error: ' + (error as Error).message)
-      }
-    }
+const productSearchQuery = ref('')
+
+productsStore.fetchProducts()
+
+const handleDeleteProduct = async (productId: number) => {
+  try {
+    await productsStore.deleteProduct(productId)
+    toast.success('Product deleted successfully')
+  } catch (error) {
+    toast.error('Error: ' + (error as Error).message)
   }
 }
 </script>
@@ -40,25 +30,24 @@ export default {
         <h2 class="fw-bold">Products Management</h2>
       </div>
 
-
       <div class="header-main col-lg">
-        <input type="text" placeholder="Search..." class="custom-input mb-3" 
-				v-model="productSearchQuery" 
-        @keyup="productsStore.searchProducts(productSearchQuery)"
-				/>
+        <input type="text" placeholder="Search..." class="custom-input mb-3"
+          v-model="productSearchQuery"
+          @keyup="productsStore.searchProducts(productSearchQuery)"
+        />
       </div>
+
       <div class="header-end d-flex col-lg gap-3">
         <div>
           <ModalAddProduct />
         </div>
-        
         <div class="stats-mini d-flex">
-          <span class="text-muted">Total records:</span> 
+          <span class="text-muted">Total records:</span>
           <span class="fw-bold color1 ms-1">{{ productsStore.products.length }}</span>
         </div>
       </div>
     </div>
-    
+
     <div class="panel shadow-sm p-0 overflow-hidden">
       <div class="table-responsive table-scroll">
         <table class="custom-table">
@@ -74,15 +63,14 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="product in [...productsStore.products].sort((a,b) => b.id - a.id)" :key="product.id" class="table-row">
+            <tr v-for="product in [...productsStore.products].sort((a, b) => b.id - a.id)" :key="product.id" class="table-row">
               <td class="px-4 py-3">
                 <img :src="product.image_url ?? undefined" alt="Product Image" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
               </td>
-							<td class="px-4 py-3 fw-bold">
+              <td class="px-4 py-3 fw-bold">
                 #{{ product.id }}
               </td>
-
-							<td class="px-4 py-3 fw-bold">
+              <td class="px-4 py-3 fw-bold">
                 {{ product.name }}
               </td>
               <td class="px-4 py-3 fw-bold text-center color1">
@@ -100,13 +88,12 @@ export default {
                   {{ product.description }}
                   <a href="#" @click.prevent="product.showFull = false" class="small color1 fw-bold"> hide</a>
                 </span>
-                
               </td>
               <td class="px-4 py-3 small">
                 <div class="modalEditProduct">
                   <ModalEditProduct :product="product" />
                 </div>
-                <button class="btn btn-sm btn-outline-danger" @click="handleDeleteProduct(product.id)">Delete</button> 
+                <button class="btn btn-sm btn-outline-danger" @click="handleDeleteProduct(product.id)">Delete</button>
               </td>
             </tr>
             <tr v-if="productsStore.products.length === 0">
@@ -122,16 +109,17 @@ export default {
 </template>
 
 <style scoped>
-
 .panel {
   background: #ffffff;
   border: 1px solid rgba(134, 134, 149, 0.15);
   border-radius: 18px;
 }
+
 .table-scroll {
   max-height: calc(100vh - 220px);
   overflow-y: auto;
 }
+
 .header-section {
   justify-content: space-between;
 }
@@ -211,17 +199,21 @@ export default {
   background-color: #f8d7da;
   color: #721c24;
 }
+
 .role-select-custom.user {
   background-color: #cfe2ff;
   color: #084298;
 }
+
 .role-select-custom.user:hover, .role-select-custom.user:focus {
   box-shadow: 0 0 0 2px #084298;
 }
+
 .role-select-custom.admin:hover, .role-select-custom.admin:focus {
   box-shadow: 0 0 0 2px #721c24;
 }
-@media(max-width: 991px){
+
+@media (max-width: 991px) {
   .header-start, .header-main {
     text-align: center;
   }

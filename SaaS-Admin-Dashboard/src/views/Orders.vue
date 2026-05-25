@@ -1,42 +1,32 @@
-<script lang="ts">
-import { useToast } from "vue-toastification"
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import NavBar from '../components/NavBar.vue'
 import { useOrdersStore } from '../stores/orderStore'
 import type { Order } from '../types'
 
-export default {
-  components: { NavBar },
-  setup() {
-    const ordersStore = useOrdersStore()
-    const toast = useToast()
+const router = useRouter()
+const ordersStore = useOrdersStore()
+const toast = useToast()
 
+const orderSearchQuery = ref('')
+
+ordersStore.fetchOrders()
+
+const onStatusChange = (orderId: number, event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const newStatus = target.value as Order['status']
+  handleStatusChange(orderId, newStatus)
+}
+
+const handleStatusChange = async (orderId: number, newStatus: Order['status']) => {
+  try {
+    await ordersStore.updateOrderStatus(orderId, newStatus)
+    toast.success(`Order updated to ${newStatus}`)
+  } catch (error) {
+    toast.error('Failed to update: ' + (error as Error).message)
     ordersStore.fetchOrders()
-
-    return { ordersStore, toast }
-  },
-  data() {
-    return {
-      orderSearchQuery: ''
-    }
-  },
-
-  methods: {
-    onStatusChange(orderId: number, event: Event) {
-      const target = event.target as HTMLSelectElement;
-      
-      const newStatus = target.value as Order['status'];
-      
-      this.handleStatusChange(orderId, newStatus);
-    },
-    async handleStatusChange(orderId: number, newStatus: Order['status']) {
-      try {
-        await this.ordersStore.updateOrderStatus(orderId, newStatus)
-        this.toast.success(`Order updated to ${newStatus}`)
-      } catch (error) {
-        this.toast.error('Failed to update: ' + (error as Error).message)
-        this.ordersStore.fetchOrders()
-      }
-    }
   }
 }
 </script>
@@ -49,19 +39,17 @@ export default {
       </div>
 
       <div class="header-main col-lg">
-        <input type="text" placeholder="Search..." class="custom-input mb-3" @keyup="ordersStore.searchOrders(orderSearchQuery)"  v-model="orderSearchQuery"  />
-        
+        <input type="text" placeholder="Search..." class="custom-input mb-3" @keyup="ordersStore.searchOrders(orderSearchQuery)" v-model="orderSearchQuery" />
       </div>
+
       <div class="header-end d-flex col-lg gap-3">
         <div class="stats-mini d-flex">
-          <span class="text-muted">Total records:</span> 
+          <span class="text-muted">Total records:</span>
           <span class="fw-bold color1 ms-1">{{ ordersStore.orders.length }}</span>
         </div>
       </div>
     </div>
 
-    
-    
     <div class="panel shadow-sm p-0 overflow-hidden">
       <div class="table-responsive">
         <table class="custom-table w-full">
@@ -75,11 +63,12 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr 
-            v-for="order in [...ordersStore.orders].sort((a,b) => b.id - a.id)" :key="order.id" 
-            class="table-row"
-            style="cursor: pointer"
-            @click="$router.push({ name: 'OrderInfo', params: { id: order.id } })">
+            <tr
+              v-for="order in [...ordersStore.orders].sort((a, b) => b.id - a.id)" :key="order.id"
+              class="table-row"
+              style="cursor: pointer"
+              @click="router.push({ name: 'OrderInfo', params: { id: order.id } })"
+            >
               <td class="px-4 py-3 fw-bold">#{{ order.id }}</td>
               <td class="px-4 py-3">
                 <div class="d-flex flex-column">
@@ -92,17 +81,18 @@ export default {
               </td>
               <td class="px-3 py-2 text-center">
                 <div>
-                  <select 
-                  :value="order.status" 
-                  @click.stop
-                  :class="['status-select-custom', order.status.toLowerCase()]"
-                  @change="onStatusChange(order.id, $event)"
-                    class="text-center">
+                  <select
+                    :value="order.status"
+                    @click.stop
+                    :class="['status-select-custom', order.status.toLowerCase()]"
+                    @change="onStatusChange(order.id, $event)"
+                    class="text-center"
+                  >
                     <option class="text-center" value="pending">Pending</option>
                     <option class="text-center" value="delivered">Delivered</option>
                     <option class="text-center" value="cancelled">Cancelled</option>
-                    </select>
-                    <i class="bi bi-chevron-down select-icon"></i>
+                  </select>
+                  <i class="bi bi-chevron-down select-icon"></i>
                 </div>
               </td>
               <td class="px-4 py-3 text-end text-muted small">
@@ -186,7 +176,7 @@ export default {
   opacity: 0.6;
 }
 
-@media(max-width: 991px){
+@media (max-width: 991px) {
   .header-start, .header-main {
     text-align: center;
   }

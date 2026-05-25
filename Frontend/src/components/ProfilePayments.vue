@@ -1,100 +1,89 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import { usePaymentStore } from '../stores/paymentStore'
 import type { PaymentMethod } from '../types'
-export default {
-    props: {
-        componentName: String
-    },
-    setup() {
-        const toast = useToast()
+import { computed, onMounted, ref } from 'vue'
 
-        const paymentStore = usePaymentStore()
+const props = defineProps ({
+    componentName: String
+})
 
-        return { toast, paymentStore }
+const toast = useToast()
 
-    },
-    data() {
-        return {
-            cardNumber: '',
-            cardHolderName: '',
-            cardExpirationDate: '',
-            cardCvv: '',
-            toggleAddMethod: true,
-            editId: null,
-        };
-    },
-    computed: {
-        currentPaymentId() {
-            return this.paymentStore.selectedPaymentId
-        }
-    },
-    methods: {
-        maskCard(number: string) {
-            if (!number) return ''
-            return `**** **** **** ${number.slice(-4)}`
-        },
-        async addPaymentMethod() {
-            try {
-                await this.paymentStore.addPayment({
-                    number: this.cardNumber,
-                    holder_name: this.cardHolderName,
-                    expiration_date: this.cardExpirationDate,
-                    cvv: this.cardCvv,
-                    type: this.getCardType(this.cardNumber)
-                } as PaymentMethod);
-                this.cardNumber = ''
-                this.cardHolderName = ''
-                this.cardExpirationDate = ''
-                this.cardCvv = ''
+const paymentStore = usePaymentStore()
 
-                this.toggleAddMethod = !this.toggleAddMethod
+const cardNumber = ref('')
+const cardHolderName = ref('')
+const cardExpirationDate = ref('')
+const cardCvv = ref('')
+const toggleAddMethod = ref(true)
 
-                this.toast.success("Payment method added!")
-            } catch (e) {
-                if((e as Error).message === 'invalid input syntax for type bigint: ""'){
-                    this.toast.error('Error: ' + 'Fill in all fields');
-                    return
-                }
-                this.toast.error('Error: ' + (e as Error).message)
-            }
-        },
-        async deletePayment(id: number) {
-            try {
-                await this.paymentStore.deletePayment(id)
-                this.toast.success("Method deleted successfully!")
-            } catch (e) {
-                this.toast.error("Error: " + (e as Error).message)
-            } 
-        },
-        getCardType(number: string): string {
-            if (!number) return 'Unknown'
-            const re = {
-            Visa: /^4/,
-            Mastercard: /^5[1-5]|^2(?:22[1-9]|2[3-9]\d|[3-6]\d\d|7[01]\d|720)/,
-            Mir: /^220[0-4]/,
-            Maestro: /^(5018|5020|5038|6304|6759|6761|6763)/
-            }
 
-            for (const [card, pattern] of Object.entries(re)) {
-            if (pattern.test(number)) return card
-            }
-            return 'Unknown'
-        },
-        async selectPayment(selectedPaymentId: number | null) {
-           try {
-                await this.paymentStore.selectPayment(selectedPaymentId)
-                this.toast.success("Payment selected")
-            } catch (e) {
-                this.toast.error("Error: " + (e as Error).message)
-            }   
-        },
-    },
 
-    async mounted() {
-        await this.paymentStore.fetchPayment()
+const maskCard = (number: string) => {
+    if (!number) return ''
+    return `**** **** **** ${number.slice(-4)}`
+}
+
+const addPaymentMethod = async () => {
+    try {
+        await paymentStore.addPayment({
+            number: cardNumber.value,
+            holder_name: cardHolderName.value,
+            expiration_date: cardExpirationDate.value,
+            cvv: cardCvv.value,
+            type: getCardType(cardNumber.value)
+        } as PaymentMethod);
+        cardNumber.value = ''
+        cardHolderName.value = ''
+        cardExpirationDate.value = ''
+        cardCvv.value = ''
+
+        toggleAddMethod.value = !toggleAddMethod.value
+
+        toast.success("Payment method added!")
+    } catch (e) {
+        toast.error('Error: ' + (e as Error).message)
     }
 }
+
+const deletePayment = async (id: number) => {
+    try {
+        await paymentStore.deletePayment(id)
+        toast.success("Method deleted successfully!")
+    } catch (e) {
+        toast.error("Error: " + (e as Error).message)
+    } 
+}
+
+const getCardType = (number: string): string => {
+    if (!number) return 'Unknown'
+    const re = {
+        Visa: /^4/,
+        Mastercard: /^5[1-5]|^2(?:22[1-9]|2[3-9]\d|[3-6]\d\d|7[01]\d|720)/,
+        Mir: /^220[0-4]/,
+        Maestro: /^(5018|5020|5038|6304|6759|6761|6763)/
+    }
+
+    for (const [card, pattern] of Object.entries(re)) {
+    if (pattern.test(number)) return card
+    }
+    return 'Unknown'
+}
+
+const selectPayment = async (selectedPaymentId: number | null) => {
+    try {
+        await paymentStore.selectPayment(selectedPaymentId)
+        toast.success("Payment selected")
+    } catch (e) {
+        toast.error("Error: " + (e as Error).message)
+    }   
+}
+
+onMounted(async () => {
+    await paymentStore.fetchPayment()
+})
+
 </script>
 
 <template>
@@ -114,7 +103,7 @@ export default {
             <p class="text-center">You don't have orders</p>
         </div>
 
-        <div v-else-if="toggleAddMethod ?? paymentStore.payment.length != 0">
+        <div v-else-if="toggleAddMethod && paymentStore.payment.length != 0">
             
             <div class="row gap-3 justify-content-start">
                 <div

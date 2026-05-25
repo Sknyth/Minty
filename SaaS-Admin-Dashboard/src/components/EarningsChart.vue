@@ -1,12 +1,7 @@
-<script>
+<script setup>
 import { useStatStore } from '../stores/statStore'
-export default {
-  setup(){
-    const statStore = useStatStore()
-    statStore.fetchEarnings()
-    return { statStore }
-  }
-}
+const statStore = useStatStore()
+statStore.fetchEarnings()
 </script>
 
 <template>

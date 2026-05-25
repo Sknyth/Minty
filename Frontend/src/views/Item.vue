@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import { useToast } from "vue-toastification"
@@ -6,68 +6,57 @@ import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import type { CartItemInput, Product } from '../types'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-export default {
-  components: {
-    Header,
-    Footer
-  },
-  setup() {
-    const toast = useToast()
-    const productsStore = useProductsStore()
-    const wishlistStore = useWishlistStore()
-    const cartStore = useCartStore()
+const toast = useToast()
+const productsStore = useProductsStore()
+const wishlistStore = useWishlistStore()
+const cartStore = useCartStore()
+const route = useRoute()
 
-    return { toast, productsStore, cartStore,  wishlistStore }
-  },
-  data() {
-    return {
-      selectedSize: null as number | null,
+const selectedSize = ref<number | null>(null)
+
+const currentItem = computed((): Product => {
+  const id = Number(route.params.id)
+  return productsStore.products.find((item: Product) => item.id === id)!
+})
+
+const isInWishlist = computed(() => wishlistStore.isInWishlist(currentItem.value.id))
+
+const addToCart = async () => {
+  if (!selectedSize.value) {
+    toast.warning("Please select a size")
+    return
+  }
+  try {
+    await cartStore.addToCart({
+      product_id: currentItem.value.id,
+      size: selectedSize.value,
+      quantity: 1
+    } as CartItemInput)
+    toast.success("Product added!")
+  } catch (e) {
+    toast.error("Error: " + (e as Error).message)
+  }
+}
+
+const selectSize = (size: number) => {
+  selectedSize.value = size
+}
+
+const toggleWishlist = async (productID: number) => {
+  try {
+    if (wishlistStore.isInWishlist(productID)) {
+      await wishlistStore.deleteFromWishlist(productID)
+      toast.success('Product removed from wishlist!')
+    } else {
+      await wishlistStore.addToWishlist(productID)
+      toast.success('Product added to your wishlist!')
     }
-  },
-  computed: {
-    currentItem(): Product {
-      const id = Number(this.$route.params.id)
-      return this.productsStore.products.find((item: Product) => item.id === id)!
-    },
-    isInWishlistComputed() {
-      return this.wishlistStore.isInWishlist(this.currentItem.id)
-    }
-  },
-  methods: {
-    async addToCart() {
-      if (!this.selectedSize) {
-        this.toast.warning("Please select a size")
-        return
-      }
-      try{
-        await this.cartStore.addToCart({
-          product_id: this.currentItem.id,
-          size: this.selectedSize,
-          quantity: 1
-        } as CartItemInput)
-        this.toast.success("Product added!")
-      } catch(e){
-        this.toast.error("Error: " + (e as Error).message)
-      }
-    },
-    selectSize(size: number) {
-      this.selectedSize = size
-    },
-    async toggleWishlist(productID: number) {
-      try {
-        if (this.wishlistStore.isInWishlist(productID)) {
-          await this.wishlistStore.deleteFromWishlist(productID)
-          this.toast.success('Product removed from wishlist!')
-        } else {
-          await this.wishlistStore.addToWishlist(productID)
-          this.toast.success('Product added to your wishlist!') 
-        }
-      } catch(e) {
-        this.toast.error("Error: " + (e as Error).message)
-      }
-    },
-  },
+  } catch (e) {
+    toast.error("Error: " + (e as Error).message)
+  }
 }
 </script>
 
@@ -154,7 +143,7 @@ export default {
                   Add to Cart
                 </button>
                 <button @click="toggleWishlist(currentItem.id)" class="wishlist-btn py-3 fs-5">
-                  {{ isInWishlistComputed ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
+                  {{ isInWishlist ? '♥ Remove from Wishlist' : '♥ Save to Wishlist' }}
                 </button>
               </div>
             </div>
