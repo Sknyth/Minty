@@ -1,41 +1,34 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
-export default {
-    setup() {
-        const toast = useToast()
+import { reactive, ref } from 'vue'
 
-        const authStore = useAuthStore()
+const toast = useToast()
 
-        return { toast, authStore }
-    },
-    data() {
-        return {
-          ToggleChange: false,
-          passwords: {
-            old: '',
-            confirm: '',
-            new: '',
-          }
-        }
-  },
-    methods: {
-        async updatePassword() {
-            if (this.passwords.new !== this.passwords.confirm) {
-                this.toast.error("Passwords do not match!")
-                return
-            }   
-            try {
-            await this.authStore.changePass(this.passwords.old ,this.passwords.new)
+const authStore = useAuthStore()
+
+const ToggleChange = ref(false)
+const passwords = reactive({
+    old: '',
+    confirm: '',
+    new: ''
+})
+const updatePassword = async () => {
+    if (passwords.new !== passwords.confirm) {
+        toast.error("Passwords do not match!")
+        return
+    }   
+    try {
+    await authStore.changePass(passwords.old ,passwords.new)
             
-            this.toast.success("Password changed successfully!")
-            this.passwords = { old: '', new: '', confirm: '' }
-            this.ToggleChange = false
+    toast.success("Password changed successfully!")
+    passwords.old = ''
+    passwords.new = ''
+    passwords.confirm = ''
+    ToggleChange.value = false
 
-            } catch (e) {
-                this.toast.error("Error: " + (e as Error).message)
-            }
-        }
+    } catch (e) {
+        toast.error("Error: " + (e as Error).message)
     }
 }
 </script>

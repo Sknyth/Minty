@@ -1,72 +1,59 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import Card from './Card.vue'
 import type { CartItemInput, Product } from '../types'
+import { computed } from 'vue'
 
-export default {
-  components: { Card },
-  setup() {
-      const toast = useToast()
-      const wishlistStore = useWishlistStore()
-      const cartStore = useCartStore()
-      const productsStore = useProductsStore()
+const toast = useToast()
+const wishlistStore = useWishlistStore()
+const cartStore = useCartStore()
+const productsStore = useProductsStore()
 
-      return { toast, productsStore, cartStore, wishlistStore }
-  },
-  methods: {
-    async addToCart(product: Product) {
-      try{
-          const cartProduct: CartItemInput = { 
-          product_id: product.id,
-          size: product.sizes[0],
-          quantity: 1
-        }
-        const existingItem = this.cartStore.isInCart(cartProduct.product_id, cartProduct.size)
-        if(existingItem){
-          await this.cartStore.updateQuantity({
-            id: existingItem.id,
-            quantity: existingItem.quantity + 1
-          })
-          this.toast.success('Product added to your cart!')  
-          return
-        }else {
-          await this.cartStore.addToCart({
-            ...cartProduct     
-          })
-          this.toast.success('Product added to your cart!')
-        }
-
-      } catch(e){   
-        this.toast.error("Error: " + (e as Error).message)
-      }
-    },
-    async toggleWishlist(productID: number) {
-      try {
-        if (this.wishlistStore.isInWishlist(productID)) {
-          await this.wishlistStore.deleteFromWishlist(productID)
-          this.toast.success('Product removed from wishlist!')
-        } else {
-          await this.wishlistStore.addToWishlist(productID)
-          this.toast.success('Product added to your wishlist!') 
-        }
-      } catch(e) {
-        this.toast.error("Error: " + (e as Error).message)
-      }
-    },
-  },
-  computed: {
-    favoriteProducts() {
-      const favIds = this.wishlistStore.wishlist.map((item: { productId: number }) => item.productId)
-
-      return this.productsStore.products.filter((product: Product) => 
-        favIds.includes(product.id)
-      )
+const addToCart = async (product: Product) => {
+  try {
+    const cartProduct: CartItemInput = {
+      product_id: product.id,
+      size: product.sizes[0],
+      quantity: 1
     }
+    const existingItem = cartStore.isInCart(cartProduct.product_id, cartProduct.size)
+    if (existingItem) {
+      await cartStore.updateQuantity({
+        id: existingItem.id,
+        quantity: existingItem.quantity + 1
+      })
+      toast.success('Product added to your cart!')
+      return
+    } else {
+      await cartStore.addToCart({ ...cartProduct })
+      toast.success('Product added to your cart!')
+    }
+  } catch (e) {
+    toast.error("Error: " + (e as Error).message)
   }
 }
+
+const toggleWishlist = async (productID: number) => {
+  try {
+    if (wishlistStore.isInWishlist(productID)) {
+      await wishlistStore.deleteFromWishlist(productID)
+      toast.success('Product removed from wishlist!')
+    } else {
+      await wishlistStore.addToWishlist(productID)
+      toast.success('Product added to your wishlist!')
+    }
+  } catch (e) {
+    toast.error("Error: " + (e as Error).message)
+  }
+}
+
+const favoriteProducts = computed(() => {
+  const favIds = wishlistStore.wishlist.map((item: { productId: number }) => item.productId)
+  return productsStore.products.filter((product: Product) => favIds.includes(product.id))
+})
 </script>
 
 <template>

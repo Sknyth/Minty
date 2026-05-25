@@ -1,9 +1,8 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useWishlistStore } from '../stores/wishlistStore'
-import type { PropType } from 'vue'
+import { computed, type PropType } from 'vue'
 
-export default {
-  props: {
+const props = defineProps({
     image_url: {
       type: String as PropType<string | null>,
       default: null,
@@ -21,32 +20,26 @@ export default {
       type: Number,
       required: true
     }
-  },
-  setup() {
-    return {
-      wishlistStore: useWishlistStore()
-    }
-  },
-  computed: {
-    isInWishlistComputed() {
-      return this.wishlistStore.isInWishlist(this.id)
-    }
-  },
-  methods: {
-    addToCart() {
-      this.$emit('add-to-cart', this.name, this.price, this.image_url)
-    },
-    toggleWishlist() {
-      this.$emit('toggle-wishlist', this.id)
-    }
-  },
+  })
+
+const wishlistStore = useWishlistStore()
+
+const isInWishlist = computed(() => wishlistStore.isInWishlist(props.id)) 
+
+const emit = defineEmits(['add-to-cart', 'toggle-wishlist'])
+
+const addToCart = () => {
+  emit('add-to-cart', props.name, props.price, props.image_url)
+}
+const toggleWishlist = () => {
+  emit('toggle-wishlist', props.id)
 }
 </script>
 
 <template>
   <div class="product-card">
     <button class="wishlist-btn" @click="toggleWishlist">
-      <i :class="isInWishlistComputed ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i>
+      <i :class="isInWishlist ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i>
     </button>
 
     <router-link :to="{ name: 'Item', params: { id: id } }" class="card-link">

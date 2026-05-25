@@ -10,7 +10,7 @@
   ],
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
   },
   "javascript.implicitProjectConfig.checkJs": false,
   "typescript.implicitProjectConfig.checkJs": false

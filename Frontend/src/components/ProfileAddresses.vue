@@ -1,129 +1,120 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import { useAddressStore } from '../stores/addressStore'
 import type { Address } from '../types'
+import { computed, onMounted, ref } from 'vue'
 
-export default {
-    props: {
-        componentName: String
-    },
-    setup() {
-        const toast = useToast()
+const props = defineProps({
+  componentName: String
+})
 
-        const addressStore = useAddressStore()
-        addressStore.fetchAddress()
+const toast = useToast()
+const addressStore = useAddressStore()
+
+onMounted(async () => {
+    await addressStore.fetchAddress()
+})
         
-        return { toast, addressStore }
-    },
-    data(){
-        return {
-            toggleAddAddress: true,
-            toggleEdit: false,
-            editId: null as number | null, 
-            country: '',
-            city: '',
-            street: '',
-            house_number: null as string | null,
-            apt: null as string | null,
-            postcode: null as string | null
-        }
-    },
-    computed: {
-        currentAddressId() {
-            return this.addressStore.selectedAddressId
-        }
-    },
-    methods: {
-        resetAddressFields(){
-            this.country = ''
-            this.city = ''
-            this.street = ''
-            this.house_number = '' 
-            this.apt = ''
-            this.postcode = ''
-            this.editId = null
-        },
+const toggleAddAddress = ref(true)
+const toggleEdit = ref(false)
+const editId = ref<number | null>(null)
+const country = ref('')
+const city = ref('')
+const street = ref('')
+const house_number = ref('')
+const apt = ref('')
+const postcode = ref('')
 
-        async addAddress(){
-            try {
-                await this.addressStore.addAddress({
-                    country: this.country,
-                    city: this.city,
-                    street: this.street,
-                    house_number: this.house_number,
-                    apt: this.apt,
-                    postcode: this.postcode,
-                } as Address)
-                this.resetAddressFields()
-                this.toggleAddAddress = true
-                this.toast.success("Address added!")
-            } catch(e){
-                this.toast.error('Error: ' + (e as Error).message)
-            }
-        },
+const currentAddressId = computed(() => addressStore.selectedAddressId)
 
-        async updateAddress(){
-            try {
-                await this.addressStore.updateAddress(this.editId!, {
-                    country: this.country,
-                    city: this.city,
-                    street: this.street,
-                    house_number: this.house_number,
-                    apt: this.apt,
-                    postcode: this.postcode,
-                } as Address)
-                this.toggleAddAddress = true
-                this.toggleEdit = false
-                this.resetAddressFields()
-                this.toast.success("Address updated successfully!")
-            } catch(e){
-                this.toast.error("Error: " + (e as Error).message)
-            }
-        },
+const resetAddressFields = () => {
+    country.value = ''
+    city.value = ''
+    street.value = ''
+    house_number.value = ''
+    apt.value = ''
+    postcode.value = ''
+    editId.value = null
+}
 
-        async deleteAddress(id: number){ 
-            try {
-                await this.addressStore.deleteAddress(id)
-                this.toast.success("Address deleted successfully!")
-            } catch (e) {
-                this.toast.error("Error: " + (e as Error).message)
-            } 
-        },
+const addAddress = async () => {
+    try {
+        await addressStore.addAddress({
+            country: country.value,
+            city: city.value,
+            street: street.value,
+            house_number: house_number.value,
+            apt: apt.value,
+            postcode: postcode.value,
+        } as Address)
+        resetAddressFields()
+        toggleAddAddress.value = true
+        toast.success("Address added!")
+    } catch(e){
+        toast.error('Error: ' + (e as Error).message)
+    }
+}
 
-        editAddress(address: Address){
-            this.editId = address.id
-            this.country = address.country
-            this.city = address.city
-            this.street = address.street
-            this.house_number = address.house_number
-            this.apt = address.apt
-            this.postcode = address.postcode
+const updateAddress = async () => {
+    try {
+        await addressStore.updateAddress(editId.value!, {
+            country: country.value,
+            city: city.value,
+            street: street.value,
+            house_number: house_number.value,
+            apt: apt.value,
+            postcode: postcode.value,
+        } as Address)
+        toggleAddAddress.value = true
+        toggleEdit.value = false
+        resetAddressFields()
+        toast.success("Address updated successfully!")
+    } catch(e){
+        toast.error("Error: " + (e as Error).message)
+    }
+}
 
-            this.toggleAddAddress = false
-            this.toggleEdit = true
-        },
+const deleteAddress = async (id: number) => { 
+    try {
+        await addressStore.deleteAddress(id)
+        toast.success("Address deleted successfully!")
+    } catch (e) {
+        toast.error("Error: " + (e as Error).message)
+    } 
+}
 
-        async selectAddress(id: number) {
-            try {
-                await this.addressStore.selectAddress(id)
-                this.toast.success("Address selected")
-            } catch (e) {
-                this.toast.error("Error: " + (e as Error).message)
-            }
-        },
+const editAddress = (address: Address) => {
+    editId.value = address.id
+    country.value = address.country
+    city.value = address.city
+    street.value = address.street
+    house_number.value = address.house_number
+    apt.value = address.apt
+    postcode.value = address.postcode
 
-        backAddress(){
-            this.resetAddressFields()
-            this.toggleAddAddress = true
-            this.toggleEdit = false
-        },
-    },
+    toggleAddAddress.value = false
+    toggleEdit.value = true
+}
+
+const selectAddress = async (id: number) => {
+    try {
+        await addressStore.selectAddress(id)
+        toast.success("Address selected")
+    } catch (e) {
+        toast.error("Error: " + (e as Error).message)
+    }
+}
+
+const backAddress = () =>{
+    resetAddressFields()
+    toggleAddAddress.value = true
+    toggleEdit.value = false
 }
 </script>
 
 <template>
     <div>
-        <h2>{{ componentName }}</h2>
+        <h2>{{ $props.componentName }}</h2>
 
         <div v-if="addressStore.loading" class="loading-state text-center p-5">
           <div class="spinner-border"></div>

@@ -1,51 +1,32 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import { useAuthStore } from '../stores/authStore'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-  export default{
-    components: { Header, Footer },
-    setup() {
-      const toast = useToast()
-      const authStore = useAuthStore()
-      return { toast, authStore }
-    },
-    data() {
-      return {
-        email: '',
-        password: '',
-        name: '',
-        message: '',
-      };
-    },
-    methods: {
-    async signUp() {
-      try {
-        await this.authStore.signUp({
-          email: this.email,
-          password: this.password,
-          name: this.name,
-        })
+const toast = useToast()
+const authStore = useAuthStore()
+const router = useRouter()
 
-        this.$router.push('/profile')
-        this.toast.success("Sign up successful!");
-      } catch (e) {
-        if((e as Error).message === 'Signup requires a valid password'){
-          this.toast.error('Error: ' + 'Password is required')
-          return
-        }
-        if((e as Error).message === 'Anonymous sign-ins are disabled'){
-          this.toast.error('Error: ' + 'All fields are required')
-          return
-        }
-        this.toast.error('Error: ' + (e as Error).message)
-      }
-    },
-  },
+const email = ref('')
+const password = ref('')
+const name = ref('')
+
+const signUp = async () => {
+  try {
+    await authStore.signUp({
+      email: email.value,
+      password: password.value,
+      name: name.value,
+    })
+    router.push('/profile')
+    toast.success("Sign up successful!")
+  } catch (e) {
+    toast.error('Error: ' + (e as Error).message)
+  }
 }
-  
-  
 </script>
 
 <template>

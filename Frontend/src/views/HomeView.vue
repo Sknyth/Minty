@@ -1,27 +1,17 @@
-<script lang="ts">
+<script setup lang="ts">
 import type { Criteria } from '../types'
 import CardList from '../components/CardList.vue'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import { useProductsStore } from '../stores/productsStore'
+import { ref } from 'vue'
 
-export default {
-	components: { Header, Footer, CardList },
-	setup() {
-		const productStore = useProductsStore()
+const productStore = useProductsStore()
 
-		return { productStore }
-	},
-	data() {
-		return {
-			sortOption: 'standard' as Criteria
-		}
-	},
-	methods: {
-		async sortProducts() {
-			await this.productStore.sortProducts(this.sortOption)
-		}
-	},
+const sortOption = ref<Criteria>('standard')
+
+const sortProducts = async () => {
+  await productStore.sortProducts(sortOption.value)
 }
 </script>
 

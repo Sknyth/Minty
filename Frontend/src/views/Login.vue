@@ -1,42 +1,30 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import { useAuthStore } from '../stores/authStore'
-export default {
-  components: { Header, Footer },
-  setup() {
-    const toast = useToast()
-    const authStore = useAuthStore()
-    return { toast, authStore }
-  },
-  data() {
-    return { email: '', password: '', message: '' }
-  },
-  methods: {
-    async signIn() {
-      try {
-        await this.authStore.signIn({
-          email: this.email,
-          password: this.password,
-        })
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-        this.$router.push('/profile');
-        this.toast.success("Sign in successful!")
-      } catch (e) {
-        if((e as Error).message === 'Invalid login credentials'){
-          this.toast.error('Error: ' + 'Email or password is incorrect')
-          return
-        }
-        if((e as Error).message === 'missing email or phone'){
-          this.toast.error('Error: ' + 'All fields are required')
-          return
-        }
-        this.toast.error('Error: ' + (e as Error).message)
-      }
-    },
-  },
-};
+const toast = useToast()
+const authStore = useAuthStore()
+const router = useRouter()
+
+const email = ref('')
+const password = ref('')
+
+const signIn = async () => {
+  try {
+    await authStore.signIn({
+      email: email.value,
+      password: password.value,
+    })
+    router.push('/profile')
+    toast.success("Sign in successful!")
+  } catch (e) {
+    toast.error('Error: ' + (e as Error).message)
+  }
+}
 </script>
 
 <template>

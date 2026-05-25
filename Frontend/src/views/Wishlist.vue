@@ -1,20 +1,15 @@
-<script lang="ts">
+<script setup lang="ts">
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import WishlistCards from '../components/WishlistCards.vue'
 import { useWishlistStore } from '../stores/wishlistStore'
+import { onMounted } from 'vue'
 
-export default {
-	components: { Header, Footer, WishlistCards },
-	setup() {
-		const wishlistStore = useWishlistStore()
+const wishlistStore = useWishlistStore()
 
-		return { wishlistStore }
-	},
-	async mounted() {
-		await this.wishlistStore.fetchWishlist()
-	}
-}
+onMounted(async () => {
+  await wishlistStore.fetchWishlist()
+})
 </script>
 
 <template>

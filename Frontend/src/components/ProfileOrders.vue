@@ -1,14 +1,9 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useOrdersStore } from '../stores/ordersStore'
-export default {
-    setup() {
-        const ordersStore = useOrdersStore()
-        return { ordersStore }
-    },
-    async mounted() {
-        this.ordersStore.fetchOrders()
-    },
-}
+
+const ordersStore = useOrdersStore()
+ordersStore.fetchOrders()
+
 </script>
 
 <template>
@@ -28,7 +23,7 @@ export default {
             <p class="text-center">You don't have orders</p>
         </div>
 
-        <div v-else v-for="order in ordersStore.orders" :key="order.id">
+        <div v-else v-for="order in ordersStore.orders.sort((a,b) => b.id - a.id)" :key="order.id">
 
             <div class="d-flex justify-content-between align-items-center mt-3 p-3 order-card">
                 <div>
