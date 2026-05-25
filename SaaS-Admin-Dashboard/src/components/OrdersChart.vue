@@ -1,4 +1,5 @@
-<script>
+<script setup lang="ts">
+import { computed } from 'vue'
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -8,7 +9,6 @@ import {
   PointElement,
   Tooltip
 } from 'chart.js'
-import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import { useStatStore } from '../stores/statStore'
 
@@ -21,49 +21,40 @@ ChartJS.register(
   Filler
 )
 
-export default {
-  components: { Line },
-  setup() {
-    const statStore = useStatStore()
-    
-    statStore.fetchOrdersChart() 
+const statStore = useStatStore()
 
-    const chartData = computed(() => {
-      return {
-        labels: statStore.chartLabels, 
-        datasets: [
-          {
-            data: statStore.chartData, 
-            borderColor: '#2d8a72',
-            backgroundColor: 'rgba(45, 138, 114, 0.15)',
-            fill: true,
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-          }
-        ]
-      }
-    })
+statStore.fetchOrdersChart()
 
-    const chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { 
-          enabled: true,
-          intersect: false,
-          mode: 'index',
-        }
-      },
-      scales: {
-        x: { display: false },
-        y: { display: false }
-      }
+const chartData = computed(() => ({
+  labels: statStore.chartLabels,
+  datasets: [
+    {
+      data: statStore.chartData,
+      borderColor: '#2d8a72',
+      backgroundColor: 'rgba(45, 138, 114, 0.15)',
+      fill: true,
+      borderWidth: 2,
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 6,
     }
+  ]
+}))
 
-    return { statStore, chartData, chartOptions }
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      enabled: true,
+      intersect: false,
+      mode: 'index' as const,
+    }
+  },
+  scales: {
+    x: { display: false },
+    y: { display: false }
   }
 }
 </script>
@@ -75,7 +66,7 @@ export default {
     <div class="card-content">
       <div class="d-flex justify-content-between align-items-start w-100">
         <div class="icon-shape bg-glass">
-          <i class="bi bi-box-seam text-dark"></i> 
+          <i class="bi bi-box-seam text-dark"></i>
         </div>
         <div class="trend-badge-green">
           +5.4% <i class="bi bi-arrow-up-short"></i>
@@ -91,10 +82,10 @@ export default {
       </div>
 
       <div class="chart-wrapper">
-        <Line 
-          v-if="statStore.chartData.length > 0" 
-          :data="chartData" 
-          :options="chartOptions" 
+        <Line
+          v-if="statStore.chartData.length > 0"
+          :data="chartData"
+          :options="chartOptions"
         />
       </div>
     </div>

@@ -1,50 +1,39 @@
-<script lang="ts">
-import { useToast } from "vue-toastification"
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import NavBar from '../components/NavBar.vue'
 import { useUsersStore } from '../stores/userStore'
 import type { User } from '../types'
 
-export default {
-  components: { NavBar },
-  setup() {
-    const toast = useToast()
-		const userStore = useUsersStore()
+const toast = useToast()
+const userStore = useUsersStore()
 
-		userStore.fetchUsers()
+const userSearchQuery = ref('')
 
-    return { toast, userStore }
-  },
-  data() {
-    return {
-      userSearchQuery: ''
-    }
-  },
+userStore.fetchUsers()
 
-  methods: {
-    async onRoleChange(profileId: number, event: Event) {
-      const target = event.target as HTMLSelectElement;
-      
-      const newRole = target.value as User['role'];
-      
-      await this.handleRoleChange(profileId, newRole);
-    },
-    async handleRoleChange(profileId: number, newRole: User['role']) {
-      try {
-        await this.userStore.updateUserRole(profileId, newRole)
-        this.toast.success(`User role updated to ${newRole}`)
-      } catch (error) {
-        this.toast.error('Failed to update: ' + (error as Error).message)
-        this.userStore.fetchUsers()
-      }
-    },
-    async handleDeleteUser(userId: number) {
-      try {
-        await this.userStore.deleteUser(userId)
-        this.toast.success('User deleted successfully')
-      } catch (error) {
-        this.toast.error('Error: ' + (error as Error).message)
-      }
-    }
+const onRoleChange = async (profileId: number, event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const newRole = target.value as User['role']
+  await handleRoleChange(profileId, newRole)
+}
+
+const handleRoleChange = async (profileId: number, newRole: User['role']) => {
+  try {
+    await userStore.updateUserRole(profileId, newRole)
+    toast.success(`User role updated to ${newRole}`)
+  } catch (error) {
+    toast.error('Failed to update: ' + (error as Error).message)
+    userStore.fetchUsers()
+  }
+}
+
+const handleDeleteUser = async (userId: number) => {
+  try {
+    await userStore.deleteUser(userId)
+    toast.success('User deleted successfully')
+  } catch (error) {
+    toast.error('Error: ' + (error as Error).message)
   }
 }
 </script>
@@ -57,18 +46,17 @@ export default {
       </div>
 
       <div class="header-main col-lg">
-        
-        <input type="text" placeholder="Search..." class="custom-input mb-3" @keyup="userStore.searchUsers(userSearchQuery)"
-        v-model="userSearchQuery"  />
+        <input type="text" placeholder="Search..." class="custom-input mb-3" @keyup="userStore.searchUsers(userSearchQuery)" v-model="userSearchQuery" />
       </div>
+
       <div class="header-end d-flex col-lg gap-3">
         <div class="stats-mini d-flex">
-          <span class="text-muted">Total records:</span> 
+          <span class="text-muted">Total records:</span>
           <span class="fw-bold color1 ms-1">{{ userStore.users.length }}</span>
         </div>
       </div>
     </div>
-    
+
     <div class="panel shadow-sm p-0 overflow-hidden">
       <div class="table-responsive table-scroll">
         <table class="custom-table w-full">
@@ -77,16 +65,14 @@ export default {
               <th class="px-4 py-3">User id</th>
               <th class="px-4 py-3">User</th>
               <th class="px-4 py-3 text-center">Created at</th>
-              <th class="px-4 py-3 text-center">Last login</th>
               <th class="px-4 py-3 text-center">Role</th>
               <th class="px-4 py-3 text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in [...userStore.users].sort((a,b) => b.id - a.id)" :key="user.id" class="table-row">
-							<td class="px-4 py-3 fw-bold">#{{ user.id }}</td>
-
-							<td class="px-4 py-3">
+            <tr v-for="user in [...userStore.users].sort((a, b) => b.id - a.id)" :key="user.id" class="table-row">
+              <td class="px-4 py-3 fw-bold">#{{ user.id }}</td>
+              <td class="px-4 py-3">
                 <div class="d-flex flex-column">
                   <span class="fw-bold">{{ user.name }} {{ user.surname }}</span>
                   <span class="text-muted small"> {{ user.email }} </span>
@@ -95,13 +81,10 @@ export default {
               <td class="px-4 py-3 fw-bold text-center">
                 {{ user.created_at ? new Date(user.created_at).toLocaleDateString() : '—' }}
               </td>
-              <td class="px-4 py-3 text-center fw-bold">1
-                <!-- {{ user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : '—' }} -->
-              </td>
               <td class="px-3 py-2 text-center">
                 <div class="role-select-container">
-                  <select 
-                    :value="user.role" 
+                  <select
+                    :value="user.role"
                     @change="onRoleChange(user.id, $event)"
                     :class="['role-select-custom', user.role.toLowerCase()]"
                     class="text-center"
@@ -113,9 +96,9 @@ export default {
                 </div>
               </td>
               <td class="px-4 py-3 text-end text-muted small">
-                <button class="btn btn-sm btn-outline-danger" 
-                @click="handleDeleteUser(user.id)"
-                :disabled="userStore.loading"
+                <button class="btn btn-sm btn-outline-danger"
+                  @click="handleDeleteUser(user.id)"
+                  :disabled="userStore.loading"
                 >Delete</button>
               </td>
             </tr>
@@ -218,17 +201,21 @@ export default {
   background-color: #f8d7da;
   color: #721c24;
 }
+
 .role-select-custom.user {
   background-color: #cfe2ff;
   color: #084298;
 }
+
 .role-select-custom.user:hover, .role-select-custom.user:focus {
   box-shadow: 0 0 0 2px #084298;
 }
+
 .role-select-custom.admin:hover, .role-select-custom.admin:focus {
   box-shadow: 0 0 0 2px #721c24;
 }
-@media(max-width: 991px){
+
+@media (max-width: 991px) {
   .header-start, .header-main {
     text-align: center;
   }

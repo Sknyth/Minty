@@ -1,64 +1,60 @@
-<script lang="ts">
-import { useToast } from "vue-toastification"
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import { useProductsStore } from '../stores/productStore'
 
+const toast = useToast()
+const productsStore = useProductsStore()
 
-export default {
-	setup() {
-		const toast = useToast()
-		const productsStore = useProductsStore()
-		return { toast, productsStore }
-	},
-	data() {
-		return {
-			newProduct: {
-				name: '',
-				price: undefined as number | undefined,
-				description: '',
-				image_url: '',
-				sizes: [] as number[]
-			},
-			sizesInput: '',
-			file: null as File | null
+const newProduct = ref({
+	name: '',
+	price: undefined as number | undefined,
+	description: '',
+	image_url: '',
+	sizes: [] as number[]
+})
+const sizesInput = ref('')
+const file = ref<File | null>(null)
+
+const resetForm = () => {
+	newProduct.value = { name: '', price: undefined, description: '', image_url: '', sizes: [] }
+	sizesInput.value = ''
+	file.value = null
+}
+
+const handleSaveProduct = async () => {
+	try {
+		const sizes: number[] = sizesInput.value
+			.split(',')
+			.map((s: string) => Number(s.trim()))
+			.filter((n: number) => !isNaN(n))
+
+		if (file.value) {
+			const formData = new FormData()
+			formData.append('name', newProduct.value.name)
+			formData.append('price', String(newProduct.value.price ?? 0))
+			formData.append('description', newProduct.value.description)
+			formData.append('sizes', JSON.stringify(sizes))
+			formData.append('image', file.value)
+			await productsStore.addProduct(formData)
+		} else {
+			await productsStore.addProduct({
+				...newProduct.value,
+				price: newProduct.value.price ?? 0,
+				sizes
+			})
 		}
-	},
-	methods: {
-		async handleSaveProduct() {
-			try {
-				const sizes: number[] = this.sizesInput.split(',').map((s: string) => Number(s.trim())).filter((n: number) => !isNaN(n))
 
-				if (this.file) {
-					const formData = new FormData()
-					formData.append('name', this.newProduct.name)
-					formData.append('price', String(this.newProduct.price ?? 0))
-					formData.append('description', this.newProduct.description)
-					formData.append('sizes', JSON.stringify(sizes))
-					formData.append('image', this.file)
-					await this.productsStore.addProduct(formData)
-				} else {
-					await this.productsStore.addProduct({ 
-						...this.newProduct, 
-						price: this.newProduct.price ?? 0,
-						sizes 
-					})
-				}
-
-				this.resetForm()
-				this.toast.success('Product added successfully')
-			} catch (error) {
-				this.toast.error('Error: ' + (error as Error).message)
-			}
-		},
-		resetForm() {
-			this.newProduct = { name: '', price: undefined, description: '', image_url: '', sizes: [] }
-			this.sizesInput = ''
-			this.file = null
-		},
-		handleFileChange(e: Event) {
-			const input = e.target as HTMLInputElement
-			this.file = input?.files?.[0] ?? null
-		}
+		resetForm()
+		toast.success('Product added successfully')
+	} catch (error) {
+		toast.error('Error: ' + (error as Error).message)
 	}
+}
+
+const handleFileChange = (e: Event) => {
+	const input = e.target as HTMLInputElement
+	file.value = input?.files?.[0] ?? null
 }
 </script>
 

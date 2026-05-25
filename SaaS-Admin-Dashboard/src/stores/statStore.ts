@@ -1,70 +1,67 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import { useOrdersStore } from './orderStore'
 
-export const useStatStore = defineStore('stats', {
-  state: () => ({
-    totalEarnings: 0,
-    totalOrders: 0,
-    chartLabels: [] as string[],
-    chartData: [] as number[],
+export const useStatStore = defineStore('stats', () => {
+	const totalEarnings = ref(0)
+	const totalOrders = ref(0)
+	const chartLabels = ref<string[]>([])
+	const chartData = ref<number[]>([])
+	const loading = ref(false)
 
-    loading: false,
-  }),
-  actions: {
-    async fetchEarnings() {
-      this.loading = true
+	const fetchEarnings = async () => {
+		loading.value = true
 
-      const orderStore = useOrdersStore()
+		const orderStore = useOrdersStore()
 
-      if (orderStore.orders.length === 0) {
-        await orderStore.fetchOrders()
-      }
+		if (orderStore.orders.length === 0) {
+			await orderStore.fetchOrders()
+		}
 
-      this.totalEarnings = orderStore.orders.filter(order => order.status === 'delivered').reduce((acc, order) => acc + order.total_price, 0)
+		totalEarnings.value = orderStore.orders
+			.filter(order => order.status === 'delivered')
+			.reduce((acc, order) => acc + order.total_price, 0)
 
-      this.loading = false
-    },
-    getStartOfMonth() {
-      const now = new Date()
-      return new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-    },
+		loading.value = false
+	}
 
-    async fetchOrdersChart() {
-      this.loading = true
+	const getStartOfMonth = () => {
+		const now = new Date()
+		return new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+	}
 
-      const orderStore = useOrdersStore()
+	const fetchOrdersChart = async () => {
+		loading.value = true
 
-      if (orderStore.orders.length === 0) {
-        await orderStore.fetchOrders()
-      }
+		const orderStore = useOrdersStore()
 
-      const now = new Date()
+		if (orderStore.orders.length === 0) {
+			await orderStore.fetchOrders()
+		}
 
-      const ordersThisMonth = orderStore.orders.filter(order => {
-        const date = new Date(order.created_at)
-        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
-      });
+		const now = new Date()
 
-      this.totalOrders = ordersThisMonth.length
+		const ordersThisMonth = orderStore.orders.filter(order => {
+			const date = new Date(order.created_at)
+			return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+		})
 
-      const stats: { [key: number]: number } = {};
-      for (let d = 1; d <= now.getDate(); d++) {
-        stats[d] = 0
-      }
+		totalOrders.value = ordersThisMonth.length
 
-      ordersThisMonth.forEach(order => {
-        const day = new Date(order.created_at).getDate()
-        if (stats[day] !== undefined) stats[day]++
-      });
+		const stats: { [key: number]: number } = {}
+		for (let d = 1; d <= now.getDate(); d++) {
+			stats[d] = 0
+		}
 
-      this.chartLabels = Object.keys(stats)
-      this.chartData = Object.values(stats)
-      this.loading = false
-    },
+		ordersThisMonth.forEach(order => {
+			const day = new Date(order.created_at).getDate()
+			if (stats[day] !== undefined) stats[day]++
+		})
 
-    async fetchProductsChart() {
-      
-    }
-    
-  }
+		chartLabels.value = Object.keys(stats)
+		chartData.value = Object.values(stats)
+		loading.value = false
+	}
+
+	return { totalEarnings, totalOrders, chartLabels, chartData, loading, fetchEarnings, getStartOfMonth, fetchOrdersChart }
 })

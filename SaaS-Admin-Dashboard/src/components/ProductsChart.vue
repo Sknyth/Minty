@@ -1,12 +1,7 @@
-<script lang="ts">
+<script setup lang="ts">
 import { useProductsStore } from '../stores/productStore'
-export default {
-  setup(){
-    const productsStore = useProductsStore()
-    productsStore.fetchProducts()
-    return { productsStore }
-  }
-}
+const productsStore = useProductsStore()
+productsStore.fetchProducts()
 </script>
 
 <template>

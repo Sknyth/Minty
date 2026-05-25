@@ -1,67 +1,67 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import type { Role, User } from '../types'
 import { useAuthStore } from './authStore'
 import { API_URL } from '../api/config'
 
-export const useUsersStore = defineStore('users', {
-	state: () => ({
-		users: [] as User[],
-		loading: false,
-	}),
-	actions: {
-		async fetchUsers() {
-			this.loading = true
-			const authStore = useAuthStore()
-			const res = await fetch(`${API_URL}/user/allUsers`, {
-				headers: {
-					Authorization: `Bearer ${authStore.access_token}`,
-				},
-			})
-			if (!res.ok) return
-			this.users = await res.json()
-			this.loading = false
-		},
+export const useUsersStore = defineStore('users', () => {
+	const users = ref<User[]>([])
+	const loading = ref(false)
 
-		async updateUserRole(userId: number, newRole: Role) {
-			this.loading = true
-			const res = await fetch(`${API_URL}/user/updateRole/${userId}`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${useAuthStore().access_token}`,
-				},
-				body: JSON.stringify({ role: newRole }),
-			})
-			if (!res.ok) throw new Error('Failed to update user role')
-			const user = this.users.find(p => p.id === userId)
-			if (user) user.role = newRole
-			this.loading = false
-		},
+	const fetchUsers = async () => {
+		loading.value = true
+		const authStore = useAuthStore()
+		const res = await fetch(`${API_URL}/user/allUsers`, {
+			headers: {
+				Authorization: `Bearer ${authStore.access_token}`,
+			},
+		})
+		if (!res.ok) return
+		users.value = await res.json()
+		loading.value = false
+	}
 
-		async deleteUser(userId: number) {
-			this.loading = true
-			const req = await fetch(`${API_URL}/user/delete/${userId}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${useAuthStore().access_token}`,
-				},
-			})
-			if (!req.ok) throw new Error('Failed to delete user')
-			this.users = this.users.filter(u => u.id !== userId)
-			this.loading = false
-		},
+	const updateUserRole = async (userId: number, newRole: Role) => {
+		loading.value = true
+		const res = await fetch(`${API_URL}/user/updateRole/${userId}`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${useAuthStore().access_token}`,
+			},
+			body: JSON.stringify({ role: newRole }),
+		})
+		if (!res.ok) throw new Error('Failed to update user role')
+		const user = users.value.find(p => p.id === userId)
+		if (user) user.role = newRole
+		loading.value = false
+	}
 
-		async searchUsers(query: string) {
-			this.loading = true
-			if (!query) return await this.fetchUsers()
-			const res = await fetch(`${API_URL}/user/search?query=${encodeURIComponent(query)}`, {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${useAuthStore().access_token}`,
-				},
-			})
-			this.users = await res.json()
-			this.loading = false
-		},
-	},
+	const deleteUser = async (userId: number) => {
+		loading.value = true
+		const req = await fetch(`${API_URL}/user/delete/${userId}`, {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${useAuthStore().access_token}`,
+			},
+		})
+		if (!req.ok) throw new Error('Failed to delete user')
+		users.value = users.value.filter(u => u.id !== userId)
+		loading.value = false
+	}
+
+	const searchUsers = async (query: string) => {
+		loading.value = true
+		if (!query) return await fetchUsers()
+		const res = await fetch(`${API_URL}/user/search?query=${encodeURIComponent(query)}`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${useAuthStore().access_token}`,
+			},
+		})
+		users.value = await res.json()
+		loading.value = false
+	}
+
+	return { users, loading, fetchUsers, updateUserRole, deleteUser, searchUsers }
 })
