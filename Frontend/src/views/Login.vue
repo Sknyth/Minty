@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import { useAuthStore } from '../stores/authStore'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 const toast = useToast()
 const authStore = useAuthStore()
@@ -63,37 +63,79 @@ const signIn = async () => {
 
 <style scoped>
 .container {
-  min-height: 70vh;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 12px 150px 12px;
 }
+
 .auth-box {
   width: 400px;
-  margin: auto;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 40px;
+  border-radius: 18px;
 }
+
 .error {
   margin-top: 10px;
 }
+
 .error p {
   padding: 0;
   margin: 0;
 }
 
 input {
-	border: 3px solid rgba(45, 138, 114, 0.2);
-	border-radius: 12px;
-	padding: 8px 10px;
-	font-size: 15px;
-	font-family: inherit;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border: 3px solid rgba(45, 138, 114, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 16px;
 }
+
 input:hover {
-	border-color: var(--color2);
-	box-shadow: 0 0 0 3px rgba(45, 138, 114, 0.12);
+  border-color: var(--color2);
+  box-shadow: 0 0 0 3px rgba(45, 138, 114, 0.12);
 }
+
 input:focus {
-	outline: none;
-	border-color: var(--color2);
-	box-shadow: 0 0 0 3px rgba(45, 138, 114, 0.15);
+  outline: none;
+  border-color: var(--color2);
+  box-shadow: 0 0 0 3px rgba(45, 138, 114, 0.15);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 60px 12px 120px 12px;
+  }
+
+  .auth-box {
+    width: 90%;
+    max-width: 380px;
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 40px 12px 120px 12px;
+  }
+
+  .auth-box {
+    width: 100%;
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+
+  .auth-box h1 {
+    font-size: 24px;
+  }
+
+  input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
 }
 </style>
