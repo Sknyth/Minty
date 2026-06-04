@@ -18,12 +18,12 @@ export declare class AuthController {
     }): Promise<Omit<{
         name: string;
         id: number;
+        created_at: Date;
         email: string;
         password: string;
         surname: string | null;
         phone: string | null;
         role: import(".prisma/client").$Enums.Role;
-        created_at: Date;
         hashedRefreshToken: string | null;
         selectedAddressId: number | null;
         selectedPaymentId: number | null;
