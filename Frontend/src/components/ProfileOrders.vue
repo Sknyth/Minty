@@ -45,32 +45,141 @@ ordersStore.fetchOrders()
 
 <style scoped>
 .order-card {
-    border: 1px solid #c1c1c1;
-    border-radius: 8px;
+  border: 1px solid #c1c1c1;
+  border-radius: 8px;
 }
+
 .status-delivered {
-    background-color: #D4EDDA;
-    color: #155724;
-    padding: 5px 10px;
-    border-radius: 20px;
-    text-transform: capitalize;
+  background-color: #D4EDDA;
+  color: #155724;
+  padding: 5px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
 }
+
 .status-pending {
-    background-color: #FFF3CD;
-    color: #856404;
-    padding: 5px 10px;
-    border-radius: 20px;
-    text-transform: capitalize;
+  background-color: #FFF3CD;
+  color: #856404;
+  padding: 5px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
 }
+
 .status-canceled {
-    background-color: #F8D7DA;
-    color: #721C24;
-    padding: 5px 10px;
-    border-radius: 20px;
-    text-transform: capitalize;
+  background-color: #F8D7DA;
+  color: #721C24;
+  padding: 5px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
 }
+
 .no-orders {
-    padding: 0;
-    margin: 20px 0;
+  padding: 0;
+  margin: 20px 0;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .order-card {
+    padding: 16px 12px !important;
+    flex-wrap: wrap;
+  }
+
+  .order-card h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .order-card p {
+    font-size: 14px;
+  }
+
+  .order-card h5 {
+    font-size: 16px;
+  }
+
+  .status-delivered,
+  .status-pending,
+  .status-canceled {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .order-card {
+    padding: 12px 10px !important;
+    flex-direction: column !important;
+    margin: 12px 0 !important;
+    gap: 10px;
+  }
+
+  .order-card > div {
+    width: 100%;
+  }
+
+  .order-card h4 {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .order-card p {
+    font-size: 13px;
+    margin: 4px 0;
+  }
+
+  .order-card h5 {
+    font-size: 14px;
+    margin: 8px 0 0 0;
+  }
+
+  .status-delivered,
+  .status-pending,
+  .status-canceled {
+    display: inline-block;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .order-card {
+    padding: 10px 8px !important;
+  }
+
+  .order-card h4 {
+    font-size: 14px;
+  }
+
+  .order-card p {
+    font-size: 12px;
+  }
+
+  .order-card h5 {
+    font-size: 13px;
+  }
+
+  .status-delivered,
+  .status-pending,
+  .status-canceled {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
 }
 </style>

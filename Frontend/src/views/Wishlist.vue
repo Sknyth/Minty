@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import WishlistCards from '../components/WishlistCards.vue'
 import { useWishlistStore } from '../stores/wishlistStore'
-import { onMounted } from 'vue'
 
 const wishlistStore = useWishlistStore()
 
@@ -51,6 +51,9 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.container {
+	padding-bottom: 150px;
+}
 .image-container {
 	top: 45%;
 	transform: translateY(-50%);
@@ -67,5 +70,65 @@ onMounted(async () => {
 }
 .button-box {
 	margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+	.container {
+		padding: 0 20px 120px 20px;
+	}
+	.image-container {
+		max-width: 300px;
+	}
+	.text-container {
+		width: 100% !important;
+		margin-top: 100px;
+	}
+	.text-container h1 {
+		font-size: 24px;
+	}
+	.text-container h3 {
+		font-size: 18px;
+	}
+	.text-container p {
+		font-size: 14px;
+		width: 100% !important;
+	}
+}
+
+@media (max-width: 480px) {
+	.container {
+		padding: 0 12px 80px 12px;
+		flex-direction: column;
+		align-items: center !important;
+		justify-content: center !important;
+		min-height: calc(100vh - 300px);
+	}
+	.image-container {
+		display: none !important;
+	}
+	.text-container {
+		width: 100% !important;
+		margin-top: 0;
+	}
+	.text-container h1 {
+		font-size: 20px;
+		line-height: 1.4;
+	}
+	.text-container h3 {
+		font-size: 16px;
+	}
+	.text-container p {
+		font-size: 13px;
+		width: 100% !important;
+	}
+	.button-box {
+		margin-top: 20px;
+		width: 100%;
+	}
+	.button-box a {
+		display: block;
+		padding: 12px;
+		text-align: center;
+	}
 }
 </style>

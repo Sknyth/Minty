@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import { useToast } from "vue-toastification"
 import { useAddressStore } from '../stores/addressStore'
 import type { Address } from '../types'
-import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps({
   componentName: String
@@ -129,7 +129,7 @@ const backAddress = () =>{
             <p class="text-center">You don't have addresses</p>
         </div>
 
-        <div class="row" v-else-if="toggleAddAddress && addressStore.address.length != 0">
+        <div class="row address-cards-container" v-else-if="toggleAddAddress && addressStore.address.length != 0">
             <div 
                 v-for="address in addressStore.address" 
                 :key="address.id" 
@@ -204,47 +204,183 @@ const backAddress = () =>{
 </template>
 
 <style scoped>
+.address-cards-container {
+  gap: 16px;
+  padding: 0 8px;
+}
+
 .address-card {
-    border: 1px solid #c1c1c1;
-    border-radius: 8px;
-    padding: 15px;
-    width: 400px;
-    min-height: 200px;
-    flex: 0 0 auto;
-    cursor: pointer;
+  border: 1px solid #c1c1c1;
+  border-radius: 8px;
+  padding: 15px;
+  width: 400px;
+  min-height: 200px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  margin: 0;
 }
+
 .active-card {
-    border: 2px solid var(--color1);
-    background-color: #f0f7ff;
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+  border: 2px solid var(--color1);
+  background-color: #f0f7ff;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 }
+
 .btn-edit {
-    color: #1584FF;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    margin-right: 10px;
-    transition: background-color 0.3s ease;
+  color: #1584FF;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-right: 10px;
+  transition: background-color 0.3s ease;
 }
+
 .btn-edit:hover {
-    background-color: rgba(21, 132, 255, 0.1);
+  background-color: rgba(21, 132, 255, 0.1);
 }
+
 .btn-delete {
-    color: #dc3545;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+  color: #dc3545;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
+
 .btn-delete:hover {
-    background-color: rgba(220, 53, 69, 0.1);
+  background-color: rgba(220, 53, 69, 0.1);
 }
+
 .add-address input {
-    width: 340px;
-    margin: 0;
-    min-height: 42px;
+  width: 340px;
+  margin: 0;
+  min-height: 42px;
 }
+
 .btn-save {
-    width: 120px;
+  width: 120px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .address-card {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 180px;
+  }
+
+  .add-address {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  .add-address .col {
+    flex: 0 0 100% !important;
+  }
+
+  .add-address input {
+    width: 100%;
+  }
+
+  .btn-save {
+    width: auto;
+    padding: 10px 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .address-card {
+    width: 100%;
+    flex: 1 1 auto;
+    padding: 12px;
+    min-height: 160px;
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .address-card h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .address-card span {
+    font-size: 13px;
+    display: block;
+    margin: 4px 0;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    padding: 6px 8px;
+    font-size: 12px;
+    margin-right: 5px;
+  }
+
+  .add-address {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .add-address .col {
+    flex: 0 0 100% !important;
+  }
+
+  .add-address input {
+    width: 100%;
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .add-address label {
+    font-size: 14px;
+  }
+
+  .btn-save {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .address-card {
+    padding: 10px;
+    min-height: 150px;
+  }
+
+  .address-card h4 {
+    font-size: 14px;
+  }
+
+  .address-card span {
+    font-size: 12px;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  .add-address input {
+    font-size: 13px;
+    padding: 8px 6px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
 }
 </style>

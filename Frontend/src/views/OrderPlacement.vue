@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from "vue-toastification"
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import ProfileAddresses from '../components/ProfileAddresses.vue'
 import ProfilePayments from '../components/ProfilePayments.vue'
 import ProfilePersInfo from '../components/ProfilePersInfo.vue'
-import { useToast } from "vue-toastification"
+import { useAddressStore } from '../stores/addressStore'
+import { useAuthStore } from '../stores/authStore'
 import { useCartStore } from '../stores/cartStore'
 import { useOrdersStore } from '../stores/ordersStore'
-import { useAuthStore } from '../stores/authStore'
 import { usePaymentStore } from '../stores/paymentStore'
-import { useAddressStore } from '../stores/addressStore'
 import type { CartItem, Order } from '../types'
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 
 const toast = useToast()
 const cartStore = useCartStore()
@@ -201,7 +201,7 @@ const handleConfirmOrder = async () => {
 <style scoped>
 .order-page {
 	margin-top: 80px;
-	margin-bottom: 60px;
+	padding-bottom: 150px;
 }
 .order-hero {
 	gap: 40px;
@@ -339,6 +339,12 @@ const handleConfirmOrder = async () => {
 	}
 	.side-panel {
 		flex-direction: column;
+	}
+}
+
+@media (max-width: 480px) {
+	.order-page {
+		padding-bottom: 120px;
 	}
 }
 </style>

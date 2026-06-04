@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { reactive, ref } from 'vue'
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
-import { reactive, ref } from 'vue'
 
 const toast = useToast()
 
@@ -81,31 +81,135 @@ const updatePassword = async () => {
 
 <style scoped>
 .form-change-info {
-    margin-top: 20px;
-}
-.info-box label {
-    font-weight: 500;
-    color: var(--color3);
-}
-.info-box p, .info-box input {
-    width: 340px;
-    padding: 8px 12px;
-    margin: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    min-height: 42px;
-    font-family: inherit;
-}
-.info-box input {
-    border: 1px solid var(--color1);
-}
-.btn-change {
-    color: var(--color1);
-    cursor: pointer;
-    margin-left: 4px;
-}
-.pass-change-box {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
+.info-box label {
+  font-weight: 500;
+  color: var(--color3);
+}
+
+.info-box p,
+.info-box input {
+  width: 340px;
+  padding: 8px 12px;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-height: 42px;
+  font-family: inherit;
+}
+
+.info-box input {
+  border: 1px solid var(--color1);
+}
+
+.btn-change {
+  color: var(--color1);
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.pass-change-box {
+  margin-top: 20px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .form-change-info {
+    margin-top: 15px;
+    gap: 12px !important;
+  }
+
+  .info-box {
+    flex: 0 0 calc(50% - 6px) !important;
+  }
+
+  .info-box p,
+  .info-box input {
+    width: 100%;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-change-info {
+    gap: 12px !important;
+    flex-direction: column !important;
+  }
+
+  .info-box {
+    flex: 0 0 100% !important;
+  }
+
+  .info-box p,
+  .info-box input {
+    width: 100%;
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .info-box label {
+    font-size: 14px;
+  }
+
+  .personal-information {
+    padding: 0 !important;
+  }
+
+  .d-flex.gap-3 {
+    gap: 8px !important;
+    flex-wrap: wrap;
+  }
+
+  .d-flex.gap-3 button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 100px;
+    font-size: 13px;
+    padding: 10px 8px;
+  }
+
+  .pass-change-box {
+    font-size: 14px;
+    flex-wrap: wrap;
+  }
+
+  .pass-change-box .btn-change {
+    margin-left: 2px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .info-box p,
+  .info-box input {
+    font-size: 13px;
+    padding: 8px 6px;
+    min-height: 38px;
+  }
+
+  .info-box label {
+    font-size: 13px;
+  }
+
+  .d-flex.gap-3 button {
+    flex: 0 0 100%;
+    font-size: 12px;
+    padding: 8px 6px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+}
 </style>
