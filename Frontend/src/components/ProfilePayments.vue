@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { useToast } from "vue-toastification"
 import { usePaymentStore } from '../stores/paymentStore'
 import type { PaymentMethod } from '../types'
-import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps ({
     componentName: String
@@ -105,12 +105,12 @@ onMounted(async () => {
 
         <div v-else-if="toggleAddMethod && paymentStore.payment.length != 0">
             
-            <div class="row gap-3 justify-content-start">
+            <div class="row payment-cards-container">
                 <div
                  v-for="method in paymentStore.payment" 
                  :key="method.id" 
                  :class="{ 'active-card': method.id === paymentStore.selectedPaymentId }"
-                 class="col payment-card mb-3 mt-3 d-flex justify-content-between flex-column"
+                 class="payment-card mb-3 mt-3 d-flex justify-content-between flex-column"
                  @click="selectPayment(method.id)"
                  >
                  <div class="d-flex flex-column gap-2">
@@ -159,40 +159,170 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.payment-cards-container {
+  gap: 16px;
+  padding: 0 8px;
+}
+
 .payment-card {
-    border: 1px solid #c1c1c1;
-    border-radius: 8px;
-    padding: 15px;
-    width: 400px;
-    min-height: 200px;
-    flex: 0 0 auto;
-    cursor: pointer;
+  border: 1px solid #c1c1c1;
+  border-radius: 8px;
+  padding: 15px;
+  width: 400px;
+  min-height: 200px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  margin: 0;
 }
+
 .active-card {
-    border: 2px solid var(--color1);
-    background-color: #f0f7ff;
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+  border: 2px solid var(--color1);
+  background-color: #f0f7ff;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
 }
+
 .add-payment-card input {
-    width: 340px;
-    margin: 0;
-    min-height: 42px;
+  width: 340px;
+  margin: 0;
+  min-height: 42px;
 }
+
 #btn-save {
-    width: 100px;
+  width: 100px;
 }
+
 #btn-delete {
-    color: #dc3545;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+  color: #dc3545;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
+
 #btn-delete:hover {
-    background-color: rgba(220, 53, 69, 0.1);
+  background-color: rgba(220, 53, 69, 0.1);
 }
-.no-methods p {
-    padding: 0;
-    margin: 20px 0;
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .payment-card {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 180px;
+  }
+
+  .add-payment-card {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  .add-payment-card .col {
+    flex: 0 0 100% !important;
+  }
+
+  .add-payment-card input {
+    width: 100%;
+  }
+
+  #btn-save {
+    width: auto;
+    padding: 10px 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-card {
+    width: 100%;
+    flex: 1 1 auto;
+    padding: 12px;
+    min-height: 160px;
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .payment-card h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .payment-card p {
+    font-size: 13px;
+    margin: 4px 0;
+  }
+
+  #btn-delete {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .add-payment-card {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .add-payment-card .col {
+    flex: 0 0 100% !important;
+  }
+
+  .add-payment-card input {
+    width: 100%;
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .add-payment-card label {
+    font-size: 14px;
+  }
+
+  #btn-save {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .payment-card {
+    padding: 10px;
+    min-height: 150px;
+  }
+
+  .payment-card h4 {
+    font-size: 14px;
+  }
+
+  .payment-card p {
+    font-size: 12px;
+  }
+
+  #btn-delete {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  .add-payment-card input {
+    font-size: 13px;
+    padding: 8px 6px;
+  }
+
+  #btn-save {
+    font-size: 13px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
 }
 </style>

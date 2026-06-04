@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { useToast } from "vue-toastification"
 import { useAuthStore } from '../stores/authStore'
-import { onMounted, ref } from 'vue'
 
 const props = defineProps({
   componentName: String,
@@ -80,7 +80,9 @@ const updateProfile = async () => {
 .form-change-info {
   margin-top: 20px;
 }
-.info-box p, .info-box input {
+
+.info-box p,
+.info-box input {
   width: 340px;
   padding: 8px 12px;
   margin: 0;
@@ -88,12 +90,95 @@ const updateProfile = async () => {
   border-radius: 4px;
   min-height: 42px;
 }
+
 .info-box input {
   border: 1px solid var(--color1);
 }
+
 .btn-change {
   margin-top: 30px;
   width: 340px;
   border: none;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .form-change-info {
+    margin-top: 15px;
+    gap: 12px !important;
+  }
+
+  .info-box {
+    flex: 0 0 calc(50% - 6px) !important;
+  }
+
+  .info-box p,
+  .info-box input {
+    width: 100%;
+  }
+
+  .btn-change {
+    flex: 0 0 calc(50% - 6px) !important;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-change-info {
+    gap: 10px !important;
+    flex-direction: column !important;
+  }
+
+  .info-box {
+    flex: 0 0 100% !important;
+  }
+
+  .info-box p,
+  .info-box input {
+    width: 100%;
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .info-box label {
+    font-size: 14px;
+  }
+
+  .btn-change {
+    width: 100% !important;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .info-box p,
+  .info-box input {
+    font-size: 13px;
+    padding: 8px 6px;
+    min-height: 38px;
+  }
+
+  .btn-change {
+    font-size: 13px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
 }
 </style>

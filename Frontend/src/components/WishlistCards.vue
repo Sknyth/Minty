@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
-import Card from './Card.vue'
 import type { CartItemInput, Product } from '../types'
-import { computed } from 'vue'
+import Card from './Card.vue'
 
 const toast = useToast()
 const wishlistStore = useWishlistStore()
@@ -85,6 +85,7 @@ const favoriteProducts = computed(() => {
   justify-content: center; 
   gap: 14px;
   margin: 0 auto;
+  padding-bottom: 150px;
 }
 </style>
 

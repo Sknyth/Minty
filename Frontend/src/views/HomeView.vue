@@ -7,6 +7,7 @@ import { useProductsStore } from '../stores/productsStore'
 import { ref } from 'vue'
 
 const productStore = useProductsStore()
+productStore.fetchProducts()
 
 const sortOption = ref<Criteria>('standard')
 

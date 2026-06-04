@@ -51,10 +51,12 @@ export const useAuthStore = defineStore('auth', () => {
         headers: { Authorization: `Bearer ${access_token.value}` },
       })
       if (!res.ok) {
-        error.value = true
+        user.value = null
         return
       }
       user.value = await res.json()
+    } catch {
+      user.value = null
     } finally {
       loading.value = false
     }
@@ -63,16 +65,32 @@ export const useAuthStore = defineStore('auth', () => {
   const refreshToken = async () => {
     const token = localStorage.getItem('refresh_token')
     if (!token) { signOut(); return }
-    const res = await fetch(`${API_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: token }),
-    })
-    if (!res.ok) { signOut(); return }
-    const data = await res.json()
-    if (!data.access_token) { signOut(); return }
-    access_token.value = data.access_token
-    localStorage.setItem('access_token', data.access_token)
+
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: token }),
+      })
+
+      if (!res.ok) { signOut(); return }
+
+      const text = await res.text()
+      if (!text) { signOut(); return }
+
+      const data = JSON.parse(text)
+      if (!data.access_token) { signOut(); return }
+
+      access_token.value = data.access_token
+      localStorage.setItem('access_token', data.access_token)
+
+      if (data.refresh_token) {
+        refresh_token.value = data.refresh_token
+        localStorage.setItem('refresh_token', data.refresh_token)
+      }
+    } catch {
+      signOut()
+    }
   }
 
   const initializeAuth = async () => {

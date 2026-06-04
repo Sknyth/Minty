@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { UserService } from 'src/user/user.service';
+import { Injectable } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import * as bcrypt from 'bcrypt'
+import { UserService } from 'src/user/user.service'
 import { JwtPayload } from './types'
 
 @Injectable()
@@ -62,7 +62,6 @@ export class AuthService {
 			})
 
 			return { access_token: accessToken }
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (e: unknown) {
 			return null
 		}
