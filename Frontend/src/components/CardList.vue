@@ -5,38 +5,53 @@ import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import type { CartItemInput, Product } from '../types'
 import Card from './Card.vue'
+import { watch } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+
 
 const toast = useToast()
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
 const productsStore = useProductsStore()
+const authStore = useAuthStore()
+
+
+watch(
+  () => authStore.user,
+  async (user) => {
+    if (user) await cartStore.fetchCart()
+  },
+  { immediate: true }
+)
 
 const addToCart = async (product: Product) => {
-  try{
+  try {
     const cartProduct: CartItemInput = { 
       product_id: product.id,
-      size: product.sizes[0],
+      size: Number(product.sizes[0]),
       quantity: 1
     }
-    const existingItem = cartStore.isInCart(cartProduct.product_id, cartProduct.size)
-    if(existingItem) {
+
+    const existingItem = cartStore.isInCart(
+      cartProduct.product_id,
+      cartProduct.size
+    )
+
+    if (existingItem) {
       await cartStore.updateQuantity({
         id: existingItem.id,
         quantity: existingItem.quantity + 1
       })
-      toast.success('Product added to your cart!')  
-      return
     } else {
-      await cartStore.addToCart({
-        ...cartProduct     
-      })
-      toast.success('Product added to your cart!')
+      await cartStore.addToCart(cartProduct)
     }
 
-  } catch(e){   
+    toast.success('Product added to your cart!')
+  } catch (e) {   
     toast.error("Error: " + (e as Error).message)
   }
 }
+
 const toggleWishlist = async (productID: number) => {
       try {
         if (wishlistStore.isInWishlist(productID)) {

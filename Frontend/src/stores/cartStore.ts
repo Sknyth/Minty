@@ -12,9 +12,11 @@ export const useCartStore = defineStore('cart', () => {
 	const loading = ref(false)
 	const error = ref(false)
 
-	const isInCart = computed(() => (product_id: number, size: number | undefined) => {
-		return cartItems.value.find((i: CartItem) => i.product_id === product_id && i.size === size)
-	})
+	const isInCart = (product_id: number, size: number | undefined) => {
+		return cartItems.value.find(
+			(i: CartItem) => i.productId === product_id && Number(i.size) === Number(size)
+		)
+	}
 
 	const fetchCart = async () => {
 		loading.value = true
