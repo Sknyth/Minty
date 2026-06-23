@@ -5,17 +5,27 @@ import { useToast } from "vue-toastification"
 import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
+import { useAuthStore } from '../stores/authStore'
 import type { CartItemInput, Product } from '../types'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const toast = useToast()
 const productsStore = useProductsStore()
 const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 const route = useRoute()
 
 const selectedSize = ref<number | null>(null)
+
+watch(
+  () => authStore.user,
+  async (user) => {
+    if (user) await cartStore.fetchCart()
+  },
+  { immediate: true }
+)
 
 const currentItem = computed((): Product => {
   const id = Number(route.params.id)
@@ -30,11 +40,23 @@ const addToCart = async () => {
     return
   }
   try {
-    await cartStore.addToCart({
+    const cartProduct: CartItemInput = {
       product_id: currentItem.value.id,
       size: selectedSize.value,
       quantity: 1
-    } as CartItemInput)
+    }
+
+    const existingItem = cartStore.isInCart(cartProduct.product_id, cartProduct.size)
+
+    if (existingItem) {
+      await cartStore.updateQuantity({
+        id: existingItem.id,
+        quantity: existingItem.quantity + 1
+      })
+    } else {
+      await cartStore.addToCart(cartProduct)
+    }
+
     toast.success("Product added!")
   } catch (e) {
     toast.error("Error: " + (e as Error).message)
@@ -166,6 +188,7 @@ const toggleWishlist = async (productID: number) => {
 }
 .product-wrapper {
   margin-top: 80px;
+  margin-bottom: 80px;
   overflow: hidden;
 }
 
