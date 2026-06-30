@@ -1,33 +1,63 @@
-# Minty
+# Minty — Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Customer-facing e-commerce storefront built with Vue 3, TypeScript, and Pinia.
 
-## Recommended IDE Setup
+## Tech Stack
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Vue 3 (Composition API)
+- TypeScript
+- Pinia (state management)
+- Vue Router
 
-## Type Support for `.vue` Imports in TS
+## Prerequisites
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Node.js 18+
+- Backend API running (see backend README)
 
-## Customize configuration
+## Setup
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+1. Install dependencies
 
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+2. Configure the API URL in `src/api/config.ts`:
 
-```sh
+```ts
+export const API_URL = 'http://localhost:3000'
+```
+
+3. Start the development server
+
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The app will be available at `http://localhost:5173` (or the port shown in your terminal).
 
-```sh
+## Project Structure
+
+- `src/stores` — Pinia stores (auth, cart, products, wishlist, etc.)
+- `src/views` — page-level components
+- `src/components` — reusable UI components
+- `src/router` — route definitions
+- `src/api` — API configuration and request helpers
+- `src/types` — shared TypeScript types
+
+## Features
+
+- Product browsing, search, and filtering
+- Cart with quantity and size selection
+- User authentication (sign in / sign up)
+- Saved addresses and payment methods
+- Order checkout and history
+- Wishlist
+
+## Build for Production
+
+```bash
 npm run build
 ```
+
+Output is generated in the `dist/` folder.
