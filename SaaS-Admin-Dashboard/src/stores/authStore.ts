@@ -39,50 +39,87 @@ export const useAuthStore = defineStore('auth', () => {
 		router.push('/login')
 	}
 
-	const getUser = async () => {
-		if (!access_token.value) return
-		const res = await fetch(`${API_URL}/auth/profile`, {
-			headers: { Authorization: `Bearer ${access_token.value}` },
-		})
-		if (!res.ok) return
-		const data: User = await res.json()
-
-		if (data?.role !== 'admin') {
-			await signOut()
-			throw new Error('You are not an administrator')
-		}
-
-		user.value = data
-		isAuth.value = true
-		router.push('/')
-	}
-
-	const refreshToken = async () => {
+	const refreshToken = async (): Promise<boolean> => {
 		const storedRefreshToken = localStorage.getItem('refresh_token')
 		if (!storedRefreshToken) {
-			signOut()
-			return
+			await signOut()
+			return false
 		}
 
-		const res = await fetch(`${API_URL}/auth/refresh`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ refresh_token: storedRefreshToken }),
-		})
+		try {
+			const res = await fetch(`${API_URL}/auth/refresh`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ refresh_token: storedRefreshToken }),
+			})
 
-		if (!res.ok) {
-			signOut()
-			return
+			if (!res.ok) {
+				await signOut()
+				return false
+			}
+
+			const text = await res.text()
+			if (!text) {
+				await signOut()
+				return false
+			}
+
+			const data = JSON.parse(text)
+			if (!data.access_token) {
+				await signOut()
+				return false
+			}
+
+			access_token.value = data.access_token
+			localStorage.setItem('access_token', data.access_token)
+			return true
+		} catch {
+			await signOut()
+			return false
 		}
+	}
 
-		const data = await res.json()
-		if (!data.access_token) {
-			signOut()
-			return
+	const getUser = async () => {
+		if (!access_token.value) return
+
+		try {
+			let res = await fetch(`${API_URL}/auth/profile`, {
+				headers: { Authorization: `Bearer ${access_token.value}` },
+			})
+
+			if (res.status === 401) {
+				const refreshed = await refreshToken()
+				if (!refreshed) return
+				res = await fetch(`${API_URL}/auth/profile`, {
+					headers: { Authorization: `Bearer ${access_token.value}` },
+				})
+			}
+
+			if (!res.ok) {
+				await signOut()
+				return
+			}
+
+			const text = await res.text()
+			if (!text) {
+				await signOut()
+				return
+			}
+
+			const data: User = JSON.parse(text)
+
+			if (data?.role !== 'admin') {
+				await signOut()
+				throw new Error('You are not an administrator')
+			}
+
+			user.value = data
+			isAuth.value = true
+			router.push('/')
+		} catch (err) {
+			if (err instanceof Error && err.message === 'You are not an administrator') throw err
+			await signOut()
 		}
-
-		access_token.value = data.access_token
-		localStorage.setItem('access_token', data.access_token)
 	}
 
 	const initializeAuth = async () => {
@@ -93,15 +130,14 @@ export const useAuthStore = defineStore('auth', () => {
 		}
 
 		if (!user.value && refresh_token.value) {
-			await refreshToken()
-			if (access_token.value) {
+			const refreshed = await refreshToken()
+			if (refreshed) {
 				await getUser()
 			}
 		}
 
 		if (!user.value) {
-			signOut()
-			return
+			await signOut()
 		}
 	}
 
