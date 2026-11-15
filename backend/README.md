@@ -59,6 +59,21 @@ $ npm run test:cov
 
 ## Deployment
 
+### Render
+
+The repository-root `render.yaml` defines the API service. In Render, create a
+Blueprint from this repository and provide these environment variables when
+prompted:
+
+- `DATABASE_URL`: PostgreSQL connection URL (use the provider's pooled runtime URL if applicable).
+- `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET`: long, random secrets.
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`.
+- `FRONTEND_URLS`: comma-separated exact origins for the deployed storefront
+  and admin app, such as `https://your-store.vercel.app,https://your-admin.vercel.app`.
+
+The build deploys checked-in Prisma migrations before compiling the Nest app.
+Render supplies `PORT`; the server binds to `0.0.0.0`.
+
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
 
 If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:

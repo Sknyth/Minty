@@ -62,7 +62,7 @@ export class AuthService {
 			})
 
 			return { access_token: accessToken }
-		} catch (e: unknown) {
+		} catch {
 			return null
 		}
 	}
