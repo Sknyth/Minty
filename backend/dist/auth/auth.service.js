@@ -94,7 +94,7 @@ let AuthService = class AuthService {
             });
             return { access_token: accessToken };
         }
-        catch (e) {
+        catch {
             return null;
         }
     }

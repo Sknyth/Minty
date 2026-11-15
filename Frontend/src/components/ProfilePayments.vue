@@ -99,11 +99,7 @@ onMounted(async () => {
             <p class="text-center">Something went wrong 😕</p>
         </div>
 
-        <div v-else-if="!paymentStore.payment.length">
-            <p class="text-center">You don't have orders</p>
-        </div>
-
-        <div v-else-if="toggleAddMethod && paymentStore.payment.length != 0">
+        <div v-else-if="paymentStore.payment.length && toggleAddMethod">
             
             <div class="row payment-cards-container">
                 <div
@@ -150,7 +146,7 @@ onMounted(async () => {
         </div>
         
         <div class="d-flex justify-content-end">
-            <button @click="toggleAddMethod = !toggleAddMethod" v-if="toggleAddMethod" class="button-color1 mt-3 ">+ Add payment method</button>
+            <button @click="toggleAddMethod = !toggleAddMethod" v-if="paymentStore.payment.length && toggleAddMethod" class="button-color1 mt-3 ">+ Add payment method</button>
         </div>
         
         
