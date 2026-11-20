@@ -22,6 +22,11 @@ const routes = [
 const router = createRouter({
 	history: createWebHistory(),
 	routes,
+	scrollBehavior(to, from, savedPosition) {
+		if (savedPosition) return savedPosition
+		if (to.hash && (to.path !== from.path || to.hash !== from.hash)) return { el: to.hash }
+		if (to.path !== from.path) return { top: 0 }
+	},
 })
 
 router.beforeEach((to, from, next) => {

@@ -7,54 +7,35 @@ export const useProductsStore = defineStore('products', () => {
 	const products = ref<Product[]>([])
 	const loading = ref(true)
 	const error = ref(false)
+	let activeRequest: AbortController | undefined
 
-	const fetchProducts = async () => {
+	const loadProducts = async (path = '') => {
+		activeRequest?.abort()
+		const request = new AbortController()
+		activeRequest = request
 		loading.value = true
 		error.value = false
+
 		try {
-			const res = await fetch(`${API_URL}`)
-			if (!res.ok) {
-				error.value = true
-				return
-			}
-			products.value = await res.json()
+			const response = await fetch(`${API_URL}${path}`, { signal: request.signal })
+			if (!response.ok) throw new Error('Unable to load products')
+
+			const results: Product[] = await response.json()
+			if (activeRequest === request) products.value = results
+		} catch {
+			if (activeRequest === request) error.value = true
 		} finally {
-			loading.value = false
+			if (activeRequest === request) {
+				activeRequest = undefined
+				loading.value = false
+			}
 		}
 	}
 
-	const searchProducts = async (query: string) => {
-		loading.value = true
-		error.value = false
-		try {
-			if (!query) return await fetchProducts()
-
-			const res = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`)
-			if (!res.ok) {
-				error.value = true
-				products.value = []
-				return
-			}
-			products.value = await res.json()
-		} finally {
-			loading.value = false
-		}
-	}
-
-	const sortProducts = async (criteria: Criteria) => {
-		loading.value = true
-		error.value = false
-		try {
-			const res = await fetch(`${API_URL}/sort?criteria=${encodeURIComponent(criteria)}`)
-			if (!res.ok) {
-				error.value = true
-				return
-			}
-			products.value = await res.json()
-		} finally {
-			loading.value = false
-		}
-	}
+	const fetchProducts = () => loadProducts()
+	const searchProducts = (query: string) =>
+		query ? loadProducts(`/search?query=${encodeURIComponent(query)}`) : fetchProducts()
+	const sortProducts = (criteria: Criteria) => loadProducts(`/sort?criteria=${encodeURIComponent(criteria)}`)
 
 	return {
 		products,

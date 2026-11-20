@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useProductActions } from '../composables/useProductActions'
 import Footer from '../components/Footer.vue'
 import Header from '../components/Header.vue'
 import { useToast } from "vue-toastification"
@@ -6,7 +7,7 @@ import { useCartStore } from '../stores/cartStore'
 import { useProductsStore } from '../stores/productsStore'
 import { useWishlistStore } from '../stores/wishlistStore'
 import { useAuthStore } from '../stores/authStore'
-import type { CartItemInput, Product } from '../types'
+import type { Product } from '../types'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -16,6 +17,7 @@ const wishlistStore = useWishlistStore()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
 const route = useRoute()
+const { addProductToCart, toggleWishlist } = useProductActions()
 
 const selectedSize = ref<number | null>(null)
 
@@ -34,51 +36,17 @@ const currentItem = computed((): Product => {
 
 const isInWishlist = computed(() => wishlistStore.isInWishlist(currentItem.value.id))
 
-const addToCart = async () => {
+const addToCart = () => {
   if (!selectedSize.value) {
-    toast.warning("Please select a size")
+    toast.warning('Please select a size')
     return
   }
-  try {
-    const cartProduct: CartItemInput = {
-      product_id: currentItem.value.id,
-      size: selectedSize.value,
-      quantity: 1
-    }
 
-    const existingItem = cartStore.isInCart(cartProduct.product_id, cartProduct.size)
-
-    if (existingItem) {
-      await cartStore.updateQuantity({
-        id: existingItem.id,
-        quantity: existingItem.quantity + 1
-      })
-    } else {
-      await cartStore.addToCart(cartProduct)
-    }
-
-    toast.success("Product added!")
-  } catch (e) {
-    toast.error("Error: " + (e as Error).message)
-  }
+  return addProductToCart(currentItem.value.id, selectedSize.value, 'Product added!')
 }
 
 const selectSize = (size: number) => {
   selectedSize.value = size
-}
-
-const toggleWishlist = async (productID: number) => {
-  try {
-    if (wishlistStore.isInWishlist(productID)) {
-      await wishlistStore.deleteFromWishlist(productID)
-      toast.success('Product removed from wishlist!')
-    } else {
-      await wishlistStore.addToWishlist(productID)
-      toast.success('Product added to your wishlist!')
-    }
-  } catch (e) {
-    toast.error("Error: " + (e as Error).message)
-  }
 }
 </script>
 

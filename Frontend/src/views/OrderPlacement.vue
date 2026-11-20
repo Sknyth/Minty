@@ -9,10 +9,10 @@ import ProfilePayments from '../components/ProfilePayments.vue'
 import ProfilePersInfo from '../components/ProfilePersInfo.vue'
 import { useAddressStore } from '../stores/addressStore'
 import { useAuthStore } from '../stores/authStore'
-import { useCartStore } from '../stores/cartStore'
+import { CART_DELIVERY_FEE, useCartStore } from '../stores/cartStore'
 import { useOrdersStore } from '../stores/ordersStore'
 import { usePaymentStore } from '../stores/paymentStore'
-import type { CartItem, Order } from '../types'
+import type { Order } from '../types'
 
 const toast = useToast()
 const cartStore = useCartStore()
@@ -29,10 +29,10 @@ addressStore.fetchAddress()
 const currentPaymentId = computed((): number | null => paymentStore.selectedPaymentId)
 const currentAddressId = computed((): number | null => addressStore.selectedAddressId)
 
-const totalWithDelivery = computed((): number =>
-  cartStore.cartItems.reduce(
-    (total: number, item: CartItem) => total + (item.product.price * item.quantity), 0) + 12
+const subtotal = computed(() =>
+  cartStore.cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0)
 )
+const totalWithDelivery = computed(() => subtotal.value + CART_DELIVERY_FEE)
 
 const handleConfirmOrder = async () => {
   try {
@@ -94,16 +94,16 @@ const handleConfirmOrder = async () => {
 					<h3 class="fw-bold">Order summary</h3>
 					<div class="summary-row d-flex justify-content-between">
 						<p>Items</p>
-							<p>${{ cartStore.cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0) }}</p>				
-						</div>
+						<p>${{ subtotal }}</p>
+					</div>
 					<div class="summary-row d-flex justify-content-between">
 						<p>Delivery</p>
-						<p>$12</p>
+						<p>${{ CART_DELIVERY_FEE }}</p>
 					</div>
 					<hr class="color2" />
 					<div class="summary-total d-flex justify-content-between align-items-center">
 						<h4 class="fw-bold">Total</h4>
-						<span class=" fw-bold">${{ cartStore.cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0) + 12 }}</span>
+						<span class=" fw-bold">${{ totalWithDelivery }}</span>
 					</div>
 					<button @click="handleConfirmOrder" class="bg-color2 color1 summary-btn">Confirm order</button>
 				</div>

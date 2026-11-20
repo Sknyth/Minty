@@ -1,150 +1,75 @@
 <template>
-	<footer class="footer">
-		<section class="bg-color1 footer-section-top">
-			<div class="container d-flex align-items-center">
-				<RouterLink to="/" class="logo text-decoration-none color2"
-					>Minty</RouterLink
-				>
+  <footer class="store-footer">
+    <div class="store-shell">
+      <div class="footer-main">
+        <RouterLink to="/" class="store-brand" aria-label="Minty home">
+          <span class="brand-mark"><i class="bi bi-leaf-fill" aria-hidden="true"></i></span>
+          Minty
+        </RouterLink>
 
-				<div class="info-boxes d-flex justify-content-between align-items-center flex-wrap ">
-					<ul class="list-unstyled align-items-center d-flex flex-column fw-bold gap-3">
-						<li>
-							<a class="text-decoration-none color2" href="#">+3730000000</a>
-						</li>
-						<li>
-							<a
-								class="text-decoration-none color2"
-								href="mailto:iulianrusu29@gmail.com"
-								>iulianrusu29@gmail.com</a
-							>
-						</li>
-					</ul>
-
-					<ul class="list-unstyled align-items-center d-flex flex-column fw-bold gap-3">
-						<li>
-							<a
-								class="text-decoration-none color2"
-								target="_blank"
-								href="https://vuejs.org/"
-								>vuejs.org</a
-							>
-						</li>
-						<li>
-							<a
-								class="text-decoration-none color2"
-								target="_blank"
-								href="https://getbootstrap.com/"
-								>bootstrap.com</a
-							>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</section>
-		<section class="footer-section-bottom">
-			<div class="container align-items-center justify-content-between d-flex flex-wrap">
-				<p class="text-white-50 copyright">
-					Copyright @2026 Minty. All Rights Reserved By *******
-				</p>
-
-				<div class="d-flex array-policy gap-3 justify-content-end align-items-center">
-					<a class="text-decoration-none text-white-50" href="#"
-						>Privacy Policy</a
-					>
-					<a class="text-decoration-none text-white-50" href="#"
-						>Terms of Use</a
-					>
-				</div>
-			</div>
-		</section>
-	</footer>
+        <nav aria-label="Footer navigation">
+          <RouterLink to="/">Shop</RouterLink>
+          <RouterLink to="/wishlist">Wishlist</RouterLink>
+          <RouterLink to="/cart">Cart</RouterLink>
+          <a href="mailto:iulianrusu29@gmail.com">Contact</a>
+        </nav>
+      </div>
+      <small class="footer-note">© {{ new Date().getFullYear() }} Minty</small>
+    </div>
+  </footer>
 </template>
 
 <style scoped>
-.footer {
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-}
-.info-boxes {
-    margin-left: auto;
-    gap: 60px;
-}
-p {
-	padding: 0;
-	margin: 0;
-}
-.footer-section-top {
-	padding: 12px 0;
-}
-.footer-section-bottom {
-	background-color: #242c39;
-	padding: 10px 0;
-}
-@media (max-width: 991px) {
-	.array-policy, .copyright {
-		justify-content: center !important;
-		text-align: center !important;
-		align-items: center !important;
-	}
-	.footer-section-bottom .container {
-    justify-content: center !important;
-    gap: 8px;
-  }
-	.footer-section-top .container {
-        justify-content: center !important;
-    }
-    .info-boxes {
-        justify-content: center;
-    }
+.store-footer {
+  margin-top: auto;
+  padding-block: 24px 16px;
+  background: var(--minty-ink);
+  color: white;
 }
 
-@media (max-width: 768px) {
-	.footer-section-top {
-		padding: 20px 0;
-	}
-	.info-boxes {
-		gap: 40px;
-		margin-left: 0;
-		margin-top: 15px;
-	}
-	.logo {
-		font-size: 20px;
-	}
+.store-footer .store-brand {
+  color: white;
 }
 
-@media (max-width: 480px) {
-	.footer-section-top,
-	.footer-section-bottom {
-		padding: 15px 0;
-	}
-	.info-boxes {
-		gap: 20px;
-		flex-direction: column;
-	}
-	.info-boxes ul {
-		flex-direction: row !important;
-		gap: 12px !important;
-	}
-	.info-boxes ul li {
-		font-size: 12px;
-	}
-	.footer-section-top .container {
-		flex-direction: column;
-	}
-	.logo {
-		font-size: 18px;
-		margin-bottom: 10px;
-	}
-	.copyright,
-	.array-policy {
-		font-size: 12px;
-	}
-	.array-policy {
-		gap: 8px !important;
-	}
-	.array-policy a {
-		white-space: nowrap;
-	}
+.store-footer .brand-mark {
+  background: var(--color2);
+  color: var(--minty-ink);
+}
+
+.footer-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-bottom: 20px;
+}
+
+.footer-main nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+}
+
+.footer-main nav a {
+  color: #ecf3eb;
+  font-size: 0.9rem;
+  font-weight: 550;
+}
+
+.footer-main nav a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.footer-note {
+  display: block;
+  padding-top: 14px;
+  border-top: 1px solid #ffffff33;
+  color: #c4d1c6;
+}
+
+.store-footer :focus-visible {
+  outline-color: var(--color2);
 }
 </style>

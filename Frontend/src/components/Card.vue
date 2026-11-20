@@ -1,201 +1,213 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useWishlistStore } from '../stores/wishlistStore'
-import { computed, type PropType } from 'vue'
 
-const props = defineProps({
-    image_url: {
-      type: String as PropType<string | null>,
-      default: null,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    price: {
-      type: Number,
-      required: true
-    },
-    id: {
-      type: Number,
-      required: true
-    }
-  })
+const props = defineProps<{
+  image_url: string | null
+  name: string
+  price: number
+  id: number
+}>()
+
+const emit = defineEmits<{
+  'add-to-cart': []
+  'toggle-wishlist': [id: number]
+}>()
 
 const wishlistStore = useWishlistStore()
-
-const isInWishlist = computed(() => wishlistStore.isInWishlist(props.id)) 
-
-const emit = defineEmits(['add-to-cart', 'toggle-wishlist'])
-
-const addToCart = () => {
-  emit('add-to-cart', props.name, props.price, props.image_url)
-}
-const toggleWishlist = () => {
-  emit('toggle-wishlist', props.id)
-}
+const isInWishlist = computed(() => wishlistStore.isInWishlist(props.id))
+const failedImage = ref<string | null>(null)
+const formatPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 </script>
 
 <template>
-  <div class="product-card">
-    <button class="wishlist-btn" @click="toggleWishlist">
-      <i :class="isInWishlist ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i>
+  <article class="product-card">
+    <RouterLink :to="{ name: 'Item', params: { id } }" class="product-link">
+      <div class="product-image">
+        <img
+          v-if="image_url && image_url !== failedImage"
+          :src="image_url"
+          alt=""
+          loading="lazy"
+          decoding="async"
+          @error="failedImage = image_url"
+        />
+        <i v-else class="bi bi-image" aria-hidden="true"></i>
+      </div>
+      <h3>{{ name }}</h3>
+    </RouterLink>
+
+    <button
+      type="button"
+      class="wishlist-btn"
+      :class="{ saved: isInWishlist }"
+      :aria-pressed="isInWishlist"
+      :aria-label="`Save ${name} to wishlist`"
+      @click="emit('toggle-wishlist', id)"
+    >
+      <i :class="isInWishlist ? 'bi bi-heart-fill' : 'bi bi-heart'" aria-hidden="true"></i>
     </button>
 
-    <router-link :to="{ name: 'Item', params: { id: id } }" class="card-link">
-      <div class="image-container">
-        <img :src="image_url ?? undefined" class="item-img" :alt="name" />
-        <div class="view-tag">View Item</div>
-      </div>
-      
-      <div class="card-content">
-        <h5 class="item-title">{{ name }}</h5>
-        <p class="item-price color1">${{ price }}</p>
-      </div>
-    </router-link>
-
-    <button @click="addToCart" class="button-color1 add-to-cart-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z"/>
-        <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/>
-      </svg>
-      Add to cart
-    </button>
-  </div>
+    <div class="product-actions">
+      <p class="item-price">{{ formatPrice.format(price) }}</p>
+      <button
+        type="button"
+        class="add-to-cart-btn"
+        :aria-label="`Add ${name} to cart`"
+        @click="emit('add-to-cart')"
+      >
+        <i class="bi bi-bag-plus" aria-hidden="true"></i>
+        <span>Add to cart</span>
+      </button>
+    </div>
+  </article>
 </template>
 
 <style scoped>
+.product-card {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--minty-line);
+  border-radius: 18px;
+  background: white;
+  padding: 8px;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.product-card:focus-within,
+.product-card:hover {
+  border-color: #a6baaa;
+  box-shadow: 0 12px 30px #182c2010;
+}
+
+.product-link {
+  display: block;
+  border-radius: 12px;
+  color: var(--minty-ink);
+}
+
+.product-link h3 {
+  margin: 14px 8px 7px;
+  font-size: clamp(0.96rem, 1.5vw, 1.13rem);
+  font-weight: 650;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.product-link:hover h3 {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.product-image {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.12;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #ecf0e9;
+  color: var(--minty-muted);
+  font-size: 1.8rem;
+}
+
+.product-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 60%;
+  transition: transform 240ms ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.04);
+}
+
 .wishlist-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 15;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--minty-line);
+  border-radius: 100%;
   background: white;
-  border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  color: var(--minty-ink);
 }
 
 .wishlist-btn:hover {
-  transform: scale(1.1);
+  background: var(--color2);
 }
 
-.wishlist-btn i {
-  font-size: 18px;
-  display: flex;
+.wishlist-btn.saved {
+  color: #a13e50;
 }
 
-.product-card {
-  position: relative;
-  background: #ffffff;
-  border: 1px solid rgba(134, 134, 149, 0.15);
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 8px 30px rgba(134, 134, 149, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 230px;
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
-}
-
-.product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(45, 138, 114, 0.15);
-  border-color: var(--color1);
-}
-
-.card-link {
-  display: block;
-  text-decoration: none;
-  margin-bottom: 12px;
-}
-
-.image-container {
-  width: 100%;
-  height: 220px;
-  background-color: #fcfcfc;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
+.product-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.item-img {
-  max-width: 90%;
-  max-height: 90%;
-  object-fit: contain;
-  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.product-card:hover .item-img {
-  transform: scale(1.15) rotate(-3deg);
-}
-
-.view-tag {
-  position: absolute;
-  bottom: -40px;
-  left: 0;
-  width: 100%;
-  background: var(--color1);
-  color: var(--color2);
-  text-align: center;
-  padding: 8px 0;
-  font-size: 14px;
-  font-weight: 600;
-  transition: bottom 0.3s ease;
-}
-
-.product-card:hover .view-tag {
-  bottom: 0;
-}
-
-.card-content {
-  padding: 8px 4px;
-}
-
-.item-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-top: auto;
+  padding: 0 8px 8px;
 }
 
 .item-price {
-  font-size: 1.2rem;
-  font-weight: 700;
   margin: 0;
+  color: var(--color1);
+  font-size: 1.04rem;
+  font-weight: 700;
 }
 
 .add-to-cart-btn {
-  width: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px;
-  margin-top: auto;
-  border-radius: 12px;
-  font-size: 15px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 100px;
+  background: #edf3e7;
+  color: var(--color1);
+  font-size: 0.84rem;
+  font-weight: 650;
+  transition: background 160ms ease, color 160ms ease;
 }
 
-.add-to-cart-btn svg {
-  transition: transform 0.3s ease;
+.add-to-cart-btn:hover {
+  background: var(--color1);
+  color: white;
 }
 
-.add-to-cart-btn:hover svg {
-  transform: rotate(90deg);
+@media (max-width: 540px) {
+  .product-card {
+    padding: 6px;
+    border-radius: 14px;
+  }
+
+  .product-image {
+    border-radius: 9px;
+  }
+
+  .wishlist-btn {
+    top: 10px;
+    right: 10px;
+  }
+
+  .product-actions {
+    padding-inline: 6px;
+  }
+
+  .add-to-cart-btn {
+    width: 100%;
+  }
 }
 </style>

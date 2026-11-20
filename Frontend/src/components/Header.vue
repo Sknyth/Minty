@@ -1,91 +1,189 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
-import { useProductsStore } from '../stores/productsStore'
-
 
 const authStore = useAuthStore()
-const productsStore = useProductsStore()
+const route = useRoute()
+const router = useRouter()
 
-const searchQuery = ref('')		
+const routeQuery = computed(() => typeof route.query.q === 'string' ? route.query.q : '')
+const searchQuery = ref(routeQuery.value)
+const catalogQuery = () => {
+  const query = searchQuery.value.trim()
+  return query ? { q: query } : {}
+}
 
+watch(routeQuery, (query) => {
+  if (searchQuery.value.trim() !== query) searchQuery.value = query
+})
+
+const searchCatalog = (event: Event) => {
+  if (route.name !== 'HomeView' || (event as InputEvent).isComposing) return
+
+  searchQuery.value = (event.target as HTMLInputElement).value
+  return submitSearch()
+}
+
+const submitSearch = () => {
+  const destination = { name: 'HomeView', query: catalogQuery() }
+  if (route.name === 'HomeView') {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    return router.replace(destination)
+  }
+
+  return router.push(destination)
+}
 </script>
 
 <template>
-	<header class="header bg-color1">
-		<div class="container d-flex align-items-center justify-content-between">
-			<RouterLink to="/" class="logo text-decoration-none color2"
-				>Minty</RouterLink
-			>
+  <header class="store-header" :class="{ 'catalog-header': route.name === 'HomeView' }">
+    <div class="store-shell header-layout">
+      <RouterLink to="/" class="store-brand" aria-label="Minty home">
+        <span class="brand-mark"><i class="bi bi-leaf-fill" aria-hidden="true"></i></span>
+        Minty
+      </RouterLink>
 
-			<div class="search-box">
-				<input type="text" placeholder="Search..." v-model="searchQuery" @keyup="productsStore.searchProducts(searchQuery)"/>
-			</div>
+      <form class="store-search" role="search" @submit.prevent="submitSearch">
+        <button type="submit" aria-label="Search catalog">
+          <i class="bi bi-search" aria-hidden="true"></i>
+        </button>
+        <input
+          v-model="searchQuery"
+          name="q"
+          type="search"
+          aria-label="Search sneakers"
+          placeholder="Search sneakers"
+          @input="searchCatalog"
+        />
+      </form>
 
-			<div class="social-links">
-				<RouterLink to="/wishlist">
-					<img src="/favorite(heart).svg" alt=""/>
-				</RouterLink>
-
-				<RouterLink v-if="!authStore.user" to="/login"><img src="/login.svg" alt="" /></RouterLink>
-				<RouterLink v-else to="/profile"><img src="/login.svg" alt="" /></RouterLink>
-
-				<RouterLink to="/cart"><img src="/cart.svg" alt="" /></RouterLink>
-			</div>
-		</div>
-	</header>
+      <nav class="header-actions" aria-label="Store navigation">
+        <RouterLink to="/wishlist" aria-label="Wishlist" title="Wishlist">
+          <i class="bi bi-heart" aria-hidden="true"></i>
+        </RouterLink>
+        <RouterLink
+          :to="authStore.user ? '/profile' : '/login'"
+          :aria-label="authStore.user ? 'Profile' : 'Sign in'"
+          :title="authStore.user ? 'Profile' : 'Sign in'"
+        >
+          <i class="bi bi-person" aria-hidden="true"></i>
+        </RouterLink>
+        <RouterLink to="/cart" aria-label="Cart" title="Cart">
+          <i class="bi bi-bag" aria-hidden="true"></i>
+        </RouterLink>
+      </nav>
+    </div>
+  </header>
 </template>
 
 <style scoped>
-.header {
-	height: 84px;
-	padding: 12px 0;
-}
-.search-box input {
-	width: 600px;
-	height: 40px;
-	padding: 4px 8px;
-	border: 2px solid var(--color2);
-	border-radius: 5px;
-	outline: none;
+.store-header {
+  background: white;
+  border-bottom: 1px solid var(--minty-line);
 }
 
-.search-box button {
-	background-color: var(--color2);
-	color: var(--color1);
-	border: 2px solid var(--color2);
-	border-radius: 0 5px 5px 0;
-	padding: 0 16px;
-	height: 40px;
-	transition: 0.3s all ease;
+.catalog-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
-.search-box button:hover {
-	opacity: 0.8;
+
+.header-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(190px, 420px) 1fr;
+  align-items: center;
+  min-height: 74px;
+  gap: 20px;
 }
-.social-links {
-	display: flex;
-	gap: 25px;
+
+.store-search {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--minty-line);
+  border-radius: 100px;
+  background: var(--minty-paper);
 }
-.social-links img:hover {
-	opacity: 0.8;
+
+.store-search:focus-within {
+  outline: 2px solid var(--color1);
+  outline-offset: 2px;
 }
-@media (max-width: 1000px) {
-	.search-box input {
-		width: 300px;
-	}
+
+.store-search button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  min-height: 42px;
+  border: 0;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--color1);
 }
-@media (max-width: 768px) {
-	.header {
-		height: auto;
-		padding: 12px;
-	}
-	.container {
-		flex-direction: column;
-		gap: 12px;
-		padding: 12px;
-	}
-	.search-box input {
-		width: 260px;
-	}
+
+.store-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 14px 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--minty-ink);
+  box-shadow: none;
+}
+
+.store-search input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.store-search input::placeholder {
+  color: var(--minty-muted);
+}
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.header-actions a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--minty-line);
+  border-radius: 50%;
+  color: var(--minty-ink);
+  font-size: 1.16rem;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.header-actions a:hover,
+.header-actions a.router-link-exact-active {
+  border-color: var(--color2);
+  background: var(--color2);
+}
+
+@media (max-width: 680px) {
+  .catalog-header {
+    /* Keep the search row visible once the brand and navigation scroll away. */
+    top: -56px;
+  }
+
+  .header-layout {
+    grid-template-columns: 1fr auto;
+    gap: 10px 12px;
+    padding-block: 10px 12px;
+  }
+
+  .store-search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 360px) {
+  .header-actions {
+    gap: 4px;
+  }
 }
 </style>
