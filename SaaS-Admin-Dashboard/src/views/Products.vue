@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
-import ModalAddProduct from '../components/ModalAddProduct.vue'
-import ModalEditProduct from '../components/ModalEditProduct.vue'
+import ProductModal from '../components/ProductModal.vue'
 import NavBar from '../components/NavBar.vue'
 import { useProductsStore } from '../stores/productStore'
 
@@ -39,7 +38,7 @@ const handleDeleteProduct = async (productId: number) => {
 
       <div class="header-end d-flex col-lg gap-3">
         <div>
-          <ModalAddProduct />
+          <ProductModal />
         </div>
         <div class="stats-mini d-flex">
           <span class="text-muted">Total records:</span>
@@ -91,7 +90,7 @@ const handleDeleteProduct = async (productId: number) => {
               </td>
               <td class="px-4 py-3 small">
                 <div class="modalEditProduct">
-                  <ModalEditProduct :product="product" />
+                  <ProductModal :product="product" />
                 </div>
                 <button class="btn btn-sm btn-outline-danger" @click="handleDeleteProduct(product.id)">Delete</button>
               </td>

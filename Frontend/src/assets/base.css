@@ -6,15 +6,14 @@
 	font-weight: normal;
 }
 
-html {
-	position: relative;
-	min-height: 100%;
-}
-
 :root {
-	--color1: #2d8a72;
-	--color2: #ffe4b5; /*8A2BE2 , */
-	--color3: #868695;
+	--color1: #23563e;
+	--color2: #e3efc9;
+	--color3: #57665f;
+	--minty-ink: #142b22;
+	--minty-muted: #52655b;
+	--minty-paper: #f7f8f3;
+	--minty-line: #dce4db;
 }
 
 /* base styles */
@@ -23,11 +22,32 @@ body {
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	font-family: 'Jost', sans-serif;
-	padding-bottom: 165px;
+	font-family: 'Jost', system-ui, sans-serif;
+	background: var(--minty-paper);
+	color: var(--minty-ink);
 }
 button {
 	cursor: pointer;
+}
+
+#app > :has(> .store-footer) {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color1);
+	outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
 }
 
 /* Shared panel style */

@@ -24,7 +24,6 @@ export const useAuthStore = defineStore('auth', () => {
     })
     if (!req.ok) throw new Error('Failed to create user')
     await signIn({ email, password })
-    router.push('/profile')
   }
 
   const signIn = async ({ email, password }: { email: string, password: string }) => {
@@ -33,13 +32,32 @@ export const useAuthStore = defineStore('auth', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     })
-    if (!req.ok) throw new Error('Failed to sign in')
-    const data = await req.json()
+    if (req.status === 401) throw new Error('Incorrect email or password')
+    if (!req.ok) throw new Error('Couldn’t sign in. Please try again.')
+
+    const body = await req.text()
+    // Older API builds return an empty 200 response when credentials are rejected.
+    if (!body.trim()) throw new Error('Incorrect email or password')
+
+    let data: { access_token?: unknown; refresh_token?: unknown } | null
+    try {
+      data = JSON.parse(body)
+    } catch {
+      throw new Error('Couldn’t sign in. Please try again.')
+    }
+    if (typeof data?.access_token !== 'string' || !data.access_token ||
+        typeof data.refresh_token !== 'string' || !data.refresh_token) {
+      throw new Error('Couldn’t sign in. Please try again.')
+    }
     access_token.value = data.access_token
     refresh_token.value = data.refresh_token
     localStorage.setItem('access_token', data.access_token)
     localStorage.setItem('refresh_token', data.refresh_token)
     await getUser()
+    if (!user.value) {
+      await signOut()
+      throw new Error('Couldn’t load your profile. Please try signing in again.')
+    }
   }
 
   const getUser = async () => {

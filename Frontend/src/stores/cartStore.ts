@@ -4,6 +4,8 @@ import { useAuthStore } from './authStore'
 import type { CartItem, CartItemInput, CartItemUpdate } from '@/types'
 import { API_URL } from '@/api/config'
 
+export const CART_DELIVERY_FEE = 12
+
 export const useCartStore = defineStore('cart', () => {
 	const cartItems = ref<CartItem[]>([])
 	const cartTotal = ref(0)
